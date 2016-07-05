@@ -1,4 +1,5 @@
 
+import callpkg.*;
 
 class Dog {
     private String name;
@@ -42,12 +43,14 @@ class Demo {
 public class tstpriv {
     public static void main(String args[]) {
         Dog mydog = new Dog("jim", 3);
-        Demo obj = new Demo();
-        obj.test();
-        obj.test(2);
-        obj.test(2, 3);
-        obj.test(2.0);
+        Demo objs = new Demo();
+        ObjectName objc = new ObjectName("cc");
+        objs.test();
+        objs.test(2);
+        objs.test(2, 3);
+        objs.test(2.0);
         System.out.printf("mydog %s age %d\n", mydog.Name(), mydog.Age());
+        System.out.printf("object %s\n",objc.Name());
         return;
     }
 }
