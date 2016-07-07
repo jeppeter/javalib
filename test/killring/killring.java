@@ -1,36 +1,48 @@
 import java.util.*;
 
 public class killring {
-	private static int[] GetRing(int num,int leftnum) {
-		int[] tmpring,kring;
+	private static void DebugRing(List<Integer> l) {
 		int i;
-		int curnum=num;
-		kring = new int[curnum];
-		for (i=0;i<num;i++){
-			kring[i] = (i+1);
+		System.out.println("size " + l.size());
+		for (i = 0; i < l.size(); i++) {
+			System.out.println(i + "=" + l.get(i));
 		}
 
-		while(curnum > leftnum) {
-			if ((curnum % 2) == 0) {
-				tmpring = new int[curnum/2];
-			} else {
-				tmpring = new int[(curnum/2)+1];
-			}
-			for (i=0;i<curnum;i++){
-				if ((i%2) == 0 ) {
-					tmpring[i/2] = kring[i];
+	}
+	private static int[] GetRing(int num, int leftnum) {
+		List<Integer> kring = new ArrayList<Integer>();
+		List<Integer> tmpring = new ArrayList<Integer>();
+		int i;
+		int curnum = num;
+		int[] getinte;
+		int[] retnums = null;
+		for (i = 0; i < num; i++) {
+			kring.add((i + 1));
+		}
+
+		while (curnum > leftnum) {
+			tmpring.clear();
+			for (i = 0; i < kring.size() ; i ++) {
+				if ((i % 2) == 0) {
+					tmpring.add(kring.get(i));
 				}
 			}
 
-			kring = tmpring;
-			curnum = kring.length;
+			kring = new ArrayList<Integer>(tmpring);
+			curnum = kring.size();
 		}
 
-		return kring;
+		retnums = new int[kring.size()];
+
+		for (i = 0; i < kring.size(); i++) {
+			retnums[i] = kring.get(i).intValue();
+		}
+
+		return retnums;
 	}
-	public static void main(String args[]){
+	public static void main(String args[]) {
 		int[] leftarr;
-		int number,leftnum=2;
+		int number, leftnum = 2;
 		int i;
 		if (args.length < 1) {
 			System.err.printf("killring num\n");
@@ -42,11 +54,11 @@ public class killring {
 			leftnum = Integer.parseInt(args[1]);
 		}
 
-		leftarr = GetRing(number,leftnum);
+		leftarr = GetRing(number, leftnum);
 		if (leftarr != null) {
 			i = 0;
-			for (i=0;i<leftarr.length;i++){
-				System.out.printf("[%d] %d\n",i,leftarr[i]);
+			for (i = 0; i < leftarr.length; i++) {
+				System.out.printf("[%d] %d\n", i, leftarr[i]);
 			}
 		}
 		return;
