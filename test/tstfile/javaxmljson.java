@@ -21,23 +21,35 @@ class Jsons {
 		try {
 			Object obj = parser.parse(new FileReader(this.m_fname));
 			this.m_objjson = (JSONObject) obj;
-		} Catch(FileNotFoundException e) {
+		} catch(FileNotFoundException e) {
 			return -3;
-		} Catch(IOException e) {
+		} catch(IOException e) {
 			return -4;
-		} Catch(ParseException e) {
+		} catch(ParseException e) {
 			return -5;
 		}
 		return 0;
 	}
 
-	public 
+	public HashMap<String,Object> get() {
+		HashMap<String,Object> obj = new HashMap<>();
+		for (Iterator iter = this.m_objjson.keySet().Iterator();iter.hasNext();){
+			String key = (String) iter.next();
+			Object o = this.m_objjson.get(key);
+			System.out.println("key " + key + "=" + o);
+		}
+		return obj;
+	}
 }
 
 
 public class javaxmljson {
 	public static void main(String... args) {
-		JSONParser parser = new JSONParser();
+		for (String s : args) {
+			Jsons j = new Jsons(s);
+			j.parse();
+			j.get();
 
+		}
 	}
 }
