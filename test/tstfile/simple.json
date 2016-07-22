@@ -1,0 +1,7 @@
+{
+	"hello": 30,
+	"good": {
+		"attr": "know",
+		"array": ["new"]
+	}
+}

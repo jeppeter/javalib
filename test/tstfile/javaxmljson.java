@@ -8,11 +8,19 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.lang.Class;
 
-class Jsons {
+class JsonNotFoundException extends Exception {
+	public JsonNotFoundException(String expr) {
+		super(expr);
+	}
+}
+
+class JSONEncap  {
 	private String m_fname;
 	private JSONObject m_objjson;
-	public Jsons(String fname) {
+	public JSONEncap(String fname) {
 		this.m_fname = fname;
 	}
 
@@ -21,24 +29,43 @@ class Jsons {
 		try {
 			Object obj = parser.parse(new FileReader(this.m_fname));
 			this.m_objjson = (JSONObject) obj;
-		} catch(FileNotFoundException e) {
+		} catch (FileNotFoundException e) {
 			return -3;
-		} catch(IOException e) {
+		} catch (IOException e) {
 			return -4;
-		} catch(ParseException e) {
+		} catch (ParseException e) {
 			return -5;
 		}
 		return 0;
 	}
 
-	public HashMap<String,Object> get() {
-		HashMap<String,Object> obj = new HashMap<>();
-		for (Iterator iter = this.m_objjson.keySet().Iterator();iter.hasNext();){
-			String key = (String) iter.next();
-			Object o = this.m_objjson.get(key);
-			System.out.println("key " + key + "=" + o);
+	public Object getvalue(String path) throws JsonNotFoundException {
+		Object obj = null;
+		Object curobj = null;
+		JSONObject curhash;
+		String[] pathexts;
+		pathexts = path.split("/");
+
+		curobj = this.m_objjson;
+		for (String curpath : pathexts) {
+			if (curpath.length() == 0) {
+				continue;
+			}
+
+			if (!(curobj instanceof JSONObject)) {
+				throw new JsonNotFoundException("Not found " + path + " can not down (" + curpath + ") key");
+			}
+
+			curhash = (JSONObject) curobj;
+
+			if (!curhash.containsKey(curpath)) {
+				throw new JsonNotFoundException("Not found " + path + " at (" + curpath + ") key");
+			}
+
+			curobj = curhash.get(curpath);
 		}
-		return obj;
+
+		return curobj;
 	}
 }
 
@@ -46,9 +73,15 @@ class Jsons {
 public class javaxmljson {
 	public static void main(String... args) {
 		for (String s : args) {
-			Jsons j = new Jsons(s);
+			JSONEncap j = new JSONEncap(s);
+			Object val;
 			j.parse();
-			j.get();
+			try {
+				val = j.getvalue("/good/attr");
+				System.out.printf("get value (%s)\n", val);
+			} catch (JsonNotFoundException e) {
+				System.out.println(e);
+			}
 
 		}
 	}
