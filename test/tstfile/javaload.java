@@ -47,9 +47,9 @@ class LoadMethodClass extends ClassLoader {
 		byte[] bytes = null;
 		String fname = clsname.replace(".", "/") + ".class";
 		try {
-			System.out.printf("load (%s)\n",fname);
+			System.out.printf("load (%s)\n", fname);
 			bytes = Files.readAllBytes(Paths.get(fname));
-			System.out.printf("read (%s)\n",fname);
+			System.out.printf("read (%s)\n", fname);
 			return defineClass(clsname, bytes, 0, bytes.length);
 		}	catch (IOException e) {
 			throw new ClassNotFoundException(clsname);
@@ -57,7 +57,7 @@ class LoadMethodClass extends ClassLoader {
 	}
 
 	public Method getClassMethod(String clsmeth) throws ClassNotFoundException {
-		String[] paths = clsmeth.split(".");
+		String[] paths = clsmeth.split("\\.");
 		String[] clss = null;
 		String clsname;
 		int i, cnt, j;
@@ -84,7 +84,6 @@ class LoadMethodClass extends ClassLoader {
 					j ++;
 				}
 			}
-
 			sjoin = new StringJoin(clss);
 			clsname = sjoin.toString(".");
 		}
@@ -94,14 +93,13 @@ class LoadMethodClass extends ClassLoader {
 			Class<?> cls = null;
 			cls = this.__getClass(clsname);
 			if (cls == null) {
-				System.err.printf("(%s) null\n",clsname);
+				System.err.printf("(%s) null\n", clsname);
 				throw new ClassNotFoundException(clsname);
 			}
 
 			meth = cls.getMethod(paths[paths.length - 1], Namespace.class, Object.class);
 		}  catch (NoSuchMethodException e) {
 			e.printStackTrace();
-			System.err.println(e.getSta)
 			throw new ClassNotFoundException(clsmeth);
 		} catch (SecurityException e) {
 			e.printStackTrace();
@@ -116,7 +114,6 @@ public class javaload {
 		Method meth = null;
 		LoadMethodClass loadcls = new LoadMethodClass();
 		Namespace ns = new Namespace(null);
-		System.out.println("args " + args);
 
 		try {
 			for (String s : args) {
@@ -128,11 +125,11 @@ public class javaload {
 			e.printStackTrace(System.err);
 			System.err.println(e);
 			System.exit(4);
-		} catch(IllegalAccessException e) {
+		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 			System.err.println(e);
 			System.exit(5);
-		} catch(InvocationTargetException e) {
+		} catch (InvocationTargetException e) {
 			e.printStackTrace();
 			System.err.println(e);
 			System.exit(6);
