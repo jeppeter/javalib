@@ -7,4 +7,9 @@ task compileOne (type: JavaCompile) {
     destinationDir = sourceSets.main.output.classesDir
 }
 
+task runOne (type: JavaExec,dependsOn: compileOne) {
+	main = 'some.pkg.ClassTwo'
+	classpath sourceSets.main.output.classesDir
+}
+
 compileOne.options.compilerArgs = ["-sourcepath", "$projectDir/src/main/java"]
