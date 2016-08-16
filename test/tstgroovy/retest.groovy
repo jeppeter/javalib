@@ -25,6 +25,7 @@ findparser = subparser.addParser('findall')
 				.help('re.findall handle')
 
 try{
+	ns = parser.parseArgs()
 
 	} catch(ArgumentParserException e){
 
