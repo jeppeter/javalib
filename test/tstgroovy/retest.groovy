@@ -9,20 +9,22 @@ import net.sourceforge.argparse4j.inf.Subparser
 import net.sourceforge.argparse4j.inf.ArgumentParserException
 
 def parser = ArgumentParsers.newArgumentParser("retest")
-			.defaultHelp(True)
+			.defaultHelp(True);
 
 subparser = parser.addSubParsers()
 				.title("subcommand")
 				.metavar("subcommand")
-				.help("regular expression handler")
+				.help("regular expression handler");
 
 parser.addArgument('-i','--input')
-	.dest('input')
+	.dest("input")
 	.setDefault(null)
-	.help('input file specified')
+	.help('input file specified');
 
-findparser = subparser.addParser('findall')
-				.help('re.findall handle')
+parser.addArgument("-o","--output")
+	.dest("output")
+	.setDefault(null)
+
 
 try{
 	ns = parser.parseArgs()
