@@ -40,10 +40,23 @@ public final class Key {
 		return;
 	}
 
+	private void __parse(String prefix,String key,Object value,boolean isflag) {
+		boolean cmdmode = false;
+		boolean flagmode = false;
+		String flags = null;
+		this.m_origkey = key;
+	}
+
 	protected Key(String prefix,String key,Object value, boolean isflag) {
 		this.reset();
 		this.m_helpexpr = Pattern.compile("##([^#]+)##$",Pattern.CASE_INSENSITIVE);
 		this.m_cmdexpr = Pattern.compile("^([^\#\<\>\+\$]+)",Pattern.CASE_INSENSITIVE);
+		this.m_prefixexpr = Pattern.compile("\+([^\+\#\<\>\|\$ \t]+)",Pattern.CASE_INSENSITIVE);
+		this.m_funcexpr = Pattern.compile("<([^\<\>\#\$\| \t]+)>",Pattern.CASE_INSENSITIVE);
+		this.m_flagexpr = Pattern.compile("^([^\<\>\#\+\$ \t]+)",Pattern.CASE_INSENSITIVE);
+		this.m_mustflagexpr = Pattern.compile("^\$([^\$\+\#\<\>]+)",Pattern.CASE_INSENSITIVE);
+		this.m_origkey = key;
+		this.__parse(prefix,key,value,isflag);
 	}
 
 	protected Key(String prefix,String key,Object value) {
