@@ -53,12 +53,12 @@ public class jsoncmd {
 		}
 
 		if (subnargs.size() == 1) {
-			System.out.printf("%s\n",objjson.toString());
+			System.out.printf("%s(type:%s)\n",objjson.toString(),objjson.getClass().getName());
 		} else {
 			for(i=1;i<subnargs.size();i++) {
 				String k = subnargs.get(i);
 				if (objjson.containsKey(k)) {
-					System.out.printf("%s=%s\n",k,objjson.get(k));
+					System.out.printf("%s=%s(type:%s)\n",k,objjson.get(k),objjson.get(k).getClass().getName());
 				} else {
 					System.err.printf("no %s\n",k);
 				}

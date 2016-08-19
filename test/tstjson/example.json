@@ -1,0 +1,10 @@
+{
+    "name": "jeppeter",
+    "age": 23,
+    "height": 1.72,
+    "relations": {
+        "mom": "pmy",
+        "dad": "wds",
+        "wife": "lr"
+    }
+}
