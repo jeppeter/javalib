@@ -1,0 +1,65 @@
+package reext;
+
+import java.util.regex.*;
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class ReExt  {
+	private Pattern m_pattern;
+	private List<Object> m_matcharray;
+
+	public ReExt(String restr,boolean bcaseignore) {
+		if (bcaseignore) {
+			this.m_pattern = Pattern.compile(restr,Pattern.CASE_INSENSITIVE);
+		} else {
+			this.m_pattern = Pattern.compile(restr);
+		}
+		this.m_matcharray = new ArrayList<ArrayList<String>>();
+	}
+
+	public ReExt(String restr) {
+		this(restr,false);
+	}
+
+	private boolean __mather(String instr) {
+		Matcher m;
+		m = this.m_pattern.matcher(instr);
+		return m.matches();
+	}
+
+	public boolean Match(String instr) {
+		return this.__mather(instr);
+	}
+
+	private void __findall(String instr) {
+		Matcher m;
+		int i;
+		this.m_matcharray = new ArrayList<ArrayList<String>>();
+		m = this.m_pattern.matcher(instr);
+		while(m.find()){
+			List<String> cc = new ArrayList<String>();
+			if (m.groupCount() < 1) {
+				this.m_matcharray.add(null);
+			} else if (m.groupCount() == 1) {
+				this.m_matcharray.add(m.group(1));
+			} else {
+				for (i=1;i<=m.groupCount();i++) {
+					cc.add(m.group(i));
+				}
+				this.m_matcharray.add(cc);
+
+			}
+		}
+		return;
+	}
+
+	public boolean FindAll(String instr) {
+		this.__findall(instr);
+		return this.__mather(instr);
+	}
+
+	public String getCount(int i,int j) {
+
+	}
+}

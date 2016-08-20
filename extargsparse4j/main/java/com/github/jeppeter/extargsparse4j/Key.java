@@ -46,6 +46,8 @@ public final class Key {
 		boolean flagmode = false;
 		String flags = null;
 		int i;
+		Mather m;
+		ArrayList<String> ms;
 		this.m_origkey = key;
 		if (this.m_origkey.contains("$")) {
 			if (this.m_origkey.charAt(0) != "$") {
@@ -53,10 +55,19 @@ public final class Key {
 			}
 			for (i=1;i<this.m_origkey.length;i++) {
 				if (this.m_origkey.charAt(i) == "$") {
-					
+					thrown new KeyException(String.Format("(%s) has ($) more than one",this.m_origkey));
 				}
 			}
 		}
+
+		if (isflag) {
+			ms = new ArrayList<String>();
+			m = this.m_flagexpr.mather(this.m_origkey);
+			while(m.find()) {
+				ms.
+			}
+		}
+
 	}
 
 	protected Key(String prefix,String key,Object value, boolean isflag) {
