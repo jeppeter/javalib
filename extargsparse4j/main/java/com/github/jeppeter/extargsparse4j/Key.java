@@ -2,6 +2,7 @@ package com.github.jeppeter.extargsparse4j;
 
 
 import java.util.regex.*;
+import com.github.jeppeter.extargsparse4j.KeyException;
 
 
 public final class Key {
@@ -44,7 +45,18 @@ public final class Key {
 		boolean cmdmode = false;
 		boolean flagmode = false;
 		String flags = null;
+		int i;
 		this.m_origkey = key;
+		if (this.m_origkey.contains("$")) {
+			if (this.m_origkey.charAt(0) != "$") {
+				throw new KeyException(String.Format("can not accept key(%s)",this.m_origkey));
+			}
+			for (i=1;i<this.m_origkey.length;i++) {
+				if (this.m_origkey.charAt(i) == "$") {
+					
+				}
+			}
+		}
 	}
 
 	protected Key(String prefix,String key,Object value, boolean isflag) {
