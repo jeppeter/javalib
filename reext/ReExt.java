@@ -39,16 +39,13 @@ public class ReExt  {
 		m = this.m_pattern.matcher(instr);
 		while(m.find()){
 			List<String> cc = new ArrayList<String>();
-			if (m.groupCount() < 1) {
-				this.m_matcharray.add(null);
-			} else if (m.groupCount() == 1) {
+			if (m.groupCount() == 1) {
 				this.m_matcharray.add(m.group(1));
-			} else {
+			} else if (m.groupCount() > 1) {
 				for (i=1;i<=m.groupCount();i++) {
 					cc.add(m.group(i));
 				}
 				this.m_matcharray.add(cc);
-
 			}
 		}
 		return;
@@ -59,7 +56,17 @@ public class ReExt  {
 		return this.__mather(instr);
 	}
 
-	public String getCount(int i,int j) {
-
+	public ArrayList<Object> getCount(int i ) {
+		ArrayList<Object> obj = new ArrayList<Object>();
+		Object mobj;
+		if (this.m_matcharray.size() > i) {
+			mobj = this.m_matcharray.get(i);
+			if (mobj.getClass().getName() == "String") {
+				obj.add(mobj);
+			} else {
+				obj = mobj;
+			}
+		}
+		return obj;
 	}
 }
