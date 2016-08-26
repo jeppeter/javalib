@@ -35,7 +35,7 @@ public class ReExt  {
     private void __findall(String instr) {
         Matcher m;
         int i;
-        this.m_matcharray = new ArrayList<ArrayList<String>>();
+        this.m_matcharray = new ArrayList<Object>();
         m = this.m_pattern.matcher(instr);
         while (m.find()) {
             List<String> cc = new ArrayList<String>();
