@@ -4,7 +4,7 @@ import java.util.regex.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
+@SuppressWarnings("unchecked") 
 public class ReExt  {
     private Pattern m_pattern;
     private List<Object> m_matcharray;
@@ -59,11 +59,11 @@ public class ReExt  {
     public String getMatch(int i , int j) {
         String retstr = null;
         Object obj = null;
-        ArrayList<String> aobj ;
+        ArrayList<String> aobj = new ArrayList<String>();
         if (i < this.m_matcharray.size()) {
             obj = this.m_matcharray.get(i);
-            if (obj.getClass().getName() == "java.util.ArrayList") {
-                aobj = (ArrayList<String>) obj;
+            if (obj instanceof ArrayList) {
+                aobj = ArrayList.class.cast(obj);
                 if (aobj.size() > j) {
                     if (j <= 0) {
                         return aobj.get(0);
@@ -73,7 +73,7 @@ public class ReExt  {
                 } else {
                 	return null;
                 }
-            } else if (obj.getClass().getName() == "java.lang.String") {
+            } else if (obj  instanceof String) {
             	if (j <= 0) {
             		return (String) obj;
             	}
@@ -81,5 +81,24 @@ public class ReExt  {
             } 
         }
         return null;
+    }
+
+    public int  getCount() {
+        return this.m_matcharray.size();
+    }
+
+    public int getCount(int i) {
+        Object obj;
+        ArrayList<String> aobj = new ArrayList<String>();
+        if (i >= this.m_matcharray.size()) {
+            return 0;
+        } 
+
+        obj = this.m_matcharray.get(i);
+        if (obj instanceof ArrayList ) {
+            aobj = ArrayList.class.cast(obj);
+            return aobj.size();
+        } 
+        return 1;
     }
 }
