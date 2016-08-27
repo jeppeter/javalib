@@ -3,6 +3,7 @@ package com.github.jeppeter.extargsparse4j;
 
 import java.util.regex.*;
 import com.github.jeppeter.extargsparse4j.KeyException;
+import reext.ReExt;
 
 
 public final class Key {
@@ -46,8 +47,9 @@ public final class Key {
 		boolean flagmode = false;
 		String flags = null;
 		int i;
-		Mather m;
-		ArrayList<String> ms;
+		ReExt ext ;
+		String flags;
+		boolean flagmod=False;
 		this.m_origkey = key;
 		if (this.m_origkey.contains("$")) {
 			if (this.m_origkey.charAt(0) != "$") {
@@ -61,10 +63,20 @@ public final class Key {
 		}
 
 		if (isflag) {
-			ms = new ArrayList<String>();
-			m = this.m_flagexpr.mather(this.m_origkey);
-			while(m.find()) {
-				ms.
+			this.m_flagexpr.FindAll(this.m_origkey);
+			flags = this.m_flagexpr.getMatch(0,0);
+			if (flags == null) {
+				this.m_mustflagexpr.FindAll(this.m_origkey);
+				flags = this.m_mustflagexpr.getMatch(0,0);
+			}
+
+			if (flags == null && this.m_origkey.charAt(0) == "$") {
+				this.m_flagname = "$";
+				flagmod = True;
+			}
+
+			if (flags != null) {
+				
 			}
 		}
 
@@ -72,12 +84,12 @@ public final class Key {
 
 	protected Key(String prefix,String key,Object value, boolean isflag) {
 		this.reset();
-		this.m_helpexpr = Pattern.compile("##([^#]+)##$",Pattern.CASE_INSENSITIVE);
-		this.m_cmdexpr = Pattern.compile("^([^\#\<\>\+\$]+)",Pattern.CASE_INSENSITIVE);
-		this.m_prefixexpr = Pattern.compile("\+([^\+\#\<\>\|\$ \t]+)",Pattern.CASE_INSENSITIVE);
-		this.m_funcexpr = Pattern.compile("<([^\<\>\#\$\| \t]+)>",Pattern.CASE_INSENSITIVE);
-		this.m_flagexpr = Pattern.compile("^([^\<\>\#\+\$ \t]+)",Pattern.CASE_INSENSITIVE);
-		this.m_mustflagexpr = Pattern.compile("^\$([^\$\+\#\<\>]+)",Pattern.CASE_INSENSITIVE);
+		this.m_helpexpr = new ReExt("##([^#]+)##$",True);
+		this.m_cmdexpr = new ReExt("^([^\#\<\>\+\$]+)",True);
+		this.m_prefixexpr = new ReExt("\+([^\+\#\<\>\|\$ \t]+)",True);
+		this.m_funcexpr = new ReExt("<([^\<\>\#\$\| \t]+)>",True);
+		this.m_flagexpr = new ReExt("^([^\<\>\#\+\$ \t]+)",True);
+		this.m_mustflagexpr = new ReExt("^\$([^\$\+\#\<\>]+)",True);
 		this.m_origkey = key;
 		this.__parse(prefix,key,value,isflag);
 	}
