@@ -9,6 +9,20 @@ public class ReExt  {
     private Pattern m_pattern;
     private List<Object> m_matcharray;
 
+    public static String[] Split(String restr,String instr,int max) {
+        String[] retstr ;
+        if (max > 0) {
+            retstr = instr.split(restr,max);
+        } else {
+            retstr = instr.split(restr);
+        }
+        return retstr;
+    }
+
+    public static String[] Split(String restr,String instr) {
+        return Split(restr,instr,-1);
+    }
+
     public ReExt(String restr, boolean bcaseignore) {
         if (bcaseignore) {
             this.m_pattern = Pattern.compile(restr, Pattern.CASE_INSENSITIVE);

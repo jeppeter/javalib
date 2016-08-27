@@ -6,13 +6,13 @@ import org.junit.*;
 
 public class ReExtTest {
 	@Test
-	public void FirstTest() {
+	public void BasicTest() {
 		ReExt ext = new ReExt("([\\d]+)");
 		assertEquals("match 3322",true,ext.Match("3322"));		
 	}
 
 	@Test
-	public void GetCount() {
+	public void GetCountTest() {
 		ReExt ext = new ReExt("([\\d]+)cc([\\d]+)");
 		ext.FindAll("33cc55");
 		assertEquals("get 33cc55 with 2",1,ext.getCount());
@@ -22,4 +22,15 @@ public class ReExtTest {
 		assertEquals("get [1] null",null,ext.getMatch(1,-1));
 		assertEquals("get [0,2] null",null,ext.getMatch(0,2));
 	}
+
+	@Test
+	public void SplitTest() {
+		String restr="\\s+";
+		String instr ="hello world";
+		String[] retstr = ReExt.Split(restr,instr);
+		assertEquals(String.format("%s split %s with 2",instr,restr),2,retstr.length);
+		assertEquals(String.format("%s split %s [0] hello",instr,restr),"hello",retstr[0]);
+		assertEquals(String.format("%s split %s [0] world",instr,restr),"world",retstr[1]);
+	}	
+
 }

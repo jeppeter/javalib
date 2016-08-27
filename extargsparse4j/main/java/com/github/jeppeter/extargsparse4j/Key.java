@@ -76,7 +76,11 @@ public final class Key {
 			}
 
 			if (flags != null) {
-				
+				if (flags.contains("$")) {
+
+				}else {
+					
+				}			
 			}
 		}
 
