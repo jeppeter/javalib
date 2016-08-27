@@ -31,6 +31,14 @@ public class ReExtTest {
 		assertEquals(String.format("%s split %s with 2",instr,restr),2,retstr.length);
 		assertEquals(String.format("%s split %s [0] hello",instr,restr),"hello",retstr[0]);
 		assertEquals(String.format("%s split %s [0] world",instr,restr),"world",retstr[1]);
+		instr = "cc ss bb";
+		retstr = ReExt.Split(restr,instr,2);
+		assertEquals(String.format("%s split %s with 2",instr,restr),2,retstr.length);
+		assertEquals(String.format("%s split %s [0] hello",instr,restr),"cc",retstr[0]);
+		assertEquals(String.format("%s split %s [0] world",instr,restr),"ss bb",retstr[1]);
+
+
 	}	
+
 
 }
