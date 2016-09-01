@@ -49,7 +49,8 @@ public final class Key {
 		int i;
 		ReExt ext ;
 		String flags;
-		boolean flagmod=False;
+		String cmd ;
+		String[] retstr; 
 		this.m_origkey = key;
 		if (this.m_origkey.contains("$")) {
 			if (this.m_origkey.charAt(0) != "$") {
@@ -57,7 +58,7 @@ public final class Key {
 			}
 			for (i=1;i<this.m_origkey.length;i++) {
 				if (this.m_origkey.charAt(i) == "$") {
-					thrown new KeyException(String.Format("(%s) has ($) more than one",this.m_origkey));
+					throw new KeyException(String.Format("(%s) has ($) more than one",this.m_origkey));
 				}
 			}
 		}
@@ -76,13 +77,45 @@ public final class Key {
 			}
 
 			if (flags != null) {
-				if (flags.contains("$")) {
-
+				if (flags.contains("|")) {
+					retstr = ReExt.Split("\|",flags);
+					if (retstr.length >2 || ( retstr[1].length != 1) || ( retstr[0].length <= 1)) {
+					throw new KeyException(String.Format("(%s) (%s)flag only accept (longop|l) format",this.m_origkey,flags));
+					}
+					this.m_flagname = retstr[0];
+					this.m_shortflag = retstr[1];
 				}else {
-					
-				}			
+					this.m_flagname = flags ;
+				}
+				flagmod = True;
 			}
+		} else {
+			this.m_mustflagexpr.FindAll(this.m_origkey);
+			flags = this.m_mustflagexpr.getMatch(0,0);
+			if (flags != null) {
+				if (flags.contains("|")) {
+					retstr = ReExt.Split("\|",flags);
+					if (retstr.length > 2 || (retstr[1].length != 1  ) || (retstr[0].length <=1 )) {
+						throw new KeyException(String.Format("(%s) (%s)flag only accept (longop|l) format",this.m_origkey,flags));
+					}
+					this.m_flagname = retstr[0];
+					this.m_shortflag = retstr[1];
+				}else {
+					if (flags.length <= 1) {
+						throw new KeyException(String.Format("(%s) flag must have longopt",this.m_origkey));
+					}
+					this.m_flagname = flags;
+				}
+				flagmode = True;
+			} else if (this.m_origkey[0] == "$") {
+				this.m_flagname  = "$";
+				flagmode = True;
+			}
+
+			this.m_cmdexpr.FindAll(this.m_origkey);
+
 		}
+
 
 	}
 
