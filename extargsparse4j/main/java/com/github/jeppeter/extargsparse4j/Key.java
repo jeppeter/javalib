@@ -6,6 +6,15 @@ import com.github.jeppeter.extargsparse4j.KeyException;
 import reext.ReExt;
 
 
+class TypeClass {
+	private String m_typename;
+	public TypeClass(Object o) {
+		if ( o instanceof String) {
+			
+		}
+	}
+}
+
 public final class Key {
 	private String m_value;
 	private String m_prefix;
@@ -42,33 +51,34 @@ public final class Key {
 		return;
 	}
 
-	private void __parse(String prefix,String key,Object value,boolean isflag) {
+	private void __parse(String prefix, String key, Object value, boolean isflag) {
 		boolean cmdmode = false;
 		boolean flagmode = false;
 		String flags = null;
 		int i;
 		ReExt ext ;
-		String flags;
+		String mstr;
 		String cmd ;
-		String[] retstr; 
+		String[] retstr;
+		String newprefix;
 		this.m_origkey = key;
 		if (this.m_origkey.contains("$")) {
 			if (this.m_origkey.charAt(0) != "$") {
-				throw new KeyException(String.Format("can not accept key(%s)",this.m_origkey));
+				throw new KeyException(String.Format("can not accept key(%s)", this.m_origkey));
 			}
-			for (i=1;i<this.m_origkey.length;i++) {
+			for (i = 1; i < this.m_origkey.length; i++) {
 				if (this.m_origkey.charAt(i) == "$") {
-					throw new KeyException(String.Format("(%s) has ($) more than one",this.m_origkey));
+					throw new KeyException(String.Format("(%s) has ($) more than one", this.m_origkey));
 				}
 			}
 		}
 
 		if (isflag) {
 			this.m_flagexpr.FindAll(this.m_origkey);
-			flags = this.m_flagexpr.getMatch(0,0);
+			flags = this.m_flagexpr.getMatch(0, 0);
 			if (flags == null) {
 				this.m_mustflagexpr.FindAll(this.m_origkey);
-				flags = this.m_mustflagexpr.getMatch(0,0);
+				flags = this.m_mustflagexpr.getMatch(0, 0);
 			}
 
 			if (flags == null && this.m_origkey.charAt(0) == "$") {
@@ -78,31 +88,31 @@ public final class Key {
 
 			if (flags != null) {
 				if (flags.contains("|")) {
-					retstr = ReExt.Split("\|",flags);
-					if (retstr.length >2 || ( retstr[1].length != 1) || ( retstr[0].length <= 1)) {
-					throw new KeyException(String.Format("(%s) (%s)flag only accept (longop|l) format",this.m_origkey,flags));
+					retstr = ReExt.Split("\|", flags);
+					if (retstr.length > 2 || ( retstr[1].length != 1) || ( retstr[0].length <= 1)) {
+						throw new KeyException(String.Format("(%s) (%s)flag only accept (longop|l) format", this.m_origkey, flags));
 					}
 					this.m_flagname = retstr[0];
 					this.m_shortflag = retstr[1];
-				}else {
+				} else {
 					this.m_flagname = flags ;
 				}
 				flagmod = True;
 			}
 		} else {
 			this.m_mustflagexpr.FindAll(this.m_origkey);
-			flags = this.m_mustflagexpr.getMatch(0,0);
+			flags = this.m_mustflagexpr.getMatch(0, 0);
 			if (flags != null) {
 				if (flags.contains("|")) {
-					retstr = ReExt.Split("\|",flags);
-					if (retstr.length > 2 || (retstr[1].length != 1  ) || (retstr[0].length <=1 )) {
-						throw new KeyException(String.Format("(%s) (%s)flag only accept (longop|l) format",this.m_origkey,flags));
+					retstr = ReExt.Split("\|", flags);
+					if (retstr.length > 2 || (retstr[1].length != 1  ) || (retstr[0].length <= 1 )) {
+						throw new KeyException(String.Format("(%s) (%s)flag only accept (longop|l) format", this.m_origkey, flags));
 					}
 					this.m_flagname = retstr[0];
 					this.m_shortflag = retstr[1];
-				}else {
+				} else {
 					if (flags.length <= 1) {
-						throw new KeyException(String.Format("(%s) flag must have longopt",this.m_origkey));
+						throw new KeyException(String.Format("(%s) flag must have longopt", this.m_origkey));
 					}
 					this.m_flagname = flags;
 				}
@@ -111,27 +121,89 @@ public final class Key {
 				this.m_flagname  = "$";
 				flagmode = True;
 			}
-
 			this.m_cmdexpr.FindAll(this.m_origkey);
-
+			cmd = this.m_cmdexpr.getMatch(0, 0);
+			if (retstr != null) {
+				assert(!flagmode );
+				if (cmd.contains("|"))  {
+					flags = cmd;
+					if (flags.contains("|")) {
+						retstr = ReExt.Split("\|", flags);
+						if (retstr.length > 2 || retstr[1].length != 1 || retstr[0].length <= 1) {
+							throw new KeyException(String.Format('(%s) (%s)flag only accept (longop|l) format', self.__origkey, flags));
+						}
+						this.m_flagname = retstr[0];
+						this.m_shortflag = retstr[1];
+					} else {
+						assert(false);
+					}
+					flagmode = True;
+				} else {
+					this.m_cmdname = cmd;
+					cmdmode = True;
+				}
+			}
 		}
 
+		this.m_funcexpr.FindAll(this.m_origkey);
+		mstr = this.m_funcexpr.getMatch(0, 0);
+		if (mstr != null) {
+			this.m_function = mstr;
+		}
+
+		this.m_helpexpr.FindAll(this.m_origkey);
+		mstr = this.m_helpexpr.getMatch(0, 0);
+		if (mstr != null) {
+			this.m_helpinfo = mstr;
+		}
+		newprefix = "";
+		if (prefix != null && prefix.length > 0) {
+			newprefix = String.Format("%s_", prefix);
+		}
+
+		this.m_prefixexpr.FindAll(this.m_origkey);
+		mstr = this.m_prefixexpr.getMatch(0, 0);
+		if (mstr != null ) {
+			newprefix += mstr;
+			this.m_prefix = newprefix;
+		} else {
+			if (newprefix.length > 0) {
+				this.m_prefix = newprefix;
+			}
+		}
+
+		if (flagmode) {
+			this.m_isflag = True;
+			this.m_iscmd = False;
+		}
+
+		if (cmdmode) {
+			this.m_iscmd = True;
+			this.m_isflag = False;
+		}
+
+		if (!flagmode && !cmdmode) {
+			this.m_isflag = True;
+			this.m_iscmd = False;
+		}
+
+		this.m_value = value;
 
 	}
 
-	protected Key(String prefix,String key,Object value, boolean isflag) {
+	protected Key(String prefix, String key, Object value, boolean isflag) {
 		this.reset();
-		this.m_helpexpr = new ReExt("##([^#]+)##$",True);
-		this.m_cmdexpr = new ReExt("^([^\#\<\>\+\$]+)",True);
-		this.m_prefixexpr = new ReExt("\+([^\+\#\<\>\|\$ \t]+)",True);
-		this.m_funcexpr = new ReExt("<([^\<\>\#\$\| \t]+)>",True);
-		this.m_flagexpr = new ReExt("^([^\<\>\#\+\$ \t]+)",True);
-		this.m_mustflagexpr = new ReExt("^\$([^\$\+\#\<\>]+)",True);
+		this.m_helpexpr = new ReExt("##([^#]+)##$", True);
+		this.m_cmdexpr = new ReExt("^([^\#\<\>\+\$]+)", True);
+		this.m_prefixexpr = new ReExt("\+([^\+\#\<\>\|\$ \t]+)", True);
+		this.m_funcexpr = new ReExt("<([^\<\>\#\$\| \t]+)>", True);
+		this.m_flagexpr = new ReExt("^([^\<\>\#\+\$ \t]+)", True);
+		this.m_mustflagexpr = new ReExt("^\$([^\$\+\#\<\>]+)", True);
 		this.m_origkey = key;
-		this.__parse(prefix,key,value,isflag);
+		this.__parse(prefix, key, value, isflag);
 	}
 
-	protected Key(String prefix,String key,Object value) {
-		this(prefix,key,value,false);
+	protected Key(String prefix, String key, Object value) {
+		this(prefix, key, value, false);
 	}
 }
