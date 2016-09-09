@@ -80,7 +80,7 @@ public class JsonExt {
 		return curobj;
 	}
 
-	public int getInt(String path) throws JsonExtNotParsedException,JsonExtNotFoundException,JsonExtInvalidTypeException {
+	public Long getLong(String path) throws JsonExtNotParsedException,JsonExtNotFoundException,JsonExtInvalidTypeException {
 		Object obj;
 		try{
 			obj = this.__getObject(path);
@@ -95,7 +95,7 @@ public class JsonExt {
 			throw e;
 		}
 		if (obj instanceof Long) {
-			return (int) obj;
+			return  (Long)obj;
 		}
 
 		throw new JsonExtInvalidTypeException(String.format("(%s) not Long(%s)", path,obj.getClass().getName()));
