@@ -80,7 +80,7 @@ public class JsonExt {
 		return curobj;
 	}
 
-	public Integer getInteger(String path) throws JsonExtNotParsedException,JsonExtNotFoundException,JsonExtInvalidTypeException {
+	public int getInt(String path) throws JsonExtNotParsedException,JsonExtNotFoundException,JsonExtInvalidTypeException {
 		Object obj;
 		try{
 			obj = this.__getObject(path);
@@ -94,11 +94,11 @@ public class JsonExt {
 		catch (JsonExtInvalidTypeException e) {
 			throw e;
 		}
-		if (obj instanceof Integer) {
-			return (Integer) obj;
+		if (obj instanceof Long) {
+			return (int) obj;
 		}
 
-		throw new JsonExtInvalidTypeException(String.format("(%s) not Integer", path));
+		throw new JsonExtInvalidTypeException(String.format("(%s) not Long(%s)", path,obj.getClass().getName()));
 	}
 
 	public String getString(String path) throws JsonExtNotParsedException,JsonExtNotFoundException,JsonExtInvalidTypeException {
@@ -118,7 +118,7 @@ public class JsonExt {
 		if (obj instanceof String) {
 			return (String) obj;
 		}
-		throw new JsonExtInvalidTypeException(String.format("(%s) not String", path));		
+		throw new JsonExtInvalidTypeException(String.format("(%s) not String(%s)", path,obj.getClass().getName()));
 	}
 
 

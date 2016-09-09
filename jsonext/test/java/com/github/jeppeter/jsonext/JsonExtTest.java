@@ -63,4 +63,35 @@ public class JsonExtTest {
 		return;
 	}
 
+	@Test
+	public void test_A003() {
+		JsonExt json = new JsonExt();
+		boolean bret;
+		int value=0;
+		String key="person/age";
+
+		bret = json.parseString("{\"person\" :{ \"age\" :13}}");
+		assertEquals("parse ok",bret,true);
+		bret = true;
+		try{
+			value = json.getInt(key);
+		}
+		catch(JsonExtNotParsedException e) {
+			bret = false;
+			System.err.println(e);
+		}
+		catch(JsonExtInvalidTypeException e) {
+			bret = false;
+			System.err.println(e);
+		}
+		catch(JsonExtNotFoundException e) {
+			bret = false;
+			System.err.println(e);
+		}
+		assertEquals(String.format("get %s ok",key),bret,true);
+		assertEquals(String.format("get %s (13)",key),13,value);
+		return;
+	}
+
+
 }
