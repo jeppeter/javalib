@@ -1,4 +1,4 @@
-package reext;
+package com.github.jeppeter.reext;
 
 import java.util.regex.*;
 import java.util.ArrayList;

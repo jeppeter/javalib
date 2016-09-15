@@ -8,7 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 
-import reext.ReExt;
+import com.github.jeppeter.reext.ReExt;
 
 import com.github.jeppeter.jsonext.JsonExtInvalidTypeException;
 import com.github.jeppeter.jsonext.JsonExtNotFoundException;

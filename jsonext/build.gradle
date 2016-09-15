@@ -2,9 +2,14 @@ apply plugin: 'java'
 
 repositories {
     mavenCentral()
+    flatDir {
+    	dirs new File("../").getCanonicalPath()
+    }
 }
 
 dependencies {
-    compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1'
+	compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1'
+	//compile group: 'reext'
+
     testCompile 'junit:junit:4.11'
 }

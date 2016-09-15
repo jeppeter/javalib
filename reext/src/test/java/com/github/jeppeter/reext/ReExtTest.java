@@ -1,6 +1,6 @@
-package reext;
+package com.github.jeppeter.reext;
 
-import reext.ReExt;
+import com.github.jeppeter.reext.ReExt;
 import static org.junit.Assert.assertEquals;
 import org.junit.*;
 
