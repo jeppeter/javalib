@@ -1,0 +1,15 @@
+
+task printVersion {
+	doFirst {
+		println "before read version"
+	}
+
+	doLast {
+		println "Version: $version"
+	}
+}
+
+printVersion.doFirst {println "first version"}
+printVersion << {
+	println "Last Action"
+}
