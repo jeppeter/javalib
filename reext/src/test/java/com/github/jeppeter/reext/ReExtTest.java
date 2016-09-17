@@ -3,12 +3,25 @@ package com.github.jeppeter.reext;
 import com.github.jeppeter.reext.ReExt;
 import static org.junit.Assert.assertEquals;
 import org.junit.*;
+import org.junit.rules.TestName;
 
 public class ReExtTest {
+	@Rule public TestName name = new TestName();
+
+	@Before
+	public void Setup() {
+		System.out.println("Before :" + name.getMethodName());
+	}
+
+	@After
+	public void TearDown() {
+		System.out.println("After :" + name.getMethodName());
+	}
+
 	@Test
 	public void BasicTest() {
 		ReExt ext = new ReExt("([\\d]+)");
-		assertEquals("match 3322",true,ext.Match("3322"));		
+		assertEquals("match 3322",true,ext.Match("3322"));
 	}
 
 	@Test
