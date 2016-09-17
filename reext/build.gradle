@@ -1,7 +1,23 @@
 apply plugin: 'java'
 
+version = '1.0'
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+
 repositories {
     mavenCentral()
+}
+
+task fatjar(type: Jar) {
+	manifest {
+        attributes 'Implementation-Title': 'Regular Expression Extension', 
+        	'Implementation-Version': version,
+        	'Main-Class': 'com.github.jeppeter.reext'
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
 }
 
 dependencies {
