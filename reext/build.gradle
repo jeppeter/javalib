@@ -3,10 +3,15 @@ apply plugin: 'java'
 version = '1.0'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
+String jarfile = sprintf('%s-all-%s',project.name,version)
 
 
 repositories {
     mavenCentral()
+}
+
+task cleanall (type: Delete,dependsOn: clean){
+    delete sprintf('../%s.jar',jarfile)
 }
 
 task fatjar(type: Jar) {
@@ -26,4 +31,13 @@ dependencies {
 
 task listJars {
 	configurations.compile.each { File file -> println file.name }
+}
+
+
+task CopyJar (dependsOn: [fatjar])  {
+    println sprintf('build/libs/%s.jar',jarfile)
+    copy {
+        from sprintf('build/libs/%s.jar',jarfile)
+        into '../'
+    }
 }
