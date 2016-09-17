@@ -1,0 +1,16 @@
+import org.gradle.api.logging.LogLevel;
+
+task logging {
+	doLast {
+		for (LogLevel curlevel in logger.values()) {
+			logger.lifecycle('level :' + curlevel.toString());
+		}
+		logger.quiet('logging quiet');
+		logger.error('logging error');
+		logger.warn('logging warn');
+		logger.lifecycle('logging lifecycle');
+		logger.info('logging info');
+		logger.debug('logging debug');
+		logger.trace('logging trace');
+	}
+}
