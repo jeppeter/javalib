@@ -9,7 +9,8 @@ repositories {
 
 dependencies {
 	compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1'
-	//compile group: 'reext'
+	compile files('../reext-all-1.0.jar')
+	runtime files('../reext-all-1.0.jar')
 
     testCompile 'junit:junit:4.11'
 }

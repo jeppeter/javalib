@@ -23,3 +23,7 @@ task fatjar(type: Jar) {
 dependencies {
     testCompile 'junit:junit:4.11'
 }
+
+task listJars {
+	configurations.compile.each { File file -> println file.name }
+}
