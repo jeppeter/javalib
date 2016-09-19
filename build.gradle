@@ -1,0 +1,11 @@
+
+allprojects {
+	version = '1.0'
+}
+
+subprojects {
+	apply plugin: 'java'
+	dependencies {
+	    testCompile 'junit:junit:4.11'
+	}
+}
