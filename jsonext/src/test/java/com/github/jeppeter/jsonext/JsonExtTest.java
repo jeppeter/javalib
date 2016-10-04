@@ -4,6 +4,8 @@ import com.github.jeppeter.jsonext.JsonExtInvalidTypeException;
 import com.github.jeppeter.jsonext.JsonExtNotFoundException;
 import com.github.jeppeter.jsonext.JsonExtNotParsedException;
 import com.github.jeppeter.jsonext.JsonExt;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
 
 import static org.junit.Assert.assertEquals;
 import org.junit.*;
@@ -57,6 +59,7 @@ public class JsonExtTest {
 		return;
 	}
 
+
 	@Test
 	public void test_A004() throws JsonExtNotParsedException, JsonExtNotFoundException, JsonExtInvalidTypeException {
 		JsonExt json = new JsonExt();
@@ -72,5 +75,34 @@ public class JsonExtTest {
 		return;
 	}
 
+	@Test
+	public void test_A005() throws JsonExtNotParsedException, JsonExtNotFoundException, JsonExtInvalidTypeException {
+		JsonExt json = new JsonExt();
+		boolean bret;
+		String key = "person";
+		Object value;
+		bret = json.parseString("{\"person\" :{ \"age\" :13}}");
+		assertEquals("parse ok",bret,true);
+		value = json.getObject(key);
+		assertEquals(String.format("object %s",value.getClass().getName()),value instanceof JSONObject,true);
+	}
 
+	@Test
+	public void test_A006() throws JsonExtNotParsedException, JsonExtNotFoundException, JsonExtInvalidTypeException {
+		JsonExt json = new JsonExt();
+		boolean bret;
+		String key = "person/relations";
+		Object value;
+		//bret = json.parseString("{\"person\" :{ \"age\" :13 , \"relations\":[\"mother\",\"father\"]},\"newvalue\": null,\"salary\": 3.22, \"boolvalue\": false"});
+		bret = json.parseString("{\"person\" :{ \"age\" :13 , \"relations\":[\"mother\",\"father\"]},\"newvalue\": null,\"salary\": 3.22, \"boolvalue\": false}");
+		assertEquals("parse ok",bret,true);
+		value = json.getObject(key);
+		assertEquals(String.format("object %s",value.getClass().getName()),value instanceof JSONArray,true);
+		value = json.getObject("newvalue");
+		assertEquals(String.format("newvalue null"),value,null);
+		value = json.getObject("boolvalue");
+		assertEquals(String.format("boolvalue %s",value.getClass().getName()),value instanceof Boolean,true);
+		value = json.getObject("salary");
+		assertEquals(String.format("salary %s",value.getClass().getName()),value instanceof Double,true);
+	}	
 }

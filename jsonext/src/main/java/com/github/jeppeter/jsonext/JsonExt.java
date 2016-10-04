@@ -150,4 +150,7 @@ public class JsonExt {
 	}
 
 
+	public Object getObject(String path) throws JsonExtNotParsedException,JsonExtNotFoundException,JsonExtInvalidTypeException {
+		return this.__getObject(path);
+	}
 }
