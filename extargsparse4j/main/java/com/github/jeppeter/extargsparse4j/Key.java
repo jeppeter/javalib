@@ -157,11 +157,22 @@ public final class Key {
 	private void __set_flag(String prefix,String key,Object value) {
 		String[] keys;
 		JsonExt json = new JsonExt();
+		int i;
 		this.m_isflag = true;
 		this.m_iscmd = false;
 		this.m_origkey = key;
 		json.Clone(value);
 		keys = json.getKeys("/");
+		if (keys == null ||  !Array.asList(keys).contains("value")) {
+			this.m_value = null;
+			this.m_type = "string";
+		}
+
+		if (keys != null) {
+			for (i=0;i<keys.length;i++) {
+				
+			}
+		}
 
 	}
 
