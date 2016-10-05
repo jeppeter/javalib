@@ -144,9 +144,24 @@ public final class Key {
 				throw new KeyException(String.format("(%s) nargs (%s)",this.m_origkey,this.m_nargs));
 			}
 
-		}
+			if (this.m_type != "dict") {
+				throw new KeyException(String.format("(%s) command must be dict",this.m_origkey));
 			}
+			this.m_prefix = this.m_cmdname;
+			this.m_type = "command";
+		}
+		return;
 	}
+
+	private void __set_flag(String prefix,String key,Object value){
+		String[] keys;
+		this.m_isflag = true;
+		this.m_iscmd = false;
+		this.m_origkey = key;
+
+
+	}
+
 
 	private void __parse(String prefix, String key, Object value, boolean isflag) {
 		boolean cmdmode = false;

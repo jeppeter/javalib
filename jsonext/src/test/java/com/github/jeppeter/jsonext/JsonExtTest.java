@@ -104,5 +104,25 @@ public class JsonExtTest {
 		assertEquals(String.format("boolvalue %s",value.getClass().getName()),value instanceof Boolean,true);
 		value = json.getObject("salary");
 		assertEquals(String.format("salary %s",value.getClass().getName()),value instanceof Double,true);
+	}
+
+	@Test
+	public void test_A007() throws JsonExtNotParsedException, JsonExtNotFoundException, JsonExtInvalidTypeException {
+		JsonExt json = new JsonExt();
+		JsonExt jsonext;
+		Object obj;
+		boolean bret;
+		String key = "person/relations";
+		Object value;
+		String[] keys; 
+		//bret = json.parseString("{\"person\" :{ \"age\" :13 , \"relations\":[\"mother\",\"father\"]},\"newvalue\": null,\"salary\": 3.22, \"boolvalue\": false"});
+		bret = json.parseString("{\"person\" :{ \"age\" :13 , \"relations\":[\"mother\",\"father\"]},\"newvalue\": null,\"salary\": 3.22, \"boolvalue\": false}");
+		assertEquals("parse ok",bret,true);
+		obj = (Object) json;
+		jsonext = (JsonExt) obj;
+		keys = jsonext.getKeys("/");
+		assertEquals(String.format("/ keys length"),keys.length,4);
+		keys = jsonext.getKeys("/person");
+		assertEquals(String.format("person keys length"),keys.length,2);
 	}	
 }

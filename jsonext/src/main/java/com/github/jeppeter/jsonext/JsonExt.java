@@ -22,6 +22,7 @@ public class JsonExt {
 		this.m_object = null;
 	}
 
+
 	public boolean parseFile(String file) {
 		JSONParser parser = new JSONParser();
 		try {
