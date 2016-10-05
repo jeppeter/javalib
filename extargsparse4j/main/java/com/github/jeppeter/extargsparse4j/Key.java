@@ -180,6 +180,7 @@ public final class Key {
 	private void __set_flag(String prefix, String key, Object value) {
 		String[] keys;
 		JsonExt json = new JsonExt();
+		String sobj;
 		int i;
 		this.m_isflag = true;
 		this.m_iscmd = false;
@@ -235,12 +236,14 @@ public final class Key {
 		boolean cmdmode = false;
 		boolean flagmode = false;
 		String flags = null;
+		Long lobj;
 		int i;
 		ReExt ext ;
 		String mstr;
 		String cmd ;
 		String[] retstr;
 		String newprefix;
+		boolean valid;
 		this.m_origkey = key;
 		if (this.m_origkey.contains("$")) {
 			if (this.m_origkey.charAt(0) != "$") {
@@ -303,7 +306,7 @@ public final class Key {
 			}
 			this.m_cmdexpr.FindAll(this.m_origkey);
 			cmd = this.m_cmdexpr.getMatch(0, 0);
-			if (retstr != null) {
+			if (cmd != null) {
 				assert(!flagmode );
 				if (cmd.contains("|"))  {
 					flags = cmd;
@@ -338,7 +341,7 @@ public final class Key {
 		}
 		newprefix = "";
 		if (prefix != null && prefix.length > 0) {
-			newprefix = String.Format("%s_", prefix);
+			newprefix = String.format("%s_", prefix);
 		}
 
 		this.m_prefixexpr.FindAll(this.m_origkey);
@@ -347,8 +350,8 @@ public final class Key {
 			newprefix += mstr;
 			this.m_prefix = newprefix;
 		} else {
-			if (newprefix.length > 0) {
-				this.m_prefix = newprefix;
+			if (prefix.length > 0) {
+				this.m_prefix = prefix;
 			}
 		}
 
@@ -368,7 +371,58 @@ public final class Key {
 		}
 
 		this.m_value = value;
+		this.m_type = TypeClass(value).get_type();
 
+		if (cmdmode && this.m_type != "dict") {
+			flagmode = True;
+			cmdmode = False;
+			this.m_isflag = True;
+			this.m_iscmd = False;
+			this.m_flagname = this.m_cmdname;
+			this.m_cmdname = null;
+		}
+
+		if (this.m_isflag && this.m_type == "string"  ) {
+			sobj = (String) this.m_value;
+			if (sobj == "+" && this.m_flagname != "$") {
+				lobj = Long(0);
+				this.m_value = (Object) lobj;
+				this.m_type = "count";
+				this.m_nargs = "0";
+			}
+		}
+
+		if (this.m_isflag && this.m_flagname == "$" && this.m_type != "dict") {
+			valid = False;
+			if (this.m_type == "string") {
+				sobj = (String) this.m_value;
+				if (sobj == "+" || 
+					sobj == "?" ||
+					sobj == "*") {
+					valid = True;
+				}
+				this.m_nargs = sobj;
+				this.m_type = "count";
+				this.m_value = null;
+
+			} else if (this.m_type == "long") {
+				valid = True;
+				lobj = (Long) this.m_value;
+				this.m_nargs = String.format("%d",lobj);
+				this.m_type = "count";
+				this.m_value = null;
+			}
+
+			if (!valid) {
+				throw new KeyException(String.format("(%s)(%s)(%s) for $ should option dict set opt or +?* specialcase or type int",prefix,this.m_origkey,this.m_value.toString()));
+			}
+		}
+
+		if (this.m_isflag && this.m_type == "dict" && this.m_flagname != null) {
+			this.__set_flag(prefix,key,value);
+		}
+		this.__validate();
+		return;
 	}
 
 	protected Key(String prefix, String key, Object value, boolean isflag) {
