@@ -34,10 +34,31 @@ public class nameset {
 		return;
 	}
 
+	public void debug_fields() {
+		Field[] flds;
+
+		System.out.printf("Fields :");
+		flds = this.getClass().getFields();
+		for (Field f : flds) {
+			System.out.printf(" "+String.format("%s",f.getName()));
+		}
+		System.out.println("");
+
+		System.out.printf("Declared Fields :");
+		flds = this.getClass().getDeclaredFields();
+		for (Field f : flds) {
+			System.out.printf(" "+String.format("%s",f.getName()));
+		}
+		System.out.println("");
+
+		return;
+	}
+
 	public static void main(String[] args) throws NoSuchFieldException, IllegalAccessException {
 		nameset v = new nameset();
 		String oldval;
 		int i;
+		v.debug_fields();
 		i = 0;
 		while ((i +1)< args.length)  {
 			oldval = v.set_value(args[i],args[i+1]);

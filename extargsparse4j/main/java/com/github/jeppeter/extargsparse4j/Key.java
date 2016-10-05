@@ -7,26 +7,27 @@ import reext.ReExt;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 import com.github.jeppeter.jsonext.JsonExt;
+import java.lang.reflect.Field;
 
 class TypeClass {
 	private String m_typename;
 	public TypeClass(Object o) throws KeyException {
 		if ( o instanceof String) {
-			this.m_typename = "string";			
+			this.m_typename = "string";
 		} else if (o instanceof Long) {
 			this.m_typename = "long";
 		} else if (o instanceof JSONObject) {
 			this.m_typename = "dict";
 		} else if (o instanceof JSONArray) {
 			this.m_typename = "list";
-		} else if (o instanceof Boolean){
+		} else if (o instanceof Boolean) {
 			this.m_typename = "bool";
 		} else if (o instanceof Double ) {
 			this.m_typename = "float";
 		}  else if (o == null) {
 			this.m_typename = "string";
-		}else {
-			throw new KeyException(String.format("unknown type %s",o.getClass().getName()));
+		} else {
+			throw new KeyException(String.format("unknown type %s", o.getClass().getName()));
 		}
 	}
 
@@ -36,7 +37,13 @@ class TypeClass {
 }
 
 public final class Key {
-	private String m_value;
+	private static final String[] m_flagwords = {"flagname", "helpinfo", "shortflag", "nargs"};
+	private static final String[] m_flagspecial = {"value", "prefix"};
+	private static final String[] m_cmdwords = {"cmdname", "function", "helpinfo"};
+	private static final String[] m_otherwords_string = {"origkey", "type"};
+	private static final String[] m_otherwords_bool = {"iscmd", "isflag"};
+	private static final String[] m_formwords = {"longopt", "shortopt", "optdest"};
+	private Object m_value;
 	private String m_prefix;
 	private String m_flagname;
 	private String m_helpinfo;
@@ -75,57 +82,57 @@ public final class Key {
 		if (this.m_isflag) {
 			assert(!this.m_iscmd);
 			if (this.m_function != null ) {
-				throw new KeyException(String.format("(%s) can not accept ",this.m_origkey));
+				throw new KeyException(String.format("(%s) can not accept ", this.m_origkey));
 			}
 
 			if (this.m_type == "dict" && this.m_flagname != null) {
-				throw new KeyException(String.format("(%s) flag can not accept dict",this.m_origkey));
+				throw new KeyException(String.format("(%s) flag can not accept dict", this.m_origkey));
 			}
 
 			if (this.m_type != TypeClass(this.m_value).get_type() && this.m_type != "count") {
-				throw new KeyException(String.format("(%s) not match type(%s)",this.m_origkey,this.m_type));
+				throw new KeyException(String.format("(%s) not match type(%s)", this.m_origkey, this.m_type));
 			}
 
 			if (this.m_flagname == null) {
 				if (this.m_prefix == null) {
-					throw new KeyException(String.format("(%s) should at least for prefix",this.m_origkey));
+					throw new KeyException(String.format("(%s) should at least for prefix", this.m_origkey));
 				}
 				this.m_type = "prefix";
 				if (TypeClass(this.m_value).get_type() != "dict") {
-					throw new KeyException(String.format("(%s) should make dict for prefix",this.m_origkey));
+					throw new KeyException(String.format("(%s) should make dict for prefix", this.m_origkey));
 				}
 
 				if (this.m_helpinfo != null) {
-					throw new KeyException(String.format("(%s) should not has helpinfo",this.m_origkey));
+					throw new KeyException(String.format("(%s) should not has helpinfo", this.m_origkey));
 				}
 				if (this.m_shortflag != null) {
-					throw new KeyException(String.format("(%s) should not has shortflag",this.m_origkey));
+					throw new KeyException(String.format("(%s) should not has shortflag", this.m_origkey));
 				}
 			} else if (this.m_flagname == "$") {
 				this.m_type = "args";
 				if (this.m_shortflag != null) {
-					throw new KeyException(String.format("(%s) should not has shortflag",this.m_origkey));
+					throw new KeyException(String.format("(%s) should not has shortflag", this.m_origkey));
 				}
 			} else {
 				if (this.m_flagname.length <= 0) {
-					throw new KeyException(String.format("(%s) flagname <= 0",this.m_origkey)); 
+					throw new KeyException(String.format("(%s) flagname <= 0", this.m_origkey));
 				}
 			}
 
-			if (this.m_shortflag != null ){
+			if (this.m_shortflag != null ) {
 				if (this.m_shortflag.length > 1) {
-					throw new KeyException(String.format("(%s) shortflag > 1",this.m_origkey));
+					throw new KeyException(String.format("(%s) shortflag > 1", this.m_origkey));
 				}
 			}
 
 			if (this.m_type == "bool") {
 				if (this.m_nargs != null && this.m_nargs != "0") {
-					throw new KeyException(String.format("(%s) nargs != 0",this.m_origkey));
+					throw new KeyException(String.format("(%s) nargs != 0", this.m_origkey));
 				}
 				this.m_nargs = "0";
-			} else if (this.m_type != "prefix" && this.m_flagname != "$" && this.m_type !="count") {
+			} else if (this.m_type != "prefix" && this.m_flagname != "$" && this.m_type != "count") {
 				if (this.m_flagname != "$" && this.m_nargs != "1" && this.m_nargs != null) {
-					throw new KeyException(String.format("(%s) only $ accept nargs options",this.m_origkey));
+					throw new KeyException(String.format("(%s) only $ accept nargs options", this.m_origkey));
 				}
 				this.m_nargs = "1";
 			} else {
@@ -135,18 +142,18 @@ public final class Key {
 			}
 		} else {
 			if (this.m_cmdname == null || this.m_cmdname.length == 0) {
-				throw new KeyException(String.format("(%s) no cmdnname",this.m_origkey));
+				throw new KeyException(String.format("(%s) no cmdnname", this.m_origkey));
 			}
-			if (this.m_shortflag != null){
-				throw new KeyException(String.format("(%s) has shortflag (%s)",this.m_origkey,this.m_shortflag));
+			if (this.m_shortflag != null) {
+				throw new KeyException(String.format("(%s) has shortflag (%s)", this.m_origkey, this.m_shortflag));
 			}
 
 			if (this.m_nargs != null) {
-				throw new KeyException(String.format("(%s) nargs (%s)",this.m_origkey,this.m_nargs));
+				throw new KeyException(String.format("(%s) nargs (%s)", this.m_origkey, this.m_nargs));
 			}
 
 			if (this.m_type != "dict") {
-				throw new KeyException(String.format("(%s) command must be dict",this.m_origkey));
+				throw new KeyException(String.format("(%s) command must be dict", this.m_origkey));
 			}
 			this.m_prefix = this.m_cmdname;
 			this.m_type = "command";
@@ -154,7 +161,23 @@ public final class Key {
 		return;
 	}
 
-	private void __set_flag(String prefix,String key,Object value) {
+	private String __get_m_field_string(String fldname) {
+		Field fld;
+		String innername = String.format("m_%s", fldname);
+		fld = this.getClass().getDeclaredField(innername);
+		return (String) fld.get((Object) this);
+	}
+
+	private void __set_m_field_string(String fldname,String value) {
+		String innername = String.format("m_%s", fldname);
+		fld = this.getClass().getDeclaredField(innername);
+		fld.set((Object) this,(Object)value);
+		return;
+	}
+
+
+
+	private void __set_flag(String prefix, String key, Object value) {
 		String[] keys;
 		JsonExt json = new JsonExt();
 		int i;
@@ -169,11 +192,42 @@ public final class Key {
 		}
 
 		if (keys != null) {
-			for (i=0;i<keys.length;i++) {
-				
+			for (i = 0; i < keys.length; i++) {
+				if (Arrays.asList(this.m_flagwords).contains(keys[i])) {
+					String getval = this.__get_m_field_string(keys[i]);
+					if (getval != null && getval != json.getString(keys[i])) {
+						throw new KeyException(String.format("(%s).%s %s != %s", this.m_origkey, keys[i], getval, json.getString(keys[i])));
+					}
+					this.__set_m_field_string(keys[i],json.getString(keys[i]));
+				} else if (Arrays.asList(this.m_flagspecial).contains(keys[i])) {
+					String newprefix;
+					if (keys[i] == "prefix") {
+						if (TypeClass(json.getObject(keys[i])).get_type() != "string") {
+							throw new KeyException(String.format("(%s).prefix type %s", this.m_origkey, TypeClass(json.getObject(keys[i])).get_type()));
+						}
+						newprefix = "";
+						if (prefix != null && prefix.length > 0) {
+							newprefix += prefix;
+						}
+						newprefix += json.getString(keys[i]);
+						this.m_prefix = newprefix;
+					} else if (keys[i] == "value") {
+						if (TypeClass(json.getObject(keys[i])).get_type() == "dict") {
+							throw new KeyException(String.format("(%s) %s should not be dict", this.m_origkey, keys[i]));
+						}
+						this.m_value = value;
+						this.m_type = TypeClass(json.getObject(keys[i])).get_type();
+					} else {
+						throw new KeyException(String.format("(%s).%s not valid",this.m_origkey,keys[i]));
+					}
+				}
 			}
 		}
 
+		if ((this.m_prefix == null || this.m_prefix.length == 0) && (prefix != null && prefix.length > 0)) {
+			this.m_prefix = prefix;
+		}
+		return ;
 	}
 
 
