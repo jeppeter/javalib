@@ -118,11 +118,9 @@ public class JsonExtTest {
 		//bret = json.parseString("{\"person\" :{ \"age\" :13 , \"relations\":[\"mother\",\"father\"]},\"newvalue\": null,\"salary\": 3.22, \"boolvalue\": false"});
 		bret = json.parseString("{\"person\" :{ \"age\" :13 , \"relations\":[\"mother\",\"father\"]},\"newvalue\": null,\"salary\": 3.22, \"boolvalue\": false}");
 		assertEquals("parse ok",bret,true);
-		obj = (Object) json;
-		jsonext = (JsonExt) obj;
-		keys = jsonext.getKeys("/");
-		assertEquals(String.format("/ keys length"),keys.length,4);
-		keys = jsonext.getKeys("/person");
+		obj = json.getObject("/person");
+		json.Clone(obj);
+		keys = json.getKeys("/");
 		assertEquals(String.format("person keys length"),keys.length,2);
 	}	
 }

@@ -22,6 +22,16 @@ public class JsonExt {
 		this.m_object = null;
 	}
 
+	public void Clone(Object value) throws JsonExtInvalidTypeException {
+		if (value == null){
+			this.m_object = null;
+		} else if (value instanceof JSONObject) {
+			this.m_object = (JSONObject) value;
+		}  else {
+			throw new JsonExtInvalidTypeException(String.format("not valid type (%s)",value.getClass().getName()));
+		}
+		return;
+	}
 
 	public boolean parseFile(String file) {
 		JSONParser parser = new JSONParser();

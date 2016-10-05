@@ -6,6 +6,7 @@ import com.github.jeppeter.extargsparse4j.KeyException;
 import reext.ReExt;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
+import com.github.jeppeter.jsonext.JsonExt;
 
 class TypeClass {
 	private String m_typename;
@@ -153,12 +154,14 @@ public final class Key {
 		return;
 	}
 
-	private void __set_flag(String prefix,String key,Object value){
+	private void __set_flag(String prefix,String key,Object value) {
 		String[] keys;
+		JsonExt json = new JsonExt();
 		this.m_isflag = true;
 		this.m_iscmd = false;
 		this.m_origkey = key;
-
+		json.Clone(value);
+		keys = json.getKeys("/");
 
 	}
 
