@@ -28,6 +28,10 @@ class TypeClass {
 			throw new KeyException(String.format("unknown type %s",o.getClass().getName()));
 		}
 	}
+
+	public String get_type() {
+		return this.m_typename;
+	}
 }
 
 public final class Key {
@@ -50,7 +54,7 @@ public final class Key {
 	private Patern m_flagexpr;
 	private Pattern m_mustflagexpr;
 
-	private void reset() {
+	private void __reset() {
 		this.m_value = null;
 		this.m_prefix = "";
 		this.m_flagname = null;
@@ -64,6 +68,84 @@ public final class Key {
 		this.m_isflag = false;
 		this.m_type = null;
 		return;
+	}
+
+	private void __validate()  throws KeyException {
+		if (this.m_isflag) {
+			assert(!this.m_iscmd);
+			if (this.m_function != null ) {
+				throw new KeyException(String.format("(%s) can not accept ",this.m_origkey));
+			}
+
+			if (this.m_type == "dict" && this.m_flagname != null) {
+				throw new KeyException(String.format("(%s) flag can not accept dict",this.m_origkey));
+			}
+
+			if (this.m_type != TypeClass(this.m_value).get_type() && this.m_type != "count") {
+				throw new KeyException(String.format("(%s) not match type(%s)",this.m_origkey,this.m_type));
+			}
+
+			if (this.m_flagname == null) {
+				if (this.m_prefix == null) {
+					throw new KeyException(String.format("(%s) should at least for prefix",this.m_origkey));
+				}
+				this.m_type = "prefix";
+				if (TypeClass(this.m_value).get_type() != "dict") {
+					throw new KeyException(String.format("(%s) should make dict for prefix",this.m_origkey));
+				}
+
+				if (this.m_helpinfo != null) {
+					throw new KeyException(String.format("(%s) should not has helpinfo",this.m_origkey));
+				}
+				if (this.m_shortflag != null) {
+					throw new KeyException(String.format("(%s) should not has shortflag",this.m_origkey));
+				}
+			} else if (this.m_flagname == "$") {
+				this.m_type = "args";
+				if (this.m_shortflag != null) {
+					throw new KeyException(String.format("(%s) should not has shortflag",this.m_origkey));
+				}
+			} else {
+				if (this.m_flagname.length <= 0) {
+					throw new KeyException(String.format("(%s) flagname <= 0",this.m_origkey)); 
+				}
+			}
+
+			if (this.m_shortflag != null ){
+				if (this.m_shortflag.length > 1) {
+					throw new KeyException(String.format("(%s) shortflag > 1",this.m_origkey));
+				}
+			}
+
+			if (this.m_type == "bool") {
+				if (this.m_nargs != null && this.m_nargs != "0") {
+					throw new KeyException(String.format("(%s) nargs != 0",this.m_origkey));
+				}
+				this.m_nargs = "0";
+			} else if (this.m_type != "prefix" && this.m_flagname != "$" && this.m_type !="count") {
+				if (this.m_flagname != "$" && this.m_nargs != "1" && this.m_nargs != null) {
+					throw new KeyException(String.format("(%s) only $ accept nargs options",this.m_origkey));
+				}
+				this.m_nargs = "1";
+			} else {
+				if (this.m_flagname == "$" && this.m_nargs == null) {
+					this.m_nargs = "*";
+				}
+			}
+		} else {
+			if (this.m_cmdname == null || this.m_cmdname.length == 0) {
+				throw new KeyException(String.format("(%s) no cmdnname",this.m_origkey));
+			}
+			if (this.m_shortflag != null){
+				throw new KeyException(String.format("(%s) has shortflag (%s)",this.m_origkey,this.m_shortflag));
+			}
+
+			if (this.m_nargs != null) {
+				throw new KeyException(String.format("(%s) nargs (%s)",this.m_origkey,this.m_nargs));
+			}
+
+		}
+			}
 	}
 
 	private void __parse(String prefix, String key, Object value, boolean isflag) {
