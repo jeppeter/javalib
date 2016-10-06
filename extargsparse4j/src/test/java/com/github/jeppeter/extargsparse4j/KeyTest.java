@@ -420,4 +420,18 @@ public class KeyTest {
 			this.assert_bool_value(flags,"iscmd",false);
 			return;
 	}
+
+	@Test
+	public void test_A020()throws NoSuchFieldException, KeyException, IllegalAccessException,
+		JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException {
+			Key flags;
+			Boolean ok = false;
+			try{
+				flags = new Key("","$",null,false);
+			} catch(KeyException e) {
+				ok = true;
+			}
+			assertEquals(String.format("pass not ok"),ok,true);
+			return;
+	}
 }

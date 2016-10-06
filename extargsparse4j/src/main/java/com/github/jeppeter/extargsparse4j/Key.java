@@ -100,7 +100,7 @@ public final class Key {
 
 			typecls = new TypeClass(this.m_value);
 			if (!this.m_type.equals(typecls.get_type()) && !this.m_type.equals( "count")) {
-				throw new KeyException(String.format("(%s) not match type(%s) != (%s)", this.m_origkey, this.m_type,typecls.get_type()));
+				throw new KeyException(String.format("(%s) not match type(%s) != (%s)", this.m_origkey, this.m_type, typecls.get_type()));
 			}
 
 			if (this.m_flagname == null) {
@@ -172,37 +172,37 @@ public final class Key {
 		return;
 	}
 
-	private Object __get_m_field_object(String fldname) throws NoSuchFieldException,IllegalAccessException {
+	private Object __get_m_field_object(String fldname) throws NoSuchFieldException, IllegalAccessException {
 		Field fld;
 		String innername = String.format("m_%s", fldname);
 		fld = this.getClass().getDeclaredField(innername);
-		return  fld.get((Object) this);		
+		return  fld.get((Object) this);
 	}
 
-	private String __get_m_field_string(String fldname) throws NoSuchFieldException,IllegalAccessException {
+	private String __get_m_field_string(String fldname) throws NoSuchFieldException, IllegalAccessException {
 		return (String) this.__get_m_field_object(fldname);
 	}
 
-	private Boolean __get_m_field_bool(String fldname) throws NoSuchFieldException,IllegalAccessException {
+	private Boolean __get_m_field_bool(String fldname) throws NoSuchFieldException, IllegalAccessException {
 		return (Boolean) this.__get_m_field_object(fldname);
 	}
 
-	private Object __set_m_field_object(String fldname,Object value) throws NoSuchFieldException,IllegalAccessException {
+	private Object __set_m_field_object(String fldname, Object value) throws NoSuchFieldException, IllegalAccessException {
 		Object oldval;
 		String innername = String.format("m_%s", fldname);
 		Field fld;
 		oldval = this.__get_m_field_object(fldname);
 		fld = this.getClass().getDeclaredField(innername);
-		fld.set((Object) this,(Object)value);
+		fld.set((Object) this, (Object)value);
 		return oldval;
 	}
 
-	private String __set_m_field_string(String fldname,String value) throws NoSuchFieldException,IllegalAccessException {
-		return (String) this.__set_m_field_object(fldname,(Object)value);
+	private String __set_m_field_string(String fldname, String value) throws NoSuchFieldException, IllegalAccessException {
+		return (String) this.__set_m_field_object(fldname, (Object)value);
 	}
 
 
-	private void __set_flag(String prefix, String key, Object value) throws JsonExtInvalidTypeException,JsonExtNotParsedException,JsonExtNotFoundException,NoSuchFieldException,IllegalAccessException,KeyException {
+	private void __set_flag(String prefix, String key, Object value) throws JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException, NoSuchFieldException, IllegalAccessException, KeyException {
 		String[] keys;
 		JsonExt json = new JsonExt();
 		String sobj;
@@ -225,7 +225,7 @@ public final class Key {
 					if (getval != null && getval != json.getString(keys[i])) {
 						throw new KeyException(String.format("(%s).%s %s != %s", this.m_origkey, keys[i], getval, json.getString(keys[i])));
 					}
-					this.__set_m_field_string(keys[i],json.getString(keys[i]));
+					this.__set_m_field_string(keys[i], json.getString(keys[i]));
 				} else if (Arrays.asList(this.m_flagspecial).contains(keys[i])) {
 					String newprefix;
 					if (keys[i].equals("prefix")) {
@@ -247,7 +247,7 @@ public final class Key {
 						this.m_value = json.getObject(keys[i]);
 						this.m_type = typecls.get_type();
 					} else {
-						throw new KeyException(String.format("(%s).%s not valid",this.m_origkey,keys[i]));
+						throw new KeyException(String.format("(%s).%s not valid", this.m_origkey, keys[i]));
 					}
 				}
 			}
@@ -260,9 +260,9 @@ public final class Key {
 	}
 
 
-	private void __parse(String prefix, String key, Object value, boolean isflag) 
-	          throws KeyException,JsonExtInvalidTypeException,JsonExtNotParsedException,
-	          JsonExtNotFoundException,NoSuchFieldException,IllegalAccessException {
+	private void __parse(String prefix, String key, Object value, boolean isflag)
+	throws KeyException, JsonExtInvalidTypeException, JsonExtNotParsedException,
+		JsonExtNotFoundException, NoSuchFieldException, IllegalAccessException {
 		boolean cmdmode = false;
 		boolean flagmode = false;
 		String flags = null;
@@ -429,38 +429,37 @@ public final class Key {
 			valid = false;
 			if (this.m_type == "string") {
 				sobj = (String) this.m_value;
-				if (sobj == "+" || 
-					sobj == "?" ||
-					sobj == "*") {
+				if (sobj != null && (sobj.equals("+") ||
+				        sobj.equals("?") ||
+				        sobj.equals("*"))) {
 					valid = true;
 				}
 				this.m_nargs = sobj;
 				this.m_type = "count";
 				this.m_value = null;
-
 			} else if (this.m_type == "long") {
 				valid = true;
 				lobj = (Long) this.m_value;
-				this.m_nargs = String.format("%d",lobj);
+				this.m_nargs = String.format("%d", lobj);
 				this.m_type = "count";
 				this.m_value = null;
 			}
 
 			if (!valid) {
-				throw new KeyException(String.format("(%s)(%s)(%s) for $ should option dict set opt or +?* specialcase or type int",prefix,this.m_origkey,this.m_value.toString()));
+				throw new KeyException(String.format("(%s)(%s)(%s) for $ should option dict set opt or +?* specialcase or type int", prefix, this.m_origkey, this.m_value != null ? this.m_value.toString() : "null"));
 			}
 		}
 
 		if (this.m_isflag && this.m_type == "dict" && this.m_flagname != null) {
-			this.__set_flag(prefix,key,value);
+			this.__set_flag(prefix, key, value);
 		}
 		this.__validate();
 		return;
 	}
 
-	protected Key(String prefix, String key, Object value, boolean isflag) 
-			throws KeyException,JsonExtInvalidTypeException,JsonExtNotParsedException,
-			       JsonExtNotFoundException,NoSuchFieldException,IllegalAccessException {
+	protected Key(String prefix, String key, Object value, boolean isflag)
+	throws KeyException, JsonExtInvalidTypeException, JsonExtNotParsedException,
+		JsonExtNotFoundException, NoSuchFieldException, IllegalAccessException {
 		this.__reset();
 		this.m_helpexpr = new ReExt("##([^#]+)##$", true);
 		this.m_cmdexpr = new ReExt("^([^\\#\\<\\>\\+\\$]+)", true);
@@ -472,19 +471,19 @@ public final class Key {
 		this.__parse(prefix, key, value, isflag);
 	}
 
-	protected Key(String prefix, String key, Object value) 
-	      throws KeyException,JsonExtInvalidTypeException,JsonExtNotParsedException,
-	                 JsonExtNotFoundException,NoSuchFieldException,IllegalAccessException {
+	protected Key(String prefix, String key, Object value)
+	throws KeyException, JsonExtInvalidTypeException, JsonExtNotParsedException,
+		JsonExtNotFoundException, NoSuchFieldException, IllegalAccessException {
 		this(prefix, key, value, false);
 	}
 
 	protected void change_to_flag() throws KeyException {
 		if (this.m_iscmd || ! this.m_isflag) {
-			throw new KeyException(String.format("(%s) not cmd to change",this.m_origkey));
+			throw new KeyException(String.format("(%s) not cmd to change", this.m_origkey));
 		}
 
 		if (this.m_function != null) {
-			throw new KeyException(String.format("(%s) has function",this.m_origkey));
+			throw new KeyException(String.format("(%s) has function", this.m_origkey));
 		}
 
 		assert(this.m_flagname == null) ;
@@ -499,10 +498,10 @@ public final class Key {
 	}
 
 	private String __get_form_string(String fldname) throws KeyException {
-		String retval=null;
+		String retval = null;
 		Boolean bobj;
 		if (! this.m_isflag || this.m_flagname == null || this.m_type == "args") {
-			throw new KeyException(String.format("(%s) not valid for %s",this.m_origkey,fldname));
+			throw new KeyException(String.format("(%s) not valid for %s", this.m_origkey, fldname));
 		}
 		if (fldname == "longopt" ) {
 			retval = "--";
@@ -514,55 +513,55 @@ public final class Key {
 			}
 
 			if (this.m_prefix != null && this.m_prefix.length() > 0) {
-				retval += String.format("%s-",this.m_prefix);
+				retval += String.format("%s-", this.m_prefix);
 			}
 			retval += this.m_flagname;
-			retval = retval.toLowerCase(); 
-			retval = retval.replace('_','-');
+			retval = retval.toLowerCase();
+			retval = retval.replace('_', '-');
 		} else if (fldname == "shortopt") {
 			retval = null;
 			if (this.m_shortflag != null) {
-				retval = String.format("-%s",this.m_shortflag);
+				retval = String.format("-%s", this.m_shortflag);
 			}
 		} else if (fldname == "optdest") {
 			retval = "";
 			if (this.m_prefix != null && this.m_prefix.length() > 0 ) {
-				retval += String.format("%s_",this.m_prefix);
+				retval += String.format("%s_", this.m_prefix);
 			}
 			retval += this.m_flagname;
 			retval = retval.toLowerCase();
-			retval = retval.replace('-','_');
+			retval = retval.replace('-', '_');
 		} else {
-			assert(0!=0);
+			assert(0 != 0);
 		}
 		return retval;
 	}
 
-	protected String get_string_value(String fldname) throws NoSuchFieldException,KeyException,IllegalAccessException {
+	protected String get_string_value(String fldname) throws NoSuchFieldException, KeyException, IllegalAccessException {
 		if (Arrays.asList(this.m_formwords).contains(fldname)) {
-			return this.__get_form_string(fldname); 
+			return this.__get_form_string(fldname);
 		}
 		if (Arrays.asList(this.m_cmdwords).contains(fldname)  ||
-			Arrays.asList(this.m_flagwords).contains(fldname) ||
-			Arrays.asList(this.m_flagspecial_string).contains(fldname) || 
-			Arrays.asList(this.m_otherwords_string).contains(fldname)){
+		        Arrays.asList(this.m_flagwords).contains(fldname) ||
+		        Arrays.asList(this.m_flagspecial_string).contains(fldname) ||
+		        Arrays.asList(this.m_otherwords_string).contains(fldname)) {
 			return this.__get_m_field_string(fldname);
 		}
 
-		throw new KeyException(String.format("(%s) not valid fldname",fldname));
+		throw new KeyException(String.format("(%s) not valid fldname", fldname));
 	}
 
-	protected Boolean get_bool_value(String fldname) throws NoSuchFieldException,KeyException,IllegalAccessException {
+	protected Boolean get_bool_value(String fldname) throws NoSuchFieldException, KeyException, IllegalAccessException {
 		if (Arrays.asList(this.m_otherwords_bool).contains(fldname)) {
 			return this.__get_m_field_bool(fldname);
 		}
-		throw new KeyException(String.format("(%s) not valid fldname",fldname));
+		throw new KeyException(String.format("(%s) not valid fldname", fldname));
 	}
 
-	protected Object get_object_value(String fldname) throws NoSuchFieldException,KeyException,IllegalAccessException {
+	protected Object get_object_value(String fldname) throws NoSuchFieldException, KeyException, IllegalAccessException {
 		if (Arrays.asList(this.m_flagspecial_object).contains(fldname)) {
 			return this.__get_m_field_object(fldname);
 		}
-		throw new KeyException(String.format("(%s) not object value",fldname));
+		throw new KeyException(String.format("(%s) not object value", fldname));
 	}
 }
