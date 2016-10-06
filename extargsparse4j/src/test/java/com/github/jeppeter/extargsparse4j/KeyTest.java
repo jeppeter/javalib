@@ -371,4 +371,27 @@ public class KeyTest {
 			this.assert_bool_value(flags,"iscmd",false);
 			return;
 	}
+
+	@Test
+	public void test_A018()throws NoSuchFieldException, KeyException, IllegalAccessException,
+		JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException {
+			Key flags;
+			JsonExt jsonext = new JsonExt();
+			Object dobj;
+			jsonext.parseString("{}");
+			dobj = jsonext.getObject("/");
+			flags = new Key("","flag+app<flag.main>## flag help ##",dobj,false);
+			this.assert_string_value(flags,"flagname",null);
+			this.assert_string_value(flags,"prefix","flag");
+			this.assert_string_value(flags,"cmdname","flag");
+			this.assert_string_value(flags,"shortflag",null);
+			this.assert_string_value(flags,"type","command");
+			this.assert_object_value(flags,"value",dobj);
+			this.assert_string_value(flags,"function","flag.main");
+			this.assert_string_value(flags,"helpinfo"," flag help ");
+			this.assert_bool_value(flags,"isflag",false);
+			this.assert_bool_value(flags,"iscmd",true);
+			this.__opt_fail_check(flags);
+			return;
+	}
 }
