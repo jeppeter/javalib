@@ -566,4 +566,25 @@ public class KeyTest {
 			this.assert_string_value(flags,"shortopt","-v");
 			return;
 	}
+
+	@Test
+	public void test_A028()throws NoSuchFieldException, KeyException, IllegalAccessException,
+		JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException {
+			Key flags;
+			Long lobj = new Long(new Integer(0));
+			flags = new Key("","verbose|v## new help info ##","+",false);
+			this.assert_string_value(flags,"flagname","verbose");
+			this.assert_string_value(flags,"shortflag","v");
+			this.assert_string_value(flags,"prefix","");
+			this.assert_string_value(flags,"type","count");
+			this.assert_object_value(flags,"value",lobj);
+			this.assert_string_value(flags,"helpinfo"," new help info ");
+			this.assert_string_value(flags,"nargs","0");
+			this.assert_string_value(flags,"cmdname",null);
+			this.assert_string_value(flags,"function",null);
+			this.assert_string_value(flags,"optdest","verbose");
+			this.assert_string_value(flags,"longopt","--verbose");
+			this.assert_string_value(flags,"shortopt","-v");
+			return;
+	}
 }
