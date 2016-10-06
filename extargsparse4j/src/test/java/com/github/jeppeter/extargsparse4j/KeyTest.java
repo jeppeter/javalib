@@ -292,4 +292,83 @@ public class KeyTest {
 			assertEquals(String.format("pass not ok"),ok,true);
 			return;
 	}
+
+	@Test
+	public void test_A014()throws NoSuchFieldException, KeyException, IllegalAccessException,
+		JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException {
+			Key flags;
+			Boolean ok = false;
+			try{
+				flags = new Key("","c$","",false);
+			} catch(KeyException e) {
+				ok = true;
+			}
+			assertEquals(String.format("pass not ok"),ok,true);
+			return;
+	}
+
+	@Test
+	public void test_A015()throws NoSuchFieldException, KeyException, IllegalAccessException,
+		JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException {
+			Key flags;
+			Boolean ok = false;
+			try{
+				flags = new Key("","$$","",false);
+			} catch(KeyException e) {
+				ok = true;
+			}
+			assertEquals(String.format("pass not ok"),ok,true);
+			return;
+	}
+
+	@Test
+	public void test_A016()throws NoSuchFieldException, KeyException, IllegalAccessException,
+		JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException {
+			Key flags;
+			JsonExt jsonext = new JsonExt();
+			Object dobj;
+			jsonext.parseString("{\"nargs\" : \"+\"}");
+			dobj = jsonext.getObject("/");
+			flags = new Key("","$",dobj,false);
+			this.assert_string_value(flags,"flagname","$");
+			this.assert_string_value(flags,"prefix","");
+			this.assert_string_value(flags,"type","args");
+			this.assert_object_value(flags,"value",null);
+			this.assert_string_value(flags,"nargs","+");
+			this.assert_string_value(flags,"cmdname",null);
+			this.assert_string_value(flags,"shortflag",null);
+			this.assert_string_value(flags,"function",null);
+			this.assert_string_value(flags,"helpinfo",null);
+			this.assert_bool_value(flags,"isflag",true);
+			this.assert_bool_value(flags,"iscmd",false);
+			this.__opt_fail_check(flags);
+			return;
+	}
+
+	@Test
+	public void test_A017()throws NoSuchFieldException, KeyException, IllegalAccessException,
+		JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException {
+			Key flags;
+			JsonExt jsonext = new JsonExt();
+			Object dobj;
+			Double dblval;
+			jsonext.parseString("{\"float\" : 3.3}");
+			dobj = jsonext.getObject("/float");
+			dblval = 3.3;
+			flags = new Key("type","flag+app## flag help ##",dobj,false);
+			this.assert_string_value(flags,"flagname","flag");
+			this.assert_string_value(flags,"prefix","type_app");
+			this.assert_string_value(flags,"cmdname",null);
+			this.assert_string_value(flags,"shortflag",null);
+			this.assert_string_value(flags,"function",null);
+			this.assert_string_value(flags,"type","float");
+			this.assert_object_value(flags,"value",dblval);
+			this.assert_string_value(flags,"longopt","--type-app-flag");
+			this.assert_string_value(flags,"shortopt",null);
+			this.assert_string_value(flags,"optdest","type_app_flag");
+			this.assert_string_value(flags,"helpinfo"," flag help ");
+			this.assert_bool_value(flags,"isflag",true);
+			this.assert_bool_value(flags,"iscmd",false);
+			return;
+	}
 }
