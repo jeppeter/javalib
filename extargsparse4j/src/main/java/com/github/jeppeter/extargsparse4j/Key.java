@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.lang.Long;
 import com.github.jeppeter.jsonext.JsonExtInvalidTypeException;
 import com.github.jeppeter.jsonext.JsonExtNotParsedException;
+import com.github.jeppeter.jsonext.JsonExtNotFoundException;
 
 class TypeClass {
 	private String m_typename;
@@ -193,7 +194,7 @@ public final class Key {
 
 
 
-	private void __set_flag(String prefix, String key, Object value) throws JsonExtInvalidTypeException,JsonExtNotParsedException {
+	private void __set_flag(String prefix, String key, Object value) throws JsonExtInvalidTypeException,JsonExtNotParsedException,JsonExtNotFoundException,NoSuchFieldException,IllegalAccessException,KeyException {
 		String[] keys;
 		JsonExt json = new JsonExt();
 		String sobj;
@@ -251,7 +252,9 @@ public final class Key {
 	}
 
 
-	private void __parse(String prefix, String key, Object value, boolean isflag) {
+	private void __parse(String prefix, String key, Object value, boolean isflag) 
+	          throws KeyException,JsonExtInvalidTypeException,JsonExtNotParsedException,
+	          JsonExtNotFoundException,NoSuchFieldException,IllegalAccessException {
 		boolean cmdmode = false;
 		boolean flagmode = false;
 		String flags = null;
@@ -447,7 +450,9 @@ public final class Key {
 		return;
 	}
 
-	protected Key(String prefix, String key, Object value, boolean isflag) {
+	protected Key(String prefix, String key, Object value, boolean isflag) 
+			throws KeyException,JsonExtInvalidTypeException,JsonExtNotParsedException,
+			       JsonExtNotFoundException,NoSuchFieldException,IllegalAccessException {
 		this.__reset();
 		this.m_helpexpr = new ReExt("##([^#]+)##$", true);
 		this.m_cmdexpr = new ReExt("^([^\\#\\<\\>\\+\\$]+)", true);
@@ -459,11 +464,13 @@ public final class Key {
 		this.__parse(prefix, key, value, isflag);
 	}
 
-	protected Key(String prefix, String key, Object value) {
+	protected Key(String prefix, String key, Object value) 
+	      throws KeyException,JsonExtInvalidTypeException,JsonExtNotParsedException,
+	                 JsonExtNotFoundException,NoSuchFieldException,IllegalAccessException {
 		this(prefix, key, value, false);
 	}
 
-	protected void change_to_flag() {
+	protected void change_to_flag() throws KeyException {
 		if (this.m_iscmd || ! this.m_isflag) {
 			throw new KeyException(String.format("(%s) not cmd to change",this.m_origkey));
 		}
@@ -483,7 +490,7 @@ public final class Key {
 		return;
 	}
 
-	private String __get_form_string(String fldname) {
+	private String __get_form_string(String fldname) throws KeyException {
 		String retval=null;
 		Boolean bobj;
 		if (! this.m_isflag || this.m_flagname == null || this.m_type == "args") {
@@ -523,7 +530,7 @@ public final class Key {
 		return retval;
 	}
 
-	protected String get_string_value(String fldname) {
+	protected String get_string_value(String fldname) throws NoSuchFieldException,KeyException,IllegalAccessException {
 		if (Arrays.asList(this.m_formwords).contains(fldname)) {
 			return this.__get_form_string(fldname); 
 		}
@@ -537,7 +544,7 @@ public final class Key {
 		throw new KeyException(String.format("(%s) not valid fldname",fldname));
 	}
 
-	protected Boolean get_bool_value(String fldname) {
+	protected Boolean get_bool_value(String fldname) throws NoSuchFieldException,KeyException,IllegalAccessException {
 		if (Arrays.asList(this.m_otherwords_bool).contains(fldname)) {
 			return this.__get_m_field_bool(fldname);
 		}
