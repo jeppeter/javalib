@@ -527,4 +527,43 @@ public class KeyTest {
 			return;
 	}
 
+
+	@Test
+	public void test_A026()throws NoSuchFieldException, KeyException, IllegalAccessException,
+		JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException {
+			Key flags;
+			flags = new Key("dep","$","+",true);
+			this.assert_string_value(flags,"flagname","$");
+			this.assert_string_value(flags,"prefix","dep");
+			this.assert_object_value(flags,"value",null);
+			this.assert_string_value(flags,"type","args");
+			this.assert_string_value(flags,"helpinfo",null);
+			this.assert_string_value(flags,"nargs","+");
+			this.assert_string_value(flags,"shortflag",null);
+			this.assert_string_value(flags,"cmdname",null);
+			this.assert_string_value(flags,"function",null);
+			this.__opt_fail_check(flags);
+			return;
+	}
+
+	@Test
+	public void test_A027()throws NoSuchFieldException, KeyException, IllegalAccessException,
+		JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException {
+			Key flags;
+			Long lobj = new Long(new Integer(0));
+			flags = new Key("dep","verbose|v","+",false);
+			this.assert_string_value(flags,"flagname","verbose");
+			this.assert_string_value(flags,"shortflag","v");
+			this.assert_string_value(flags,"prefix","dep");
+			this.assert_string_value(flags,"type","count");
+			this.assert_object_value(flags,"value",lobj);
+			this.assert_string_value(flags,"helpinfo",null);
+			this.assert_string_value(flags,"nargs","0");
+			this.assert_string_value(flags,"cmdname",null);
+			this.assert_string_value(flags,"function",null);
+			this.assert_string_value(flags,"optdest","dep_verbose");
+			this.assert_string_value(flags,"longopt","--dep-verbose");
+			this.assert_string_value(flags,"shortopt","-v");
+			return;
+	}
 }
