@@ -144,4 +144,17 @@ public class KeyTest {
 		return;
 	}
 
+	@Test
+	public void test_A005()throws NoSuchFieldException, KeyException, IllegalAccessException,
+		JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException {
+			Key flags;
+			Boolean ok = false;
+			try {
+				flags = new Key("","flag<flag.main>##help for flag##","",true);
+			}catch (KeyException e) {
+				ok = true;
+			}
+			assertEquals(String.format("not pass flags ok"),ok,true);
+	}
+
 }
