@@ -123,4 +123,15 @@ public class JsonExtTest {
 		keys = json.getKeys("/");
 		assertEquals(String.format("person keys length"),keys.length,2);
 	}	
+
+	@Test
+	public void test_A008() throws JsonExtNotParsedException, JsonExtNotFoundException, JsonExtInvalidTypeException {
+		JsonExt jsonext = new JsonExt();
+		Object aobj;
+		boolean bret;
+		bret = jsonext.parseString("{\"array\" : []}");
+		assertEquals(String.format("parse array"),bret,true);
+		aobj = jsonext.getObject("/array");
+		return ;
+	}
 }

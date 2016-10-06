@@ -45,6 +45,8 @@ class TypeClass {
 public final class Key {
 	private static final String[] m_flagwords = {"flagname", "helpinfo", "shortflag", "nargs"};
 	private static final String[] m_flagspecial = {"value", "prefix"};
+	private static final String[] m_flagspecial_string = {"prefix"};
+	private static final String[] m_flagspecial_object = {"value"};
 	private static final String[] m_cmdwords = {"cmdname", "function", "helpinfo"};
 	private static final String[] m_otherwords_string = {"origkey", "type"};
 	private static final String[] m_otherwords_bool = {"iscmd", "isflag"};
@@ -170,28 +172,34 @@ public final class Key {
 		return;
 	}
 
-	private String __get_m_field_string(String fldname) throws NoSuchFieldException,IllegalAccessException {
+	private Object __get_m_field_object(String fldname) throws NoSuchFieldException,IllegalAccessException {
 		Field fld;
 		String innername = String.format("m_%s", fldname);
 		fld = this.getClass().getDeclaredField(innername);
-		return (String) fld.get((Object) this);
+		return  fld.get((Object) this);		
+	}
+
+	private String __get_m_field_string(String fldname) throws NoSuchFieldException,IllegalAccessException {
+		return (String) this.__get_m_field_object(fldname);
 	}
 
 	private Boolean __get_m_field_bool(String fldname) throws NoSuchFieldException,IllegalAccessException {
-		Field fld;
-		String innername = String.format("m_%s",fldname);
-		fld = this.getClass().getDeclaredField(innername);
-		return (Boolean) fld.get((Object)this);
+		return (Boolean) this.__get_m_field_object(fldname);
 	}
 
-	private void __set_m_field_string(String fldname,String value) throws NoSuchFieldException,IllegalAccessException {
+	private Object __set_m_field_object(String fldname,Object value) throws NoSuchFieldException,IllegalAccessException {
+		Object oldval;
 		String innername = String.format("m_%s", fldname);
 		Field fld;
+		oldval = this.__get_m_field_object(fldname);
 		fld = this.getClass().getDeclaredField(innername);
 		fld.set((Object) this,(Object)value);
-		return;
+		return oldval;
 	}
 
+	private String __set_m_field_string(String fldname,String value) throws NoSuchFieldException,IllegalAccessException {
+		return (String) this.__set_m_field_object(fldname,(Object)value);
+	}
 
 
 	private void __set_flag(String prefix, String key, Object value) throws JsonExtInvalidTypeException,JsonExtNotParsedException,JsonExtNotFoundException,NoSuchFieldException,IllegalAccessException,KeyException {
@@ -536,7 +544,7 @@ public final class Key {
 		}
 		if (Arrays.asList(this.m_cmdwords).contains(fldname)  ||
 			Arrays.asList(this.m_flagwords).contains(fldname) ||
-			Arrays.asList(this.m_flagspecial).contains(fldname) || 
+			Arrays.asList(this.m_flagspecial_string).contains(fldname) || 
 			Arrays.asList(this.m_otherwords_string).contains(fldname)){
 			return this.__get_m_field_string(fldname);
 		}
@@ -549,5 +557,12 @@ public final class Key {
 			return this.__get_m_field_bool(fldname);
 		}
 		throw new KeyException(String.format("(%s) not valid fldname",fldname));
+	}
+
+	protected Object get_object_value(String fldname) throws NoSuchFieldException,KeyException,IllegalAccessException {
+		if (Arrays.asList(this.m_flagspecial_object).contains(fldname)) {
+			return this.__get_m_field_object(fldname);
+		}
+		throw new KeyException(String.format("(%s) not object value",fldname));
 	}
 }
