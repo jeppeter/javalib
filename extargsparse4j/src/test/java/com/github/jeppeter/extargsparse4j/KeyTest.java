@@ -587,4 +587,25 @@ public class KeyTest {
 			this.assert_string_value(flags,"shortopt","-v");
 			return;
 	}
+
+	@Test
+	public void test_A029()throws NoSuchFieldException, KeyException, IllegalAccessException,
+		JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException {
+			Key flags;
+			Boolean bval=true;
+			flags = new Key("","rollback|R## rollback not set ##",true,false);
+			this.assert_string_value(flags,"flagname","rollback");
+			this.assert_string_value(flags,"shortflag","R");
+			this.assert_string_value(flags,"prefix","");
+			this.assert_string_value(flags,"type","bool");
+			this.assert_object_value(flags,"value",bval);
+			this.assert_string_value(flags,"helpinfo"," rollback not set ");
+			this.assert_string_value(flags,"nargs","0");
+			this.assert_string_value(flags,"cmdname",null);
+			this.assert_string_value(flags,"function",null);
+			this.assert_string_value(flags,"optdest","rollback");
+			this.assert_string_value(flags,"longopt","--no-rollback");
+			this.assert_string_value(flags,"shortopt","-R");
+			return;
+	}
 }
