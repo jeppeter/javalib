@@ -70,8 +70,8 @@ public class JsonExtTest {
 		bret = json.parseString("{\"person\" :{ \"age\" :13}}");
 		assertEquals("parse ok", bret, true);
 		keys = json.getKeys(key);
-		assertEquals(String.format("getkeys %s (1)", key), keys.length,1);
-		assertEquals(String.format("getkeys %s[0] (age)",key),keys[0],"age");
+		assertEquals(String.format("getkeys %s (1)", key), keys.length, 1);
+		assertEquals(String.format("getkeys %s[0] (age)", key), keys[0], "age");
 		return;
 	}
 
@@ -82,9 +82,9 @@ public class JsonExtTest {
 		String key = "person";
 		Object value;
 		bret = json.parseString("{\"person\" :{ \"age\" :13}}");
-		assertEquals("parse ok",bret,true);
+		assertEquals("parse ok", bret, true);
 		value = json.getObject(key);
-		assertEquals(String.format("object %s",value.getClass().getName()),value instanceof JSONObject,true);
+		assertEquals(String.format("object %s", value.getClass().getName()), value instanceof JSONObject, true);
 	}
 
 	@Test
@@ -95,15 +95,15 @@ public class JsonExtTest {
 		Object value;
 		//bret = json.parseString("{\"person\" :{ \"age\" :13 , \"relations\":[\"mother\",\"father\"]},\"newvalue\": null,\"salary\": 3.22, \"boolvalue\": false"});
 		bret = json.parseString("{\"person\" :{ \"age\" :13 , \"relations\":[\"mother\",\"father\"]},\"newvalue\": null,\"salary\": 3.22, \"boolvalue\": false}");
-		assertEquals("parse ok",bret,true);
+		assertEquals("parse ok", bret, true);
 		value = json.getObject(key);
-		assertEquals(String.format("object %s",value.getClass().getName()),value instanceof JSONArray,true);
+		assertEquals(String.format("object %s", value.getClass().getName()), value instanceof JSONArray, true);
 		value = json.getObject("newvalue");
-		assertEquals(String.format("newvalue null"),value,null);
+		assertEquals(String.format("newvalue null"), value, null);
 		value = json.getObject("boolvalue");
-		assertEquals(String.format("boolvalue %s",value.getClass().getName()),value instanceof Boolean,true);
+		assertEquals(String.format("boolvalue %s", value.getClass().getName()), value instanceof Boolean, true);
 		value = json.getObject("salary");
-		assertEquals(String.format("salary %s",value.getClass().getName()),value instanceof Double,true);
+		assertEquals(String.format("salary %s", value.getClass().getName()), value instanceof Double, true);
 	}
 
 	@Test
@@ -114,15 +114,15 @@ public class JsonExtTest {
 		boolean bret;
 		String key = "person/relations";
 		Object value;
-		String[] keys; 
+		String[] keys;
 		//bret = json.parseString("{\"person\" :{ \"age\" :13 , \"relations\":[\"mother\",\"father\"]},\"newvalue\": null,\"salary\": 3.22, \"boolvalue\": false"});
 		bret = json.parseString("{\"person\" :{ \"age\" :13 , \"relations\":[\"mother\",\"father\"]},\"newvalue\": null,\"salary\": 3.22, \"boolvalue\": false}");
-		assertEquals("parse ok",bret,true);
+		assertEquals("parse ok", bret, true);
 		obj = json.getObject("/person");
 		json.Clone(obj);
 		keys = json.getKeys("/");
-		assertEquals(String.format("person keys length"),keys.length,2);
-	}	
+		assertEquals(String.format("person keys length"), keys.length, 2);
+	}
 
 	@Test
 	public void test_A008() throws JsonExtNotParsedException, JsonExtNotFoundException, JsonExtInvalidTypeException {
@@ -130,8 +130,30 @@ public class JsonExtTest {
 		Object aobj;
 		boolean bret;
 		bret = jsonext.parseString("{\"array\" : []}");
-		assertEquals(String.format("parse array"),bret,true);
+		assertEquals(String.format("parse array"), bret, true);
 		aobj = jsonext.getObject("/array");
+		return ;
+	}
+
+	@Test
+	public void test_A009() throws JsonExtNotParsedException, JsonExtNotFoundException, JsonExtInvalidTypeException {
+		JsonExt jsonext = new JsonExt();
+		Object aobj;
+		String[] keys;
+		int i;
+		boolean bret;
+		bret = jsonext.parseString("{\"prefix\":\"good\",\"value\":false}");
+		assertEquals(String.format("parse array"), bret, true);
+		keys = jsonext.getKeys("/");
+		for (i = 0; i < keys.length; i++) {
+			if (keys[i].equals("prefix")) {
+				System.err.println(String.format("[%d] prefix", i));
+			} else if (keys[i].equals("value")) {
+				System.err.println(String.format("[%d] value", i));
+			} else {
+				System.err.println(String.format("[%d] %s not found", i, keys[i]));
+			}
+		}
 		return ;
 	}
 }

@@ -94,13 +94,13 @@ public final class Key {
 				throw new KeyException(String.format("(%s) can not accept ", this.m_origkey));
 			}
 
-			if (this.m_type == "dict" && this.m_flagname != null) {
+			if (this.m_type.equals("dict") && this.m_flagname != null) {
 				throw new KeyException(String.format("(%s) flag can not accept dict", this.m_origkey));
 			}
 
 			typecls = new TypeClass(this.m_value);
-			if (this.m_type != typecls.get_type() && this.m_type != "count") {
-				throw new KeyException(String.format("(%s) not match type(%s)", this.m_origkey, this.m_type));
+			if (!this.m_type.equals(typecls.get_type()) && !this.m_type.equals( "count")) {
+				throw new KeyException(String.format("(%s) not match type(%s) != (%s)", this.m_origkey, this.m_type,typecls.get_type()));
 			}
 
 			if (this.m_flagname == null) {
@@ -119,7 +119,7 @@ public final class Key {
 				if (this.m_shortflag != null) {
 					throw new KeyException(String.format("(%s) should not has shortflag", this.m_origkey));
 				}
-			} else if (this.m_flagname == "$") {
+			} else if (this.m_flagname.equals("$")) {
 				this.m_type = "args";
 				if (this.m_shortflag != null) {
 					throw new KeyException(String.format("(%s) should not has shortflag", this.m_origkey));
@@ -136,13 +136,13 @@ public final class Key {
 				}
 			}
 
-			if (this.m_type == "bool") {
+			if (this.m_type.equals("bool")) {
 				if (this.m_nargs != null && this.m_nargs != "0") {
 					throw new KeyException(String.format("(%s) nargs != 0", this.m_origkey));
 				}
 				this.m_nargs = "0";
-			} else if (this.m_type != "prefix" && this.m_flagname != "$" && this.m_type != "count") {
-				if (this.m_flagname != "$" && this.m_nargs != "1" && this.m_nargs != null) {
+			} else if (!this.m_type.equals("prefix") && !this.m_flagname.equals("$") && !this.m_type.equals("count")) {
+				if (!this.m_flagname.equals("$") && this.m_nargs != "1" && this.m_nargs != null) {
 					throw new KeyException(String.format("(%s) only $ accept nargs options", this.m_origkey));
 				}
 				this.m_nargs = "1";
@@ -218,7 +218,7 @@ public final class Key {
 			this.m_type = "string";
 		}
 
-		if (keys != null) {
+		if (keys != null && keys.length > 0) {
 			for (i = 0; i < keys.length; i++) {
 				if (Arrays.asList(this.m_flagwords).contains(keys[i])) {
 					String getval = this.__get_m_field_string(keys[i]);
@@ -228,9 +228,9 @@ public final class Key {
 					this.__set_m_field_string(keys[i],json.getString(keys[i]));
 				} else if (Arrays.asList(this.m_flagspecial).contains(keys[i])) {
 					String newprefix;
-					if (keys[i] == "prefix") {
+					if (keys[i].equals("prefix")) {
 						typecls = new TypeClass(json.getObject(keys[i]));
-						if (typecls.get_type() != "string") {
+						if (!typecls.get_type().equals("string")) {
 							throw new KeyException(String.format("(%s).prefix type %s", this.m_origkey, typecls.get_type()));
 						}
 						newprefix = "";
@@ -239,12 +239,12 @@ public final class Key {
 						}
 						newprefix += json.getString(keys[i]);
 						this.m_prefix = newprefix;
-					} else if (keys[i] == "value") {
+					} else if (keys[i].equals("value")) {
 						typecls = new TypeClass(json.getObject(keys[i]));
-						if (typecls.get_type() == "dict") {
+						if (typecls.get_type().equals("dict")) {
 							throw new KeyException(String.format("(%s) %s should not be dict", this.m_origkey, keys[i]));
 						}
-						this.m_value = value;
+						this.m_value = json.getObject(keys[i]);
 						this.m_type = typecls.get_type();
 					} else {
 						throw new KeyException(String.format("(%s).%s not valid",this.m_origkey,keys[i]));
