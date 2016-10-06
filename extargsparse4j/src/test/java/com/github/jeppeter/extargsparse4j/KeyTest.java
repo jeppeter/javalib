@@ -608,4 +608,48 @@ public class KeyTest {
 			this.assert_string_value(flags,"shortopt","-R");
 			return;
 	}
-}
+
+	@Test
+	public void test_A030()throws NoSuchFieldException, KeyException, IllegalAccessException,
+		JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException {
+			Key flags;
+			Long lobj = new Long(0xffffffff);
+			flags = new Key("","maxval|m##max value set ##",lobj,false);
+			this.assert_string_value(flags,"flagname","maxval");
+			this.assert_string_value(flags,"shortflag","m");
+			this.assert_string_value(flags,"prefix","");
+			this.assert_string_value(flags,"type","long");
+			this.assert_object_value(flags,"value",lobj);
+			this.assert_string_value(flags,"helpinfo","max value set ");
+			this.assert_string_value(flags,"nargs","1");
+			this.assert_string_value(flags,"cmdname",null);
+			this.assert_string_value(flags,"function",null);
+			this.assert_string_value(flags,"optdest","maxval");
+			this.assert_string_value(flags,"longopt","--maxval");
+			this.assert_string_value(flags,"shortopt","-m");
+			return;
+	}
+
+	@Test
+	public void test_A031()throws NoSuchFieldException, KeyException, IllegalAccessException,
+		JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException {
+			Key flags;
+			Object dobj;
+			JsonExt jsonext = new JsonExt();
+			jsonext.parseString("{\"array\" : [\"maxval\"]}");
+			dobj = jsonext.getObject("/array");
+			flags = new Key("","maxval|m",dobj,false);
+			this.assert_string_value(flags,"flagname","maxval");
+			this.assert_string_value(flags,"shortflag","m");
+			this.assert_string_value(flags,"prefix","");
+			this.assert_string_value(flags,"type","list");
+			this.assert_object_value(flags,"value",dobj);
+			this.assert_string_value(flags,"helpinfo",null);
+			this.assert_string_value(flags,"nargs","1");
+			this.assert_string_value(flags,"cmdname",null);
+			this.assert_string_value(flags,"function",null);
+			this.assert_string_value(flags,"optdest","maxval");
+			this.assert_string_value(flags,"longopt","--maxval");
+			this.assert_string_value(flags,"shortopt","-m");
+			return;
+	}}
