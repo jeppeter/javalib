@@ -508,4 +508,23 @@ public class KeyTest {
 			this.assert_bool_value(flags,"isflag",true);
 			return;
 	}
+
+	@Test
+	public void test_A024()throws NoSuchFieldException, KeyException, IllegalAccessException,
+		JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException {
+			Key flags;
+			Boolean ok = false;
+			JsonExt jsonext = new JsonExt();
+			Object dobj;
+			jsonext.parseString("{\"prefix\":\"good\",\"value\":false,\"nargs\":2}");
+			dobj = jsonext.getObject("/");
+			try{
+				flags = new Key("","$flag## flag help ##",dobj,false);
+			} catch(KeyException e) {
+				ok = true;
+			}
+			assertEquals(String.format("pass not ok"),ok,true);
+			return;
+	}
+
 }
