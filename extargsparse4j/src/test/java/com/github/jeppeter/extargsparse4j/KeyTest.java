@@ -30,6 +30,26 @@ public class KeyTest {
 		return;
 	}
 
+	private void assert_not_get(Key flags,String keyname) 
+	throws NoSuchFieldException,KeyException, IllegalAccessException {
+		Boolean ok=false;
+		String sval;
+		try{
+			sval = flags.get_string_value(keyname);
+		} catch(KeyException e) {
+			ok = true;
+		}
+		assertEquals(String.format("(%s)%s no value",flags.get_string_value("origkey"),keyname),ok,true);
+		return;
+	}
+
+	private void __opt_fail_check(Key flags) throws NoSuchFieldException,KeyException,IllegalAccessException {
+		this.assert_not_get(flags,"longopt");
+		this.assert_not_get(flags,"shortopt");
+		this.assert_not_get(flags,"optdest");
+		return;
+	}
+
 	@Test
 	public void test_A001()  throws NoSuchFieldException, KeyException, IllegalAccessException,
 		JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException {
@@ -98,6 +118,29 @@ public class KeyTest {
 		this.assert_string_value(flags, "cmdname", null);
 		this.assert_bool_value(flags, "isflag", true);
 		this.assert_bool_value(flags, "iscmd", false);
+		return;
+	}
+
+	@Test
+	public void test_A004() throws NoSuchFieldException, KeyException, IllegalAccessException,
+		JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException {
+		JsonExt jsonext = new JsonExt();
+		Key flags;
+		Object dobj;
+		jsonext.parseString("{\"dict\" : {}}");
+		dobj = jsonext.getObject("/dict");
+		flags = new Key("newtype", "flag<flag.main>##help for flag##", dobj, false);
+		this.assert_string_value(flags,"cmdname","flag");
+		this.assert_string_value(flags,"function","flag.main");
+		this.assert_string_value(flags,"type","command");
+		this.assert_string_value(flags,"prefix","flag");
+		this.assert_string_value(flags,"helpinfo","help for flag");
+		this.assert_string_value(flags,"flagname",null);
+		this.assert_string_value(flags,"shortflag",null);
+		this.assert_object_value(flags,"value",dobj);
+		this.assert_bool_value(flags,"isflag",false);
+		this.assert_bool_value(flags,"iscmd",true);
+		this.__opt_fail_check(flags);
 		return;
 	}
 
