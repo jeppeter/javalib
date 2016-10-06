@@ -5,4 +5,5 @@ repositories {
 dependencies {
 	compile project(':reext')
 	compile project(':jsonext')
+	compile 'net.sourceforge.argparse4j:argparse4j:0.7.0@jar'
 }

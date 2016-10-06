@@ -168,6 +168,13 @@ public final class Key {
 		return (String) fld.get((Object) this);
 	}
 
+	private Boolean __get_m_field_bool(String fldname) {
+		Field fld;
+		String innername = String.format("m_%s",fldname);
+		fld = this.getClass().getDeclaredField(innername);
+		return (Boolean) fld.get((Object)this);
+	}
+
 	private void __set_m_field_string(String fldname,String value) {
 		String innername = String.format("m_%s", fldname);
 		fld = this.getClass().getDeclaredField(innername);
@@ -439,5 +446,86 @@ public final class Key {
 
 	protected Key(String prefix, String key, Object value) {
 		this(prefix, key, value, false);
+	}
+
+	protected void change_to_flag() {
+		if (this.m_iscmd || ! this.m_isflag) {
+			throw new KeyException(String.format("(%s) not cmd to change",this.m_origkey));
+		}
+
+		if (this.m_function != null) {
+			throw new KeyException(String.format("(%s) has function",this.m_origkey));
+		}
+
+		assert(this.m_flagname == null) ;
+		assert(this.m_shortflag == null);
+		assert(this.m_cmdname != null);
+		this.m_flagname = this.m_cmdname;
+		this.m_cmdname = null;
+		this.m_iscmd = False;
+		this.m_isflag = True;
+		this.__validate();
+		return;
+	}
+
+	private String __get_form_string(String fldname) {
+		String retval=null;
+		Boolean bobj;
+		if (! this.m_isflag || this.m_flagname == null || this.m_type == "args") {
+			throw new KeyException(String.format("(%s) not valid for %s",this.m_origkey,fldname));
+		}
+		if (fldname == "longopt" ) {
+			retval = "--";
+			if (this.m_type != null && this.m_type == "bool" ) {
+				bobj = (Boolean) this.m_value;
+				if (bobj) {
+					retval += "no-";
+				}
+			}
+
+			if (this.m_prefix != null && this.m_prefix.length > 0) {
+				retval += String.format("%s-",this.m_prefix);
+			}
+			retval += this.m_flagname;
+			retval = retval.toLowerCase(); 
+			retval = retval.replace('_','-');
+		} else if (fldname == "shortopt") {
+			retval = null;
+			if (this.m_shortflag != null) {
+				retval = String.format("-%s",this.m_shortflag);
+			}
+		} else if (fldname == "optdest") {
+			retval = "";
+			if (this.m_prefix != null && this.m_prefix.length > 0 ) {
+				retval += String.format("%s_",this.m_prefix);
+			}
+			retval += this.m_flagname;
+			retval = retval.toLowerCase();
+			retval = retval.replace('-','_');
+		} else {
+			assert(0!=0);
+		}
+		return retval;
+	}
+
+	protected String get_string_value(String fldname) {
+		if (Arrays.asList(this.m_formwords).contains(fldname)) {
+			return this.__get_form_string(fldname); 
+		}
+		if (Arrays.asList(this.m_cmdwords).contains(fldname)  ||
+			Arrays.asList(this.m_flagwords).contains(fldname) ||
+			Arrays.asList(this.m_flagspecial).contains(fldname) || 
+			Arrays.asList(this.m_otherwords_string).contains(fldname)){
+			return this.__get_m_field_string(fldname);
+		}
+
+		throw new KeyException(String.format("(%s) not valid fldname",fldname));
+	}
+
+	protected Boolean get_bool_value(String fldname) {
+		if (Arrays.asList(this.m_otherwords_bool).contains(fldname)) {
+			return this.__get_m_field_bool(fldname);
+		}
+		throw new KeyException(String.format("(%s) not valid fldname",fldname));
 	}
 }
