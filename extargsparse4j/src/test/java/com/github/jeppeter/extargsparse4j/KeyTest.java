@@ -246,4 +246,50 @@ public class KeyTest {
 			assertEquals(String.format("pass not ok"),ok,true);
 			return;
 	}
+
+	@Test
+	public void test_A011()throws NoSuchFieldException, KeyException, IllegalAccessException,
+		JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException {
+			Key flags;
+			Boolean ok = false;
+			try{
+				flags = new Key("","f|f2",null,false);
+			} catch(KeyException e) {
+				ok = true;
+			}
+			assertEquals(String.format("pass not ok"),ok,true);
+			return;
+	}
+
+	@Test
+	public void test_A012()throws NoSuchFieldException, KeyException, IllegalAccessException,
+		JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException {
+			Key flags;
+			Boolean ok = false;
+			JsonExt jsonext = new JsonExt();
+			Object dobj;
+			jsonext.parseString("{}");
+			dobj = jsonext.getObject("/");
+			try{
+				flags = new Key("","$flag|f<flag.main>",dobj,false);
+			} catch(KeyException e) {
+				ok = true;
+			}
+			assertEquals(String.format("pass not ok"),ok,true);
+			return;
+	}
+
+	@Test
+	public void test_A013()throws NoSuchFieldException, KeyException, IllegalAccessException,
+		JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException {
+			Key flags;
+			Boolean ok = false;
+			try{
+				flags = new Key("","$flag|f+cc<flag.main>",null,false);
+			} catch(KeyException e) {
+				ok = true;
+			}
+			assertEquals(String.format("pass not ok"),ok,true);
+			return;
+	}
 }
