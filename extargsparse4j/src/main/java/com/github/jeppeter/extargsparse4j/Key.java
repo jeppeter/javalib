@@ -142,7 +142,7 @@ public final class Key {
 				}
 				this.m_nargs = "0";
 			} else if (!this.m_type.equals("prefix") && !this.m_flagname.equals("$") && !this.m_type.equals("count")) {
-				if (!this.m_flagname.equals("$") && this.m_nargs != "1" && this.m_nargs != null) {
+				if (!this.m_flagname.equals("$") && this.m_nargs != null && !this.m_nargs.equals("1")) {
 					throw new KeyException(String.format("(%s) only $ accept nargs options", this.m_origkey));
 				}
 				this.m_nargs = "1";
@@ -225,7 +225,19 @@ public final class Key {
 					if (getval != null && getval != json.getString(keys[i])) {
 						throw new KeyException(String.format("(%s).%s %s != %s", this.m_origkey, keys[i], getval, json.getString(keys[i])));
 					}
-					this.__set_m_field_string(keys[i], json.getString(keys[i]));
+					if (keys[i].equals("nargs")) {
+						Object obj;
+						obj = json.getObject(keys[i]);
+						typecls = new TypeClass(obj);
+						if (typecls.get_type().equals("string")) {
+							this.__set_m_field_string(keys[i],json.getString(keys[i]));
+						} else {
+							assert(typecls.get_type().equals("long"));
+							this.__set_m_field_string(keys[i],String.format("%d",(Long)obj));
+						}
+					} else {
+						this.__set_m_field_string(keys[i], json.getString(keys[i]));
+					}
 				} else if (Arrays.asList(this.m_flagspecial).contains(keys[i])) {
 					String newprefix;
 					if (keys[i].equals("prefix")) {
@@ -430,8 +442,8 @@ public final class Key {
 			if (this.m_type == "string") {
 				sobj = (String) this.m_value;
 				if (sobj != null && (sobj.equals("+") ||
-				        sobj.equals("?") ||
-				        sobj.equals("*"))) {
+				                     sobj.equals("?") ||
+				                     sobj.equals("*"))) {
 					valid = true;
 				}
 				this.m_nargs = sobj;

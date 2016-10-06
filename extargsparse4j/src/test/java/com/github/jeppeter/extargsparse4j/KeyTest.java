@@ -481,4 +481,31 @@ public class KeyTest {
 			this.__opt_fail_check(flags);
 			return;
 	}
+
+	@Test
+	public void test_A023()throws NoSuchFieldException, KeyException, IllegalAccessException,
+		JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException {
+			Key flags;
+			JsonExt jsonext = new JsonExt();
+			Object dobj;
+			Double dblval = 3.9;
+			jsonext.parseString("{\"prefix\":\"good\",\"value\":3.9,\"nargs\":1}");
+			dobj = jsonext.getObject("/");
+			flags = new Key("","$flag## flag help ##",dobj,false);
+			this.assert_string_value(flags,"flagname","flag");
+			this.assert_string_value(flags,"prefix","good");
+			this.assert_object_value(flags,"value",dblval);
+			this.assert_string_value(flags,"type","float");
+			this.assert_string_value(flags,"helpinfo"," flag help ");
+			this.assert_string_value(flags,"nargs","1");
+			this.assert_string_value(flags,"shortflag",null);
+			this.assert_string_value(flags,"cmdname",null);
+			this.assert_string_value(flags,"function",null);
+			this.assert_string_value(flags,"longopt","--good-flag");
+			this.assert_string_value(flags,"shortopt",null);
+			this.assert_string_value(flags,"optdest","good_flag");
+			this.assert_bool_value(flags,"iscmd",false);
+			this.assert_bool_value(flags,"isflag",true);
+			return;
+	}
 }
