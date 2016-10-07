@@ -9,9 +9,15 @@ import com.github.jeppeter.extargsparse4j.Priority;
 
 import com.github.jeppeter.reext.ReExt;
 
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
+
 public class Parser  {
 	private ArgumentParser m_parser;
 	private Priority[] m_priorities; 
+	private Logger m_logger;
+
 	private static String get_main_class() {
 		String command = System.getProperty("sun.java.command");		
 		String[] names;
@@ -35,14 +41,19 @@ public class Parser  {
 		 Priority.COMMAND_JSON_SET ,Priority.ENVIRONMENT_SET,
 		 Priority.ENV_SUB_COMMAND_JSON_SET , Priority.ENV_COMMAND_JSON_SET };
 
+		 this.m_logger = LogManager.getLogger(this.class);
 		 if (priority.length == 0 ) {
 		 	this.m_priorities = defpriority;
 		 } else {
 		 	this.m_priorities = priority;
 		 }
+
+		 this.m_logger.info("priority (%s) m_priorities (%s) caption(%s) description (%s) help %s",
+		 	priority,this.m_priorities,caption,description,defaulthelp ? "True" : "False");
 		 this.m_parser = ArgumentParsers.newArgumentParser(caption)
 		               .defaultHelp(defaulthelp)
 		               .description(description);
+
 	}
 
 	public Parser(Priority[] priority,String caption,String description) {

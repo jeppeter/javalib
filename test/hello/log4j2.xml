@@ -6,7 +6,10 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Root level="warn">
+    	<Logger name="enumval.logc" level="debug" additivity="false">
+    		<AppenderRef ref="Console"/>
+    	</Logger>
+        <Root level="warn" additivity="false">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>
