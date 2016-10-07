@@ -7,17 +7,65 @@ import net.sourceforge.argparse4j.inf.Subparser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import com.github.jeppeter.extargsparse4j.Priority;
 
+import com.github.jeppeter.reext.ReExt;
+
 public class Parser  {
 	private ArgumentParser m_parser;
-	public Parser(Priority[] priority,String description,String caption,Boolean defaulthelp) {
-
+	private Priority[] m_priorities; 
+	private static String get_main_class() {
+		String command = System.getProperty("sun.java.command");		
+		String[] names;
+		String mainclass;
+		names = ReExt.Split("\\s+",command);
+		mainclass = "Parser";
+		if (names.length > 0) {
+			if (names[0].contains(".")) {
+				names = ReExt.Split("\\.",names[0]);
+				/*get last one*/
+				mainclass = names[(names.length - 1)];
+			} else {
+				mainclass = names[0];
+			}
+		}
+		return mainclass;		
 	}
 
-	public Parser(Priority[] priority,String description,String caption) {
-		this(priority,description,caption,true);
+	public Parser(Priority[] priority,String caption,String description,Boolean defaulthelp) {
+		Priority[] defpriority = {Priority.SUB_COMMAND_JSON_SET ,
+		 Priority.COMMAND_JSON_SET ,Priority.ENVIRONMENT_SET,
+		 Priority.ENV_SUB_COMMAND_JSON_SET , Priority.ENV_COMMAND_JSON_SET };
+
+		 if (priority.length == 0 ) {
+		 	this.m_priorities = defpriority;
+		 } else {
+		 	this.m_priorities = priority;
+		 }
+		 this.m_parser = ArgumentParsers.newArgumentParser(caption)
+		               .defaultHelp(defaulthelp)
+		               .description(description);
 	}
 
-	public Parser(Priority[] priority,String description) {
-		/*now to get from the main*/ 
+	public Parser(Priority[] priority,String caption,String description) {
+		this(priority,caption,description,true);
+	}
+
+	public Parser(Priority[] priority,String caption) {
+		/*now to get from the main class */ 
+		String mainclass;
+		String description;
+		description = String.format("%s [OPTIONS] command ...",caption);
+		this(priority,caption,description);
+	}
+
+	public Parser(Priority[] priority) {
+		String mainclass;
+		String description
+		mainclass = get_main_class();
+		this(priority,caption);
+	}
+
+	public Parser() {
+		Priority[] priority = {};
+		 this(priority);
 	}
 }
