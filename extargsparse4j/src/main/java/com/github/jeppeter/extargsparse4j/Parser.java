@@ -27,7 +27,7 @@ class PaserBase {
 }
 
 public class Parser  {
-	private ArgumentParsers m_parser;
+	private ArgumentParser m_parser;
 	private Priority[] m_priorities; 
 	private Logger m_logger;
 	private List<Key> m_flags;
@@ -112,8 +112,94 @@ public class Parser  {
 		return valid;
 	}
 
-	private bool __load_command_line_string(String prefix,Key keycls,ParserBase curparser) {
+	private String __get_help_info(Key keycls) {
+		String helpinfo="",s;
+		String typestr;
+		Boolean bobj;
+		String sobj;
+		Object obj;
+		typestr = keycls.get_string_value("type");
 
+		if (typestr == "bool") {
+			bobj = (Boolean)keycls.get_object_value("value");
+			if (bobj) {
+				helpinfo += String.format("%s set false default(True)",keycls.get_string_value("optdest"));
+			} else {
+				helpinfo += String.format("%s set true default(False)",keycls.get_string_value("optdest"));
+			}
+		} else if (typestr == "string") {
+			sobj = (String) keycls.get_object_value("value");
+			if (sobj != null) {
+				helpinfo += String.format("%s set default(%s)",keycls.get_string_value("optdest"),sobj);
+			} else {
+				helpinfo += String.format("%s set default(null)",keycls.get_string_value("optdest"));
+			}
+		} else {
+			if (keycls.get_bool_object("isflag")) {
+				obj = keycls.get_object_value("value");
+				helpinfo += String.format("%s set default(%s)",keycls.get_string_value("optdest"),obj.toString());
+			} else {
+				helpinfo += String.format("%s command exec",keycls.get_string_value("optdest"));
+			}
+		}
+
+		if (keycls.get_string_value("helpinfo")!= null)  {
+			helpinfo = keycls.get_string_value("helpinfo");
+		}
+
+		return helpinfo;
+	}
+
+	private Boolean __load_command_line_string(String prefix,Key keycls,ParserBase curparser) throws ParserExceptions {
+		String longopt,shortopt,optdest,helpinfo;
+		Subparser sparser = null;
+
+		this.__check_flag_insert_mustsucc(keycls,curparser);
+		longopt = keycls.get_strinsg_value("longopt");
+		shortopt = keycls.get_string_value("shortopt");
+		optdest = keycls.get_string_value("optdest");
+		helpinfo = keycls.get_string_value("helpinfo");
+
+		if (curparser != null) {
+			if (shortopt != null) {
+				curparser.m_parser.addArgument(shortopt,longopt).dest(optdest).default(null).help(helpinfo);
+			} else {
+				curparser.m_parser.addArgument(longopt).dest(optdest).default(null).help(helpinfo);
+			}
+		} else {
+			if (shortopt != null) {
+				this.m_parser.addArgument(shortopt,longopt).dest(optdest).default(null).help(helpinfo);
+			} else {
+				this.m_parser.addArgument(longopt).dest(optdest).default(null).help(helpinfo);
+			}
+		}
+		return true;
+	}
+
+	private Boolean __load_command_line_count(String prefix,Key keycls,ParserBase curparser) throws ParserExceptions {
+		String longopt,shortopt,optdest,helpinfo;
+		Subparser sparser = null;
+
+		this.__check_flag_insert_mustsucc(keycls,curparser);
+		longopt = keycls.get_strinsg_value("longopt");
+		shortopt = keycls.get_string_value("shortopt");
+		optdest = keycls.get_string_value("optdest");
+		helpinfo = keycls.get_string_value("helpinfo");
+
+		if (curparser != null) {
+			if (shortopt != null) {
+				curparser.m_parser.addArgument(shortopt,longopt).dest(optdest).default(null).help(helpinfo);
+			} else {
+				curparser.m_parser.addArgument(longopt).dest(optdest).default(null).help(helpinfo);
+			}
+		} else {
+			if (shortopt != null) {
+				this.m_parser.addArgument(shortopt,longopt).dest(optdest).default(null).help(helpinfo);
+			} else {
+				this.m_parser.addArgument(longopt).dest(optdest).default(null).help(helpinfo);
+			}
+		}
+		return true;		
 	}
 
 	public Parser(Priority[] priority,String caption,String description,Boolean defaulthelp) {
