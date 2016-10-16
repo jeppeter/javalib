@@ -14,16 +14,23 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 class PaserBase {
-	protected ArgumentParser m_parser;
-	protected String[] m_flags;
+	protected Subparser m_parser;
+	protected List<Key> m_flags;
 	protected String m_cmdname;
 	protected Key m_typeclass;
+	protected ParserBase(Subparsers parsers,Key keycls) {
+		this.m_parser = parsers.addParser(keycls.get_string_value("cmdname"));
+		this.m_flags = new ArrayList<Key>;
+		this.m_cmdname = keycls.get_string_value("cmdname");
+		this.m_typeclass = keycls;
+	}
 }
 
 public class Parser  {
 	private ArgumentParsers m_parser;
 	private Priority[] m_priorities; 
 	private Logger m_logger;
+	private List<Key> m_flags;
 
 	private static String get_main_class() {
 		String command = System.getProperty("sun.java.command");		
@@ -49,25 +56,46 @@ public class Parser  {
 		Key curcls;
 		if (curparser != null) {
 			valid = true;
-			for (i=0;keycls.m_flags.length;i ++) {
-				curcls = curparser.m_flags[i];
+			for (i=0;keycls.m_flags.size();i ++) {
+				curcls = curparser.m_flags.get(i);
 				if (curcls.get_string_value("flagname") != "$" &&
 					keycls.get_string_value("flagname") != "$") {
 					if (curcls.get_string_value("optdest") == 
 						keycls.get_string_value("optdest")) {
 						valid = false;
+					break;
 					} 
 				}  else if (curcls.get_string_value("flagname") == 
 					keycls.get_string_value("flagname")){
 					valid = false;
+					break;
 				}
 			}
 			if (valid) {
-				
+				curparser.add(keycls);
 			}
 		} else {
-
+			valid = true;
+			for (i=0;i<this.m_flags.size();i++) {
+				curcls = this.m_flags.get(i);
+				if (curcls.get_string_value("flagname") != "$" &&
+					keycls.get_string_value("flagname") != "$") {
+					if (curcls.get_string_value("optdest") == 
+						keycls.get_string_value("optdest")) {
+						valid = false;
+						break;
+					}
+				}else if (curcls.get_string_value("flagname") == 
+						keycls.get_string_value("flagname")) {
+					valid = false;
+					break;
+				}
+			}
+			if (valid) {
+				this.m_flags.add(keycls);
+			}
 		}
+	return valid;
 	}
 
 	private Boolean __check_flag_insert_mustsucc(Key keycls,ParserBase curparser) throws ParserException {
