@@ -6,15 +6,22 @@ import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.Subparser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import com.github.jeppeter.extargsparse4j.Priority;
+import com.github.jeppeter.extargsparse4j.Key;
 
 import com.github.jeppeter.reext.ReExt;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
+class PaserBase {
+	protected ArgumentParser m_parser;
+	protected String[] m_flags;
+	protected String m_cmdname;
+	protected Key m_typeclass;
+}
 
 public class Parser  {
-	private ArgumentParser m_parser;
+	private ArgumentParsers m_parser;
 	private Priority[] m_priorities; 
 	private Logger m_logger;
 
@@ -33,7 +40,52 @@ public class Parser  {
 				mainclass = names[0];
 			}
 		}
-		return mainclass;		
+		return mainclass;
+	}
+
+	private Boolean __check_flag_insert(Key keycls,ParserBase curparser) {
+		Boolean valid = false;
+		int i;
+		Key curcls;
+		if (curparser != null) {
+			valid = true;
+			for (i=0;keycls.m_flags.length;i ++) {
+				curcls = curparser.m_flags[i];
+				if (curcls.get_string_value("flagname") != "$" &&
+					keycls.get_string_value("flagname") != "$") {
+					if (curcls.get_string_value("optdest") == 
+						keycls.get_string_value("optdest")) {
+						valid = false;
+					} 
+				}  else if (curcls.get_string_value("flagname") == 
+					keycls.get_string_value("flagname")){
+					valid = false;
+				}
+			}
+			if (valid) {
+				
+			}
+		} else {
+
+		}
+	}
+
+	private Boolean __check_flag_insert_mustsucc(Key keycls,ParserBase curparser) throws ParserException {
+		Boolean valid;
+		valid = this.__check_flag_insert(keycls,curparser);
+		if (! valid ) {
+			String cmdname;
+			cmdname = "main";
+			if (curparser != null) {
+				cmdname = curparser.m_cmdname;
+			}
+			throw new ParserException(String.format("(%s) already in (%s)",keycls.get_string_value("flagname"),cmdname));
+		}
+		return valid;
+	}
+
+	private bool __load_command_line_string(String prefix,Key keycls,ParserBase curparser) {
+
 	}
 
 	public Parser(Priority[] priority,String caption,String description,Boolean defaulthelp) {
