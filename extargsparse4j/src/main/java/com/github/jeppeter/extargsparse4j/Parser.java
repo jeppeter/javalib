@@ -26,6 +26,32 @@ class PaserBase {
 	}
 }
 
+class CountAction extends ArgumentAction {
+    @Override
+    public void run(ArgumentParser parser, Argument arg,
+            Map<String, Object> attrs, String flag, Object value)
+            throws ArgumentParserException {
+         Integer count =0;
+        if (attrs.containsKey(arg.getDest())) {
+            Object obj = attrs.get(arg.getDest());
+            if (obj != null) {
+            	count = (Integer) obj;
+            	count ++;
+            }
+        }
+        attrs.put(arg.getDest(), count);
+    }
+
+    @Override
+    public boolean consumeArgument() {
+        return true;
+    }
+
+    @Override
+    public void onAttach(Argument arg) {
+    }
+}
+
 public class Parser  {
 	private ArgumentParser m_parser;
 	private Priority[] m_priorities; 
@@ -150,7 +176,7 @@ public class Parser  {
 		return helpinfo;
 	}
 
-	private Boolean __load_command_line_string(String prefix,Key keycls,ParserBase curparser) throws ParserExceptions {
+	private Boolean __load_command_line_string(String prefix,Key keycls,ParserBase curparser) throws ParserException {
 		String longopt,shortopt,optdest,helpinfo;
 		Subparser sparser = null;
 
@@ -162,21 +188,21 @@ public class Parser  {
 
 		if (curparser != null) {
 			if (shortopt != null) {
-				curparser.m_parser.addArgument(shortopt,longopt).dest(optdest).default(null).help(helpinfo);
+				curparser.m_parser.addArgument(shortopt,longopt).dest(optdest).default(null).action(Arguments.store()).help(helpinfo);
 			} else {
-				curparser.m_parser.addArgument(longopt).dest(optdest).default(null).help(helpinfo);
+				curparser.m_parser.addArgument(longopt).dest(optdest).default(null).action(Arguments.store()).help(helpinfo);
 			}
 		} else {
 			if (shortopt != null) {
-				this.m_parser.addArgument(shortopt,longopt).dest(optdest).default(null).help(helpinfo);
+				this.m_parser.addArgument(shortopt,longopt).dest(optdest).default(null).action(Arguments.store()).help(helpinfo);
 			} else {
-				this.m_parser.addArgument(longopt).dest(optdest).default(null).help(helpinfo);
+				this.m_parser.addArgument(longopt).dest(optdest).default(null).action(Arguments.store()).help(helpinfo);
 			}
 		}
 		return true;
 	}
 
-	private Boolean __load_command_line_count(String prefix,Key keycls,ParserBase curparser) throws ParserExceptions {
+	private Boolean __load_command_line_count(String prefix,Key keycls,ParserBase curparser) throws ParserException {
 		String longopt,shortopt,optdest,helpinfo;
 		Subparser sparser = null;
 
@@ -188,15 +214,41 @@ public class Parser  {
 
 		if (curparser != null) {
 			if (shortopt != null) {
-				curparser.m_parser.addArgument(shortopt,longopt).dest(optdest).default(null).help(helpinfo);
+				curparser.m_parser.addArgument(shortopt,longopt).dest(optdest).action(new CountAction()).default(null).help(helpinfo);
 			} else {
-				curparser.m_parser.addArgument(longopt).dest(optdest).default(null).help(helpinfo);
+				curparser.m_parser.addArgument(longopt).dest(optdest).action(new CountAction()).default(null).help(helpinfo);
 			}
 		} else {
 			if (shortopt != null) {
-				this.m_parser.addArgument(shortopt,longopt).dest(optdest).default(null).help(helpinfo);
+				this.m_parser.addArgument(shortopt,longopt).dest(optdest).default(null).action(new CountAction()).help(helpinfo);
 			} else {
-				this.m_parser.addArgument(longopt).dest(optdest).default(null).help(helpinfo);
+				this.m_parser.addArgument(longopt).dest(optdest).default(null).action(new CountAction()).help(helpinfo);
+			}
+		}
+		return true;		
+	}
+
+	private Boolean __load_command_line_int(String prefix,Key keycls,ParserBase curparser) throws ParserException {
+		String longopt,shortopt,optdest,helpinfo;
+		Subparser sparser = null;
+
+		this.__check_flag_insert_mustsucc(keycls,curparser);
+		longopt = keycls.get_strinsg_value("longopt");
+		shortopt = keycls.get_string_value("shortopt");
+		optdest = keycls.get_string_value("optdest");
+		helpinfo = keycls.get_string_value("helpinfo");
+
+		if (curparser != null) {
+			if (shortopt != null) {
+				curparser.m_parser.addArgument(shortopt,longopt).dest(optdest).action(Arguments.count()).default(null).help(helpinfo);
+			} else {
+				curparser.m_parser.addArgument(longopt).dest(optdest).default(null).action(Arguments.count()).help(helpinfo);
+			}
+		} else {
+			if (shortopt != null) {
+				this.m_parser.addArgument(shortopt,longopt).dest(optdest).default(null).action(Arguments.count()).help(helpinfo);
+			} else {
+				this.m_parser.addArgument(longopt).dest(optdest).default(null).action(Arguments.count()).help(helpinfo);
 			}
 		}
 		return true;		
