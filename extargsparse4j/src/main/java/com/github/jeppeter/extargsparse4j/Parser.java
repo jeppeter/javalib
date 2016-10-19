@@ -134,6 +134,7 @@ public class Parser  {
 	private Priority[] m_priorities;
 	private Logger m_logger;
 	private List<Key> m_flags;
+	private HashMap<String,Method> m_functable;
 
 	private static String get_main_class() {
 		String command = System.getProperty("sun.java.command");
@@ -362,6 +363,32 @@ public class Parser  {
 		return this.__load_command_line_jsonfile(prefix,keycls,curparser);
 	}
 
+	private ParserBase __get_subparser_inner(Key keycls) {
+		ParserBase cmdparser=null;
+
+		cmdparser = this.__find_subparser_inner(keycls.get_string_value("cmdname"));
+		if (cmdparser != null) {
+			return cmdparser;
+		}
+	}
+
+	private Boolean __load_command_line_command(String prefix,Key keycls,ParserBase curparser) {
+		Object vobj;
+		ParserBase nextparser=null;
+		if (curparser != null) {
+			throw new ParserException(String.format("(%s) can not make command recursively",keycls.get_string_value("origkey")));
+		}
+
+		vobj = keycls.get_object_value("value");
+		if (!(vobj instanceof JSONObject)){
+			throw new ParserException(String.format("(%s) must be value dict",keycls.get_string_value("origkey")));
+		}
+
+		nextparser = this.__get_subparser_inner(keycls);
+		this.__load_command_line_inner(keycls.get_string_value("prefix"),(JSONObject)vobj,nextparser);
+		return true;
+	}
+
 	public Parser(Priority[] priority, String caption, String description, Boolean defaulthelp) {
 		Priority[] defpriority = {Priority.SUB_COMMAND_JSON_SET ,
 		                          Priority.COMMAND_JSON_SET , Priority.ENVIRONMENT_SET,
@@ -380,6 +407,14 @@ public class Parser  {
 		this.m_parser = ArgumentParsers.newArgumentParser(caption)
 		                .defaultHelp(defaulthelp)
 		                .description(description);
+		this.m_functable = new HashMap();
+		this.m_functable.put("string",this.class.getMethod("__load_command_line_string"));
+		this.m_functable.put("unicode",this.class.getMethod("__load_command_line_string"));
+		this.m_functable.put("int",this.class.getMethod("__load_command_line_int"));
+		this.m_functable.put("float",this.class.getMethod("__load_command_line_float"));
+		this.m_functable.put("list",this.class.getMethod("__load_command_line_list"));
+		this.m_functable.put("bool",this.class.getMethod("__load_command_line_bool"));
+		this.m_functable.put("args",this.class.getMethod("__load_command_line_args"));
 
 	}
 
