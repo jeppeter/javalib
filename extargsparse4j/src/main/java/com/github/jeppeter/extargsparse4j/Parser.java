@@ -131,10 +131,12 @@ class TrueAction extends ArgumentAction {
 
 public class Parser  {
 	private ArgumentParser m_parser;
+	private Subparsers m_subparsers;
 	private Priority[] m_priorities;
 	private Logger m_logger;
 	private List<Key> m_flags;
 	private HashMap<String,Method> m_functable;
+	private List<ParserBase> m_cmdparsers;
 
 	private static String get_main_class() {
 		String command = System.getProperty("sun.java.command");
@@ -363,13 +365,33 @@ public class Parser  {
 		return this.__load_command_line_jsonfile(prefix,keycls,curparser);
 	}
 
+	private ParserBase __find_subparser_inner(String cmdname) {
+		if (this.m_)
+	}
+
 	private ParserBase __get_subparser_inner(Key keycls) {
 		ParserBase cmdparser=null;
+		String helpinfo;
+		ArgumentParser parser=null;
 
 		cmdparser = this.__find_subparser_inner(keycls.get_string_value("cmdname"));
 		if (cmdparser != null) {
 			return cmdparser;
 		}
+
+		if (this.m_subparsers == null) {
+			this.m_subparsers = this.m_parser.addSubparsers();
+		}
+
+		helpinfo = this.__get_help_info(keycls);
+		cmdparser = new ParserBase(this.m_subparsers,keycls);
+		cmdparser.m_parser.help(helpinfo);
+
+		if (this.m_cmdparsers == null) {
+			this.m_cmdparsers = new ArrayList<ParserBase>();
+		}
+		this.m_cmdparsers.add(cmdparser);
+		return cmdparser;
 	}
 
 	private Boolean __load_command_line_command(String prefix,Key keycls,ParserBase curparser) {
@@ -415,6 +437,8 @@ public class Parser  {
 		this.m_functable.put("list",this.class.getMethod("__load_command_line_list"));
 		this.m_functable.put("bool",this.class.getMethod("__load_command_line_bool"));
 		this.m_functable.put("args",this.class.getMethod("__load_command_line_args"));
+		this.m_subparsers = null;
+		this.m_cmdparsers = null;
 
 	}
 
