@@ -137,6 +137,7 @@ public class Parser  {
 	private List<Key> m_flags;
 	private HashMap<String,Method> m_functable;
 	private List<ParserBase> m_cmdparsers;
+	private HashMap<String,Method> m_argsettable;
 
 	private static String get_main_class() {
 		String command = System.getProperty("sun.java.command");
@@ -366,7 +367,18 @@ public class Parser  {
 	}
 
 	private ParserBase __find_subparser_inner(String cmdname) {
-		if (this.m_)
+		int i;
+		ParserBase parsebase;
+		if (this.m_cmdparsers == null) {
+			return null;
+		}
+		for (i=0;i<this.m_cmdparsers.size();i++) {
+			parsebase = this.m_cmdparsers.get(i);
+			if (parsebase.m_cmdname.equals(cmdname) ) {
+				return parsebase;
+			}
+		}
+		return null;
 	}
 
 	private ParserBase __get_subparser_inner(Key keycls) {
@@ -394,7 +406,7 @@ public class Parser  {
 		return cmdparser;
 	}
 
-	private Boolean __load_command_line_command(String prefix,Key keycls,ParserBase curparser) {
+	private Boolean __load_command_subparser(String prefix,Key keycls,ParserBase curparser) {
 		Object vobj;
 		ParserBase nextparser=null;
 		if (curparser != null) {
@@ -464,5 +476,66 @@ public class Parser  {
 	public Parser() {
 		Priority[] priority = {};
 		this(priority);
+	}
+
+	private NameSpace __parse_sub_command_json_set(NameSpace args) {
+		if (this.m_subparsers != null && args.getString("subcommand") != null) {
+			String jsondest = String.format("%s_json",args.getString("subcommand"));
+			ParserBase curparser = this.__find_subparser_inner(args.getString("subcommand"));
+			String jsonfile;
+			assert(curparser != null);
+			jsonfile = args.getString(jsondest);
+			if (jsonfile != null) {
+				args = this.__load_jsonfile(args,args.getString("subcommand"),jsonfile,curparser);
+			}
+		}
+		return args;
+	}
+
+	private NameSpace __parse_command_json_set(NameSpace args) {
+		if (args.getString("json") != null) {
+			String jsonfile = args.getString("json");
+			if (jsonfile != null) {
+				args = this.__load_jsonfile(args,"",jsonfile,null );
+			}
+		}
+		return args;
+	}
+
+	private NameSpace __parse_environment_set(NameSpace args) {
+		return this.__set_environ_value(args);
+	}
+
+	private NameSpace __parse_env_subcommand_json_set(NameSpace args) {
+		if (this.m_subparsers != null && args.getString("subcommand") != null) {
+			String jsondest = String.format("%s_json",args.getString("subcommand"));
+			ParserBase curparser = this.__find_subparser_inner(args.getString("subcommand"));
+			String jsonfile;
+			assert(curparser != null);
+			jsondest = jsondest.replace('-','_');
+			jsondest = jsondest.toUpperCase();
+			jsonfile = System.getenv(jsondest);
+			if (jsonfile != null) {
+				args = this.__load_jsonfile(args,args.getString("subcommand"),jsonfile,curparser);
+			}
+		}
+		return args;
+	}
+
+	private NameSpace __parse_env_command_json_set(NameSpace args) {
+		String jsonfile;
+		jsonfile = System.getenv("EXTARGSPARSE_JSON");
+		if (jsonfile != null) {
+			args = this.__load_jsonfile(args,"",jsonfile,null);
+		}
+		return args;
+	}
+
+	private NameSpace __set_environ_value_inner(NameSpace args,String prefix,List<Key> flagarray ) {
+		int i;
+		Key keycls;
+		for (i=0;i<flagarray.size();i++) {
+			keycls = flagarray.get(i);
+		}
 	}
 }
