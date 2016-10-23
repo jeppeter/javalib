@@ -536,6 +536,14 @@ public class Parser  {
 		Key keycls;
 		for (i=0;i<flagarray.size();i++) {
 			keycls = flagarray.get(i);
+			if (keycls.get_bool_object("isflag") && 
+				!keycls.get_string_value("type").equals("prefix") &&
+				!keycls.get_string_value("type").equals("args")) {
+				String optdest;
+			String oldopt;
+			optdest = keycls.get_string_value("optdest");
+			oldopt = optdest;
+			}
 		}
 	}
 }
