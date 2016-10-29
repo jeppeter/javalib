@@ -128,6 +128,29 @@ class TrueAction extends ArgumentAction {
 	}
 }
 
+class ListAction extends ArgumentAction {
+	@Override
+	public void run(ArgumentParser parser, Argument arg,
+	                Map<String, Object> attrs, String flag, Object value)
+	throws ArgumentParserException {
+		List<String> lobj;
+		lobj = attrs.get(arg.getDest());
+		if (lobj == null) {
+			lobj = new ArrayList<String>();
+		}
+		lobj.add((String)value); 
+		attrs.put(arg.getDest(), lobj);
+	}
+
+	@Override
+	public boolean consumeArgument() {
+		return true;
+	}
+
+	@Override
+	public void onAttach(Argument arg) {
+	}
+}
 
 public class Parser  {
 	private ArgumentParser m_parser;
@@ -540,9 +563,33 @@ public class Parser  {
 				!keycls.get_string_value("type").equals("prefix") &&
 				!keycls.get_string_value("type").equals("args")) {
 				String optdest;
-			String oldopt;
-			optdest = keycls.get_string_value("optdest");
-			oldopt = optdest;
+				String oldopt;
+				String val;
+				optdest = keycls.get_string_value("optdest");
+				oldopt = optdest;
+				if (args.get(oldopt) != null) {
+					continue
+				}
+				if (optdest.indexOf('_') < 0) {
+					optdest = String.format("EXTARGS_%s",optdest);
+				}
+				val = System.getenv(optdest);
+				if (val != null) {
+					if (keycls.get_string_value("type") == "string") {
+						args.put(oldopt,(Object)val)
+					} else if (keycls.get_string_value("type") == "bool") {
+						Boolean bval;
+						if (val.toLowerCase() == "true") {
+							bval = true;
+							args.put(oldopt,bval);
+						} else if (val.toLowerCase() == "false") {
+							bval = false;
+							args.put(oldopt,bval);
+						}
+					} else if (keycls.get_string_value("type") == "list") {
+						
+					}
+				}
 			}
 		}
 	}
