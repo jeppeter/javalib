@@ -592,19 +592,35 @@ public class Parser  {
 						Object jobj;
 						JSONArray jarr;
 						List<String> lobj;
+						int jidx;
 						jsonext.parseString(jsonstr);
 
 						jobj = jsonext.getObject("/dummy");
 						if ( jobj instanceof JSONArray) {
 							lobj = new ArrayList<String>();
-							
+							for (jidx = 0;jidx < jarr.length();jidx ++) {
+								obj = jarr.get(i);
+								if (!(obj instanceof String)){
+									throw new ParserException(String.format("%s(%s)[%d] not string object",optdest,(String)val,i));
+								}
+								lobj.add((String)obj);
+							}
 						} else {
 							throw new ParserException(String.format("%s(%s) not valid list",optdest,(String)val));
 						}
-
+						args.put(oldopt,lobj);
+					} else if (keycls.get_string_value("type") == "int" ) {
+						args.put(oldopt,Integer.parseInt((String)val));
+					} else if (keycls.get_string_value("type") == "float") {
+						args.put(oldopt,Float.parseFloat((String)val));
+					} else {
+						throw new ParserException(String.format("unknown type(%s) for (%s)",keycls.get_string_value("type"),oldopt));
 					}
 				}
 			}
 		}
+
+		return args;
 	}
+
 }
