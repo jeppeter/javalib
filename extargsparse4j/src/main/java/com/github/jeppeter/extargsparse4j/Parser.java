@@ -587,7 +587,21 @@ public class Parser  {
 							args.put(oldopt,bval);
 						}
 					} else if (keycls.get_string_value("type") == "list") {
-						
+						String jsonstr = String.format("{ \"dummy\" : %s }",(String)val);
+						JsonExt jsonext = new JsonExt();
+						Object jobj;
+						JSONArray jarr;
+						List<String> lobj;
+						jsonext.parseString(jsonstr);
+
+						jobj = jsonext.getObject("/dummy");
+						if ( jobj instanceof JSONArray) {
+							lobj = new ArrayList<String>();
+							
+						} else {
+							throw new ParserException(String.format("%s(%s) not valid list",optdest,(String)val));
+						}
+
 					}
 				}
 			}
