@@ -631,6 +631,7 @@ public class Parser  {
 		String type;
 		Key keycls;
 		int i;
+		Boolean valid;
 		this.__load_command_line_json_added(curparser);
 		jobj = (JSONObject) obj;
 		keys = jobj.names();
@@ -644,7 +645,13 @@ public class Parser  {
 				keycls = new Key(prefix,keys[i],val,false);
 			}
 
+			meth = this.m_functable.get(keycls.get_string_value("type"));
+			valid = meth.invoke(this,prefix,keycls,curparser);
+			if (! valid) {
+				throw new ParserException(String.format("can not add %s %s",keys[i],val.toString()));
+			}
 		}
+		return;
 	}
 
 	public void load_command_line(Object obj) {
