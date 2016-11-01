@@ -623,4 +623,45 @@ public class Parser  {
 		return args;
 	}
 
+	private void __load_command_line_inner(String prefix,Object obj,ParserBase curparser) {
+		JSONObject jobj;
+		Object val;
+		String[] keys;
+		Method meth;
+		String type;
+		Key keycls;
+		int i;
+		this.__load_command_line_json_added(curparser);
+		jobj = (JSONObject) obj;
+		keys = jobj.names();
+		for (i=0;i<keys.length();i++){
+			val = jobj.get(keys[i]);
+			if (curparser != null) {
+				this.m_logger.info("%s , %s , %s , True",prefix,keys[i],val.toString());
+				keycls = new Key(prefix,keys[i],val,true);
+			} else {
+				this.m_logger.info("%s , %s , %s , False",prefix,keys[i],val.toString());
+				keycls = new Key(prefix,keys[i],val,false);
+			}
+
+		}
+	}
+
+	public void load_command_line(Object obj) {
+		if (!(obj instanceof JSONObject)) {
+			throw new ParserException(String.format("obj is not JSONObject"));
+		}
+		this.__load_command_line_inner('',obj,None);
+		return;
+	}
+
+	public void load_command_line_string(String str) {
+		Object obj;
+		JsonExt jext = new JsonExt();
+		jext.parseString(str);
+		obj = jext.getObject("/");
+		return this.load_command_line(obj);
+
+	}
+
 }
