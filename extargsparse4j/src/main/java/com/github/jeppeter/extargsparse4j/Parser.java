@@ -456,7 +456,7 @@ public class Parser  {
 		                          Priority.ENV_SUB_COMMAND_JSON_SET , Priority.ENV_COMMAND_JSON_SET
 		                         };
 
-		this.m_logger = LogManager.getLogger(this.class);
+		this.m_logger = LogManager.getLogger(this.getClass().getName());
 		if (priority.length == 0 ) {
 			this.m_priorities = defpriority;
 		} else {
@@ -469,13 +469,13 @@ public class Parser  {
 		                .defaultHelp(defaulthelp)
 		                .description(description);
 		this.m_functable = new HashMap();
-		this.m_functable.put("string",this.class.getMethod("__load_command_line_string"));
-		this.m_functable.put("unicode",this.class.getMethod("__load_command_line_string"));
-		this.m_functable.put("int",this.class.getMethod("__load_command_line_int"));
-		this.m_functable.put("float",this.class.getMethod("__load_command_line_float"));
-		this.m_functable.put("list",this.class.getMethod("__load_command_line_list"));
-		this.m_functable.put("bool",this.class.getMethod("__load_command_line_bool"));
-		this.m_functable.put("args",this.class.getMethod("__load_command_line_args"));
+		this.m_functable.put("string",this.getClass().getMethod("__load_command_line_string"));
+		this.m_functable.put("unicode",this.getClass().getMethod("__load_command_line_string"));
+		this.m_functable.put("int",this.getClass().getMethod("__load_command_line_int"));
+		this.m_functable.put("float",this.getClass().getMethod("__load_command_line_float"));
+		this.m_functable.put("list",this.getClass().getMethod("__load_command_line_list"));
+		this.m_functable.put("bool",this.getClass().getMethod("__load_command_line_bool"));
+		this.m_functable.put("args",this.getClass().getMethod("__load_command_line_args"));
 		this.m_subparsers = null;
 		this.m_cmdparsers = null;
 
@@ -495,7 +495,7 @@ public class Parser  {
 
 	public Parser(Priority[] priority) {
 		String mainclass;
-		String description
+		String description;
 		mainclass = get_main_class();
 		this(priority, caption);
 	}
@@ -572,7 +572,7 @@ public class Parser  {
 				optdest = keycls.get_string_value("optdest");
 				oldopt = optdest;
 				if (args.get(oldopt) != null) {
-					continue
+					continue;
 				}
 				if (optdest.indexOf('_') < 0) {
 					optdest = String.format("EXTARGS_%s",optdest);
@@ -580,7 +580,7 @@ public class Parser  {
 				val = System.getenv(optdest);
 				if (val != null) {
 					if (keycls.get_string_value("type") == "string") {
-						args.put(oldopt,(Object)val)
+						args.put(oldopt,(Object)val);
 					} else if (keycls.get_string_value("type") == "bool") {
 						Boolean bval;
 						if (val.toLowerCase() == "true") {
@@ -662,7 +662,7 @@ public class Parser  {
 		if (!(obj instanceof JSONObject)) {
 			throw new ParserException(String.format("obj is not JSONObject"));
 		}
-		this.__load_command_line_inner('',obj,None);
+		this.__load_command_line_inner("",obj,None);
 		return;
 	}
 

@@ -6,4 +6,6 @@ dependencies {
 	compile project(':reext')
 	compile project(':jsonext')
 	compile group: 'net.sourceforge.argparse4j', name: 'argparse4j', version: '0.7.0'
+	compile group: 'org.apache.logging.log4j', name: 'log4j-api',version: '2.7'
+	compile group: 'org.apache.logging.log4j', name: 'log4j-core',version: '2.7'
 }

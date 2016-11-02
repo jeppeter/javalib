@@ -1,4 +1,4 @@
-
+package com.github.jeppeter.extargsparse4j;
 public enum Priority {
 	SUB_COMMAND_JSON_SET,
 	COMMAND_JSON_SET,
