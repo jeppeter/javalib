@@ -13,14 +13,17 @@ import com.github.jeppeter.reext.ReExt;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-class PaserBase {
+import java.util.List;
+import java.util.ArrayList;
+
+class ParserBase {
 	protected Subparser m_parser;
 	protected List<Key> m_flags;
 	protected String m_cmdname;
 	protected Key m_typeclass;
 	protected ParserBase(Subparsers parsers, Key keycls) {
 		this.m_parser = parsers.addParser(keycls.get_string_value("cmdname"));
-		this.m_flags = new ArrayList<Key>;
+		this.m_flags = new ArrayList<Key>();
 		this.m_cmdname = keycls.get_string_value("cmdname");
 		this.m_typeclass = keycls;
 	}
@@ -282,6 +285,7 @@ public class Parser  {
 
 	private Boolean __load_command_line_inner_action(String prefix, Key keycls, ParserBase curparser, ArgumentAction act) {
 		String longopt, shortopt, optdest, helpinfo;
+		Argument thisarg;
 
 		this.__check_flag_insert_mustsucc(keycls, curparser);
 		longopt = keycls.get_strinsg_value("longopt");
@@ -291,15 +295,15 @@ public class Parser  {
 
 		if (curparser != null) {
 			if (shortopt != null) {
-				curparser.m_parser.addArgument(shortopt, longopt).dest(optdest).default(null).action(act).help(helpinfo);
+				curparser.m_parser.addArgument(shortopt,longopt).dest(optdest).setDefault(null).action(act).help(helpinfo);
 			} else {
-				curparser.m_parser.addArgument(longopt).dest(optdest).default(null).action(act).help(helpinfo);
+				curparser.m_parser.addArgument(longopt).dest(optdest).setDefault(null).action(act).help(helpinfo);
 			}
 		} else {
 			if (shortopt != null) {
-				this.m_parser.addArgument(shortopt, longopt).dest(optdest).default(null).action(act).help(helpinfo);
+				this.m_parser.addArgument(shortopt, longopt).dest(optdest).setDefault(null).action(act).help(helpinfo);
 			} else {
-				this.m_parser.addArgument(longopt).dest(optdest).default(null).action(act).help(helpinfo);
+				this.m_parser.addArgument(longopt).dest(optdest).setDefault(null).action(act).help(helpinfo);
 			}
 		}
 		return true;
@@ -337,7 +341,7 @@ public class Parser  {
 		Boolean valid;
 		String optdest = "args", helpinfo,nargs;
 		Argument arg;
-		valid = this.__check_flag_insert(keycls, curparser)
+		valid = this.__check_flag_insert(keycls, curparser);
 		if (! valid) {
 			return false;
 		}
@@ -379,7 +383,7 @@ public class Parser  {
 
 	private Boolean __load_command_line_json_added(ParserBase curparser) {
 		String prefix="";
-		String key = "json## json input file to get the value set ##"
+		String key = "json## json input file to get the value set ##";
 		Object value = null;
 		Key keycls;
 		if (curparser != null) {
