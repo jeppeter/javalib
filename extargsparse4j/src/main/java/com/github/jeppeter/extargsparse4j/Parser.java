@@ -4,7 +4,11 @@ import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.Subparser;
+import net.sourceforge.argparse4j.inf.Subparsers;
+import net.sourceforge.argparse4j.inf.ArgumentAction;
+import net.sourceforge.argparse4j.inf.Argument;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
 import com.github.jeppeter.extargsparse4j.Priority;
 import com.github.jeppeter.extargsparse4j.Key;
 
@@ -15,13 +19,17 @@ import org.apache.logging.log4j.LogManager;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+
+import java.lang.reflect.Method;
 
 class ParserBase {
 	protected Subparser m_parser;
 	protected List<Key> m_flags;
 	protected String m_cmdname;
 	protected Key m_typeclass;
-	protected ParserBase(Subparsers parsers, Key keycls) {
+	protected ParserBase(Subparsers parsers, Key keycls) throws NoSuchFieldException,KeyException,IllegalAccessException {
 		this.m_parser = parsers.addParser(keycls.get_string_value("cmdname"));
 		this.m_flags = new ArrayList<Key>();
 		this.m_cmdname = keycls.get_string_value("cmdname");
@@ -29,7 +37,7 @@ class ParserBase {
 	}
 }
 
-class CountAction extends ArgumentAction {
+class CountAction implements ArgumentAction {
 	@Override
 	public void run(ArgumentParser parser, Argument arg,
 	                Map<String, Object> attrs, String flag, Object value)
@@ -55,7 +63,7 @@ class CountAction extends ArgumentAction {
 	}
 }
 
-class IntAction extends ArgumentAction {
+class IntAction implements ArgumentAction {
 	@Override
 	public void run(ArgumentParser parser, Argument arg,
 	                Map<String, Object> attrs, String flag, Object value)
@@ -74,7 +82,7 @@ class IntAction extends ArgumentAction {
 	}
 }
 
-class DoubleAction extends ArgumentAction {
+class DoubleAction implements ArgumentAction {
 	@Override
 	public void run(ArgumentParser parser, Argument arg,
 	                Map<String, Object> attrs, String flag, Object value)
@@ -93,7 +101,7 @@ class DoubleAction extends ArgumentAction {
 	}
 }
 
-class FalseAction extends ArgumentAction {
+class FalseAction implements ArgumentAction {
 	@Override
 	public void run(ArgumentParser parser, Argument arg,
 	                Map<String, Object> attrs, String flag, Object value)
@@ -112,7 +120,7 @@ class FalseAction extends ArgumentAction {
 	}
 }
 
-class TrueAction extends ArgumentAction {
+class TrueAction implements ArgumentAction {
 	@Override
 	public void run(ArgumentParser parser, Argument arg,
 	                Map<String, Object> attrs, String flag, Object value)
@@ -131,15 +139,18 @@ class TrueAction extends ArgumentAction {
 	}
 }
 
-class ListAction extends ArgumentAction {
+class ListAction implements ArgumentAction {
 	@Override
 	public void run(ArgumentParser parser, Argument arg,
 	                Map<String, Object> attrs, String flag, Object value)
 	throws ArgumentParserException {
 		List<String> lobj;
-		lobj = attrs.get(arg.getDest());
-		if (lobj == null) {
+		Object obj;
+		obj = attrs.get(arg.getDest());
+		if (obj == null) {
 			lobj = new ArrayList<String>();
+		} else {
+			lobj = (List<String>) obj;
 		}
 		lobj.add((String)value); 
 		attrs.put(arg.getDest(), lobj);
@@ -189,7 +200,7 @@ public class Parser  {
 		Key curcls;
 		if (curparser != null) {
 			valid = true;
-			for (i = 0; keycls.m_flags.size(); i ++) {
+			for (i = 0; curparser.m_flags.size(); i ++) {
 				curcls = curparser.m_flags.get(i);
 				if (curcls.get_string_value("flagname") != "$" &&
 				        keycls.get_string_value("flagname") != "$") {
@@ -505,7 +516,7 @@ public class Parser  {
 		this(priority);
 	}
 
-	private NameSpace __parse_sub_command_json_set(NameSpace args) {
+	private Namespace __parse_sub_command_json_set(Namespace args) {
 		if (this.m_subparsers != null && args.getString("subcommand") != null) {
 			String jsondest = String.format("%s_json",args.getString("subcommand"));
 			ParserBase curparser = this.__find_subparser_inner(args.getString("subcommand"));
@@ -519,7 +530,7 @@ public class Parser  {
 		return args;
 	}
 
-	private NameSpace __parse_command_json_set(NameSpace args) {
+	private Namespace __parse_command_json_set(Namespace args) {
 		if (args.getString("json") != null) {
 			String jsonfile = args.getString("json");
 			if (jsonfile != null) {
@@ -529,11 +540,11 @@ public class Parser  {
 		return args;
 	}
 
-	private NameSpace __parse_environment_set(NameSpace args) {
+	private Namespace __parse_environment_set(Namespace args) {
 		return this.__set_environ_value(args);
 	}
 
-	private NameSpace __parse_env_subcommand_json_set(NameSpace args) {
+	private Namespace __parse_env_subcommand_json_set(Namespace args) {
 		if (this.m_subparsers != null && args.getString("subcommand") != null) {
 			String jsondest = String.format("%s_json",args.getString("subcommand"));
 			ParserBase curparser = this.__find_subparser_inner(args.getString("subcommand"));
@@ -549,7 +560,7 @@ public class Parser  {
 		return args;
 	}
 
-	private NameSpace __parse_env_command_json_set(NameSpace args) {
+	private Namespace __parse_env_command_json_set(Namespace args) {
 		String jsonfile;
 		jsonfile = System.getenv("EXTARGSPARSE_JSON");
 		if (jsonfile != null) {
@@ -558,7 +569,7 @@ public class Parser  {
 		return args;
 	}
 
-	private NameSpace __set_environ_value_inner(NameSpace args,String prefix,List<Key> flagarray ) {
+	private Namespace __set_environ_value_inner(Namespace args,String prefix,List<Key> flagarray ) {
 		int i;
 		Key keycls;
 		for (i=0;i<flagarray.size();i++) {
