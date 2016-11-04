@@ -13,6 +13,7 @@ import com.github.jeppeter.extargsparse4j.Priority;
 import com.github.jeppeter.extargsparse4j.Key;
 
 import com.github.jeppeter.reext.ReExt;
+import com.github.jeppeter.jsonext.JsonExt;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -511,6 +512,36 @@ public class Parser  {
 
 	public Parser() {
 		this(new Priority[] {});
+	}
+
+	private Namespace __load_jsonvalue(Namespace args,String prefix,Object jsonvalue,List<Key> flagarray) {
+		JSONObject jobj = null;
+
+		if (! (jsonvalue instanceof JSONObject)) {
+			throw new ParserException(String.format("value type (%s) not JSONObject",jsonvalue.getClass().getName()));
+		}
+		
+	}
+
+	private Namespace __load_jsonfile(Namespace args,String subcmd,String jsonfile,ParserBase curparser) {
+		String prefix="";
+		List<Key> flagarray=null;
+		JsonExt jext;
+		Object jsonvalue=null;
+		assert(jsonfile != null);
+		if (subcmd != null) {
+			prefix += subcmd;
+		}
+
+		flagarray = this.m_flags;
+		if (curparser != null) {
+			flagarray = curparser.m_flags;
+		}
+
+		/*now we read file and give the jobs*/
+		jext = new JsonExt();
+		jext.parseFile(jsonfile);
+		return this.__load_jsonvalue(args,prefix,jsonvalue,flagarray);
 	}
 
 	private Namespace __parse_sub_command_json_set(Namespace args) {
