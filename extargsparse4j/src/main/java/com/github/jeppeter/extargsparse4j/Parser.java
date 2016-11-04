@@ -21,8 +21,13 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
-
 import java.lang.reflect.Method;
+
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 class ParserBase {
 	protected Subparser m_parser;
@@ -497,23 +502,15 @@ public class Parser  {
 	}
 
 	public Parser(Priority[] priority, String caption) {
-		/*now to get from the main class */
-		String mainclass;
-		String description;
-		description = String.format("%s [OPTIONS] command ...", caption);
-		this(priority, caption, description);
+		this(priority, caption, String.format("%s [OPTIONS] command ...",caption));
 	}
 
 	public Parser(Priority[] priority) {
-		String mainclass;
-		String description;
-		mainclass = get_main_class();
-		this(priority, caption);
+		this(priority, "",get_main_class());
 	}
 
 	public Parser() {
-		Priority[] priority = {};
-		this(priority);
+		this(new Priority[] {});
 	}
 
 	private Namespace __parse_sub_command_json_set(Namespace args) {
