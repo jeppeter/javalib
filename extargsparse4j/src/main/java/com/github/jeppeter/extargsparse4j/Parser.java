@@ -200,7 +200,7 @@ public class Parser  {
 		Key curcls;
 		if (curparser != null) {
 			valid = true;
-			for (i = 0; curparser.m_flags.size(); i ++) {
+			for (i = 0; i < curparser.m_flags.size(); i ++) {
 				curcls = curparser.m_flags.get(i);
 				if (curcls.get_string_value("flagname") != "$" &&
 				        keycls.get_string_value("flagname") != "$") {
@@ -216,7 +216,7 @@ public class Parser  {
 				}
 			}
 			if (valid) {
-				curparser.add(keycls);
+				curparser.m_flags.add(keycls);
 			}
 		} else {
 			valid = true;
@@ -279,7 +279,7 @@ public class Parser  {
 				helpinfo += String.format("%s set default(null)", keycls.get_string_value("optdest"));
 			}
 		} else {
-			if (keycls.get_bool_object("isflag")) {
+			if (keycls.get_bool_value("isflag")) {
 				obj = keycls.get_object_value("value");
 				helpinfo += String.format("%s set default(%s)", keycls.get_string_value("optdest"), obj.toString());
 			} else {
@@ -299,22 +299,22 @@ public class Parser  {
 		Argument thisarg;
 
 		this.__check_flag_insert_mustsucc(keycls, curparser);
-		longopt = keycls.get_strinsg_value("longopt");
+		longopt = keycls.get_string_value("longopt");
 		shortopt = keycls.get_string_value("shortopt");
 		optdest = keycls.get_string_value("optdest");
 		helpinfo = keycls.get_string_value("helpinfo");
 
 		if (curparser != null) {
 			if (shortopt != null) {
-				curparser.m_parser.addArgument(shortopt,longopt).dest(optdest).setDefault(null).action(act).help(helpinfo);
+				curparser.m_parser.addArgument(shortopt,longopt).dest(optdest).setDefault((Object)null).action(act).help(helpinfo);
 			} else {
-				curparser.m_parser.addArgument(longopt).dest(optdest).setDefault(null).action(act).help(helpinfo);
+				curparser.m_parser.addArgument(longopt).dest(optdest).setDefault((Object)null).action(act).help(helpinfo);
 			}
 		} else {
 			if (shortopt != null) {
-				this.m_parser.addArgument(shortopt, longopt).dest(optdest).setDefault(null).action(act).help(helpinfo);
+				this.m_parser.addArgument(shortopt, longopt).dest(optdest).setDefault((Object)null).action(act).help(helpinfo);
 			} else {
-				this.m_parser.addArgument(longopt).dest(optdest).setDefault(null).action(act).help(helpinfo);
+				this.m_parser.addArgument(longopt).dest(optdest).setDefault((Object)null).action(act).help(helpinfo);
 			}
 		}
 		return true;
@@ -337,7 +337,7 @@ public class Parser  {
 	}
 
 	private Boolean __load_command_line_list(String prefix, Key keycls, ParserBase curparser) {
-		return this.__load_command_line_inner_action(prefix, keycls, curparser, Arguments.AppendArgumentAction());
+		return this.__load_command_line_inner_action(prefix, keycls, curparser, Arguments.append());
 	}
 
 	private Boolean __load_command_line_bool(String prefix, Key keycls, ParserBase curparser) {
@@ -357,7 +357,7 @@ public class Parser  {
 			return false;
 		}
 
-		if (curparser) {
+		if (curparser != null) {
 			optdest = "subnargs";
 		}
 
@@ -369,20 +369,20 @@ public class Parser  {
 
 		nargs = keycls.get_string_value("nargs");
 
-		if ( !nargs.equal("0")) {
+		if ( ! nargs.equals("0")) {
 			if (curparser != null) {
-				arg = curparser.addArgument(optdest);
+				arg = curparser.m_parser.addArgument(optdest);
 			} else {
 				arg = this.m_parser.addArgument(optdest);
 			}
 
 			arg.metavar(optdest);
-			if (nargs.equal("+") || nargs.equal("*") || nargs.equal("?")) {
+			if (nargs.equals("+") || nargs.equals("*") || nargs.equals("?")) {
 				arg.nargs(nargs);
 			} else {
 				arg.nargs(Integer.parseInt(nargs));
 			}
-			arg.action(Arguments.AppendArgumentAction());
+			arg.action(Arguments.append());
 			arg.help(helpinfo);
 		}
 		return true;
