@@ -514,13 +514,56 @@ public class Parser  {
 		this(new Priority[] {});
 	}
 
-	private Namespace __load_jsonvalue(Namespace args,String prefix,Object jsonvalue,List<Key> flagarray) {
-		JSONObject jobj = null;
+	private Namespace __set_jsonvalue_not_defined(Namespace args,List<Key> flagarray,String key,Object value) {
+		int i;
+		Key p;
+		for (i=0;i<flagarray.size();i++){
+			p = flagar.get(i);
+			if (p.get_bool_value("isflag") && 
+				!p.get_string_value("type").equals("prefix") &&
+				!p.get_string_value("type").equals("args") ){
+				if (p.get_string_value("optdest").equals(key)) {
+					if (args.get(key) == null){
+						
+					}
+				}
+			}
+		}
+	}
 
+	private Namespace __load_jsonvalue(Namespace args,String prefix,Object jsonvalue,List<Key> flagarray) {
+		JSONArray jobj = null;
+		int i;
+		Object val;
+		Set<String> keyset;
+		String[] keys;
+		String curprefix="";
 		if (! (jsonvalue instanceof JSONObject)) {
 			throw new ParserException(String.format("value type (%s) not JSONObject",jsonvalue.getClass().getName()));
 		}
-		
+
+		jobj = (JSONArray) jsonvalue;
+		keyset = jobj.keySet();
+		keys = keyset.toArray();
+		for (i=0;i<keys.length;i++) {
+			val = jsonvalue.get(keys[i]);
+			if (val instanceof JSONObject) {
+				curprefix = "";
+				if (prefix.length > 0) {
+					curprefix += String.format("%s_",prefix);
+				}
+				curprefix += keys[i];
+				args = this.__load_jsonvalue(args,curprefix,val,flagarray);
+			} else {
+				curprefix = "";
+				if (prefix.length > 0) {
+					curprefix += String.format("%s_",prefix);
+				}
+				curprefix += keys[i];
+				args = this.__set_jsonvalue_not_defined(args,flagarray,curprefix,val);
+			}
+		}
+		return args;
 	}
 
 	private Namespace __load_jsonfile(Namespace args,String subcmd,String jsonfile,ParserBase curparser) {
