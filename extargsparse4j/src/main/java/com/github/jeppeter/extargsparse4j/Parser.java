@@ -9,6 +9,7 @@ import net.sourceforge.argparse4j.inf.ArgumentAction;
 import net.sourceforge.argparse4j.inf.Argument;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
+import com.github.jeppeter.extargsparse4j.NameSpaceEx;
 import com.github.jeppeter.extargsparse4j.Priority;
 import com.github.jeppeter.extargsparse4j.Key;
 
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
 import java.lang.reflect.Method;
 
 
@@ -514,25 +516,61 @@ public class Parser  {
 		this(new Priority[] {});
 	}
 
-	private Namespace __set_jsonvalue_not_defined(Namespace args,List<Key> flagarray,String key,Object value) {
+	private NameSpaceEx __set_jsonvalue_not_defined_inner(NameSpaceEx args,List<Key> flagarray,String key,Object value) {
 		int i;
 		Key p;
 		for (i=0;i<flagarray.size();i++){
-			p = flagar.get(i);
+			p = flagarray.get(i);
 			if (p.get_bool_value("isflag") && 
 				!p.get_string_value("type").equals("prefix") &&
 				!p.get_string_value("type").equals("args") ){
 				if (p.get_string_value("optdest").equals(key)) {
 					if (args.get(key) == null){
-						
+						String vtypestr;
+						String ptypestr;
+						TypeClass typecls;
+						typecls = new TypeClass(value);
+						vtypestr = typecls.get_type();
+						typecls = new TypeClass(p.get_object_value("value"));
+						ptypestr = typecls.get_type();
+						if (vtypestr.equals(ptypestr)){
+							args.set(key,value);
+						}	
 					}
+					return args;
 				}
 			}
 		}
+		return null;		
 	}
 
-	private Namespace __load_jsonvalue(Namespace args,String prefix,Object jsonvalue,List<Key> flagarray) {
-		JSONArray jobj = null;
+	private NameSpaceEx __set_jsonvalue_not_defined(NameSpaceEx args,List<Key> flagarray,String key,Object value) {
+		NameSpaceEx oldargs = args;
+		NameSpaceEx retargs;
+		ParserBase curparser;
+		int i;
+		retargs = this.__set_jsonvalue_not_defined_inner(args,flagarray,key,value);
+		if (retargs != null) {
+			return retargs;
+		}
+
+		retargs = this.__set_jsonvalue_not_defined_inner(args,this.m_flags,key,value);
+		if (retargs != null) {
+			return retargs;
+		}
+
+		for (i=0;i<this.m_cmdparsers.size();i++){
+			curparser = this.m_cmdparsers.get(i);
+			retargs = this.__set_jsonvalue_not_defined_inner(args,curparser.m_flags,key,value);
+			if (retargs != null) {
+				return retargs;
+			}
+		}
+		return oldargs;
+	}
+
+	private NameSpaceEx __load_jsonvalue(NameSpaceEx args,String prefix,Object jsonvalue,List<Key> flagarray) {
+		JSONObject jobj = null;
 		int i;
 		Object val;
 		Set<String> keyset;
@@ -542,21 +580,21 @@ public class Parser  {
 			throw new ParserException(String.format("value type (%s) not JSONObject",jsonvalue.getClass().getName()));
 		}
 
-		jobj = (JSONArray) jsonvalue;
+		jobj = (JSONObject) jsonvalue;
 		keyset = jobj.keySet();
-		keys = keyset.toArray();
+		keys = keyset.toArray(new String[keyset.size()]);
 		for (i=0;i<keys.length;i++) {
-			val = jsonvalue.get(keys[i]);
+			val = jobj.get(keys[i]);
 			if (val instanceof JSONObject) {
 				curprefix = "";
-				if (prefix.length > 0) {
+				if (prefix.length() > 0) {
 					curprefix += String.format("%s_",prefix);
 				}
 				curprefix += keys[i];
 				args = this.__load_jsonvalue(args,curprefix,val,flagarray);
 			} else {
 				curprefix = "";
-				if (prefix.length > 0) {
+				if (prefix.length() > 0) {
 					curprefix += String.format("%s_",prefix);
 				}
 				curprefix += keys[i];
@@ -566,7 +604,7 @@ public class Parser  {
 		return args;
 	}
 
-	private Namespace __load_jsonfile(Namespace args,String subcmd,String jsonfile,ParserBase curparser) {
+	private NameSpaceEx __load_jsonfile(NameSpaceEx args,String subcmd,String jsonfile,ParserBase curparser) {
 		String prefix="";
 		List<Key> flagarray=null;
 		JsonExt jext;
@@ -587,7 +625,7 @@ public class Parser  {
 		return this.__load_jsonvalue(args,prefix,jsonvalue,flagarray);
 	}
 
-	private Namespace __parse_sub_command_json_set(Namespace args) {
+	private NameSpaceEx __parse_sub_command_json_set(NameSpaceEx args) {
 		if (this.m_subparsers != null && args.getString("subcommand") != null) {
 			String jsondest = String.format("%s_json",args.getString("subcommand"));
 			ParserBase curparser = this.__find_subparser_inner(args.getString("subcommand"));
@@ -601,7 +639,7 @@ public class Parser  {
 		return args;
 	}
 
-	private Namespace __parse_command_json_set(Namespace args) {
+	private NameSpaceEx __parse_command_json_set(NameSpaceEx args) {
 		if (args.getString("json") != null) {
 			String jsonfile = args.getString("json");
 			if (jsonfile != null) {
@@ -611,11 +649,21 @@ public class Parser  {
 		return args;
 	}
 
-	private Namespace __parse_environment_set(Namespace args) {
+	private NameSpaceEx __set_environ_value(NameSpaceEx args) {
+		int i;
+		ParserBase curparser;
+		for (i=0;i<this.m_cmdparsers.size();i++){
+			curparser = this.m_cmdparsers.get(i);
+			args = this.__set_environ_value_inner(args,curparser.m_cmdname,curparser.m_flags);
+		}
+		return this.__set_environ_value_inner(args,"",this.m_flags);
+	}
+
+	private NameSpaceEx __parse_environment_set(NameSpaceEx args) {
 		return this.__set_environ_value(args);
 	}
 
-	private Namespace __parse_env_subcommand_json_set(Namespace args) {
+	private NameSpaceEx __parse_env_subcommand_json_set(NameSpaceEx args) {
 		if (this.m_subparsers != null && args.getString("subcommand") != null) {
 			String jsondest = String.format("%s_json",args.getString("subcommand"));
 			ParserBase curparser = this.__find_subparser_inner(args.getString("subcommand"));
@@ -631,7 +679,7 @@ public class Parser  {
 		return args;
 	}
 
-	private Namespace __parse_env_command_json_set(Namespace args) {
+	private NameSpaceEx __parse_env_command_json_set(NameSpaceEx args) {
 		String jsonfile;
 		jsonfile = System.getenv("EXTARGSPARSE_JSON");
 		if (jsonfile != null) {
@@ -640,12 +688,12 @@ public class Parser  {
 		return args;
 	}
 
-	private Namespace __set_environ_value_inner(Namespace args,String prefix,List<Key> flagarray ) {
+	private NameSpaceEx __set_environ_value_inner(NameSpaceEx args,String prefix,List<Key> flagarray ) {
 		int i;
 		Key keycls;
 		for (i=0;i<flagarray.size();i++) {
 			keycls = flagarray.get(i);
-			if (keycls.get_bool_object("isflag") && 
+			if (keycls.get_bool_value("isflag") && 
 				!keycls.get_string_value("type").equals("prefix") &&
 				!keycls.get_string_value("type").equals("args")) {
 				String optdest;
@@ -662,20 +710,21 @@ public class Parser  {
 				val = System.getenv(optdest);
 				if (val != null) {
 					if (keycls.get_string_value("type") == "string") {
-						args.put(oldopt,(Object)val);
+						args.set(oldopt,(Object)val);
 					} else if (keycls.get_string_value("type") == "bool") {
 						Boolean bval;
 						if (val.toLowerCase() == "true") {
 							bval = true;
-							args.put(oldopt,bval);
+							args.set(oldopt,bval);
 						} else if (val.toLowerCase() == "false") {
 							bval = false;
-							args.put(oldopt,bval);
+							args.set(oldopt,bval);
 						}
 					} else if (keycls.get_string_value("type") == "list") {
 						String jsonstr = String.format("{ \"dummy\" : %s }",(String)val);
 						JsonExt jsonext = new JsonExt();
 						Object jobj;
+						Object obj;
 						JSONArray jarr;
 						List<String> lobj;
 						int jidx;
@@ -684,7 +733,8 @@ public class Parser  {
 						jobj = jsonext.getObject("/dummy");
 						if ( jobj instanceof JSONArray) {
 							lobj = new ArrayList<String>();
-							for (jidx = 0;jidx < jarr.length();jidx ++) {
+							jarr = (JSONArray) jobj;
+							for (jidx = 0;jidx < jarr.size();jidx ++) {
 								obj = jarr.get(i);
 								if (!(obj instanceof String)){
 									throw new ParserException(String.format("%s(%s)[%d] not string object",optdest,(String)val,i));
@@ -694,11 +744,11 @@ public class Parser  {
 						} else {
 							throw new ParserException(String.format("%s(%s) not valid list",optdest,(String)val));
 						}
-						args.put(oldopt,lobj);
+						args.set(oldopt,lobj);
 					} else if (keycls.get_string_value("type") == "int" ) {
-						args.put(oldopt,Integer.parseInt((String)val));
+						args.set(oldopt,Integer.parseInt((String)val));
 					} else if (keycls.get_string_value("type") == "float") {
-						args.put(oldopt,Float.parseFloat((String)val));
+						args.set(oldopt,Float.parseFloat((String)val));
 					} else {
 						throw new ParserException(String.format("unknown type(%s) for (%s)",keycls.get_string_value("type"),oldopt));
 					}
@@ -717,11 +767,13 @@ public class Parser  {
 		String type;
 		Key keycls;
 		int i;
+		Set<String> keyset;
 		Boolean valid;
 		this.__load_command_line_json_added(curparser);
 		jobj = (JSONObject) obj;
-		keys = jobj.names();
-		for (i=0;i<keys.length();i++){
+		keyset = jobj.keySet();
+		keys = keyset.toArray(new String[keyset.size()]);
+		for (i=0;i<keys.length;i++){
 			val = jobj.get(keys[i]);
 			if (curparser != null) {
 				this.m_logger.info("%s , %s , %s , True",prefix,keys[i],val.toString());
