@@ -11,23 +11,31 @@ public class functable {
 	private String m_name;
 
 	public functable(String name) throws NoSuchMethodException {
-		this.m_funcs = new HashMap();
-		this.m_funcs.put("Hello",functable.class.getMethod("CallHello"));
-		this.m_funcs.put("Bye",functable.class.getMethod("CallBye"));
+		Class[] args = new Class[1];
+		this.m_funcs = new HashMap<String,Method>();
+		args[0] = String.class;
+		this.m_funcs.put("Hello",functable.class.getMethod("CallHello",args));
+		this.m_funcs.put("Bye",functable.class.getMethod("CallBye",args));
 		this.m_name = name;
 	}
 
-	public void CallHello() {
-		System.out.println(String.format("Hello %s",this.m_name));
+	public Boolean CallHello(String name) {
+		System.out.println(String.format("Hello %s(%s)",this.m_name,name));
+		return true;
 	}
 
-	public void CallBye() {
-		System.out.println(String.format("Bye %s",this.m_name));
+	public Boolean CallBye(String name) {
+		System.out.println(String.format("Bye %s(%s)",this.m_name,name));
+		return true;
 	}
 
 	public void CallFunction(String name) throws IllegalAccessException,InvocationTargetException {
 		CallFunc funcptr;
-		this.m_funcs.get(name).invoke(this);
+		Boolean bval;
+
+		bval =(Boolean) this.m_funcs.get(name).invoke(this,(Object)name);
+		System.out.println(name+" " + bval.toString());
+		return;
 	}
 
 	public static void main(String[] args) 
