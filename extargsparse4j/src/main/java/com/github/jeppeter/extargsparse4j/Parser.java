@@ -187,7 +187,7 @@ public class Parser  {
 	private List<Key> m_flags;
 	private HashMap<String,Method> m_functable;
 	private List<ParserBase> m_cmdparsers;
-	private HashMap<String,Method> m_argsettable;
+	private HashMap<Priority,Method> m_argsettable;
 
 	private static String get_main_class() {
 		String command = System.getProperty("sun.java.command");
@@ -480,6 +480,7 @@ public class Parser  {
 		                          Priority.ENV_SUB_COMMAND_JSON_SET , Priority.ENV_COMMAND_JSON_SET
 		                         };
 		Class[] cls = new Class[3];
+		Class[] argcls = new Class[1];
 
 		this.m_logger = LogManager.getLogger(this.getClass().getName());
 		if (priority.length == 0 ) {
@@ -504,6 +505,13 @@ public class Parser  {
 		this.m_functable.put("list",this.getClass().getMethod("__load_command_line_list",cls));
 		this.m_functable.put("bool",this.getClass().getMethod("__load_command_line_bool",cls));
 		this.m_functable.put("args",this.getClass().getMethod("__load_command_line_args",cls));
+
+		argcls[0] = NameSpaceEx.class;
+		this.m_argsettable.put(Priority.SUB_COMMAND_JSON_SET,this.getClass().getMethod("__parse_sub_command_json_set",argcls));
+		this.m_argsettable.put(Priority.COMMAND_JSON_SET,this.getClass().getMethod("__parse_command_json_set",argcls));
+		this.m_argsettable.put(Priority.ENVIRONMENT_SET,this.getClass().getMethod("__parse_environment_set",argcls));
+		this.m_argsettable.put(Priority.ENV_SUB_COMMAND_JSON_SET,this.getClass().getMethod("__parse_env_subcommand_json_set",argcls));
+		this.m_argsettable.put(Priority.ENV_COMMAND_JSON_SET,this.getClass().getMethod("__parse_env_command_json_set",argcls));
 		this.m_subparsers = null;
 		this.m_cmdparsers = null;
 
@@ -818,6 +826,39 @@ public class Parser  {
 		obj = jext.getObject("/");
 		this.load_command_line(obj);
 		return;
+	}
+
+	private void __set_command_line_self_args() throws KeyException,JsonExtInvalidTypeException,JsonExtNotParsedException,JsonExtNotFoundException,NoSuchFieldException,IllegalAccessException,ParserException {
+		Key keycls;
+		ParserBase curparser;
+		int i;
+		/*we put the key args for things "*" */
+		for (i=0;i<this.m_cmdparsers.size();i++){
+			curparser = this.m_cmdparsers.get(i);
+			keycls = new Key(curparser.m_cmdname,"$","*",true);
+			this.__load_command_line_args(curparser.m_cmdname,keycls,curparser);
+			keycls = null;
+		}
+
+		keycls = new Key("","$","*",true);
+		this.__load_command_line_args("",keycls,null);
+		keycls = null;
+		return ;
+	}
+
+	public NameSpaceEx parse_command_line(String[] params,Object ctx) throws KeyException,JsonExtInvalidTypeException,JsonExtNotParsedException,JsonExtNotFoundException,NoSuchFieldException,IllegalAccessException,ParserException,ArgumentParserException{
+		NameSpaceEx args= null;
+		Namespace ns;
+		int i;
+		this.__set_command_line_self_args();
+		ns = this.m_parser.parseArgs(params);
+		args = new NameSpaceEx(ns);
+
+		for (i=0;i<this.m_priorities.length;i++){
+
+		}
+
+		return args;
 	}
 
 }
