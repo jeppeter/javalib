@@ -474,6 +474,7 @@ public class Parser  {
 		                          Priority.COMMAND_JSON_SET , Priority.ENVIRONMENT_SET,
 		                          Priority.ENV_SUB_COMMAND_JSON_SET , Priority.ENV_COMMAND_JSON_SET
 		                         };
+		Class[] cls = new Class[3];
 
 		this.m_logger = LogManager.getLogger(this.getClass().getName());
 		if (priority.length == 0 ) {
@@ -487,14 +488,17 @@ public class Parser  {
 		this.m_parser = ArgumentParsers.newArgumentParser(caption)
 		                .defaultHelp(defaulthelp)
 		                .description(description);
-		this.m_functable = new HashMap();
-		this.m_functable.put("string",this.getClass().getMethod("__load_command_line_string"));
-		this.m_functable.put("unicode",this.getClass().getMethod("__load_command_line_string"));
-		this.m_functable.put("int",this.getClass().getMethod("__load_command_line_int"));
-		this.m_functable.put("float",this.getClass().getMethod("__load_command_line_float"));
-		this.m_functable.put("list",this.getClass().getMethod("__load_command_line_list"));
-		this.m_functable.put("bool",this.getClass().getMethod("__load_command_line_bool"));
-		this.m_functable.put("args",this.getClass().getMethod("__load_command_line_args"));
+		this.m_functable = new HashMap()<String,Method>;
+		cls[0] = String.class;
+		cls[1] = Key.class;
+		cls[2] = ParserBase.class;
+		this.m_functable.put("string",this.getClass().getMethod("__load_command_line_string",cls));
+		this.m_functable.put("unicode",this.getClass().getMethod("__load_command_line_string",cls));
+		this.m_functable.put("int",this.getClass().getMethod("__load_command_line_int",cls));
+		this.m_functable.put("float",this.getClass().getMethod("__load_command_line_float",cls));
+		this.m_functable.put("list",this.getClass().getMethod("__load_command_line_list",cls));
+		this.m_functable.put("bool",this.getClass().getMethod("__load_command_line_bool",cls));
+		this.m_functable.put("args",this.getClass().getMethod("__load_command_line_args",cls));
 		this.m_subparsers = null;
 		this.m_cmdparsers = null;
 
