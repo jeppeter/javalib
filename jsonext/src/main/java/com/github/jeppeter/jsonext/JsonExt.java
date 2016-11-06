@@ -105,7 +105,7 @@ public class JsonExt {
 		}
 		retstr = ReExt.Split("\\/", path);
 		if (retstr.length < 1) {
-			keys = this.m_object.keySet();
+			keys = (Set<String>) this.m_object.keySet();
 			return (String[])keys.toArray(new String[this.m_object.size()]);
 		}
 
@@ -130,7 +130,7 @@ public class JsonExt {
 			throw new JsonExtInvalidTypeException(String.format("(%s)last not JSONObject(%s)",path,curobj.getClass().getName()));
 		}
 		jobj = (JSONObject) curobj;
-		keys = jobj.keySet();
+		keys = (Set<String>)jobj.keySet();
 
 		return (String[]) keys.toArray(new String[jobj.size()]);
 	}
