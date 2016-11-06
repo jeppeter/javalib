@@ -1,6 +1,8 @@
 package com.github.jeppeter.extargsparse4j;
 
 import com.github.jeppeter.extargsparse4j.KeyException;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 class TypeClass {
 	private String m_typename;
