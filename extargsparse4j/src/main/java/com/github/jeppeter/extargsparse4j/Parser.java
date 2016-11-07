@@ -189,6 +189,11 @@ public class Parser  {
 	private List<ParserBase> m_cmdparsers;
 	private HashMap<Priority,Method> m_argsettable;
 
+	private NameSpaceEx call_func_args(NameSpaceEx args,Object ctx) {
+		Method meth=null;
+		
+	}
+
 	private static String get_main_class() {
 		String command = System.getProperty("sun.java.command");
 		String[] names;
@@ -849,13 +854,28 @@ public class Parser  {
 	public NameSpaceEx parse_command_line(String[] params,Object ctx) throws KeyException,JsonExtInvalidTypeException,JsonExtNotParsedException,JsonExtNotFoundException,NoSuchFieldException,IllegalAccessException,ParserException,ArgumentParserException{
 		NameSpaceEx args= null;
 		Namespace ns;
+		Priority curprio;
 		int i;
+		Method meth;
+		ParserBase curparser;
+		String funcname;
 		this.__set_command_line_self_args();
 		ns = this.m_parser.parseArgs(params);
 		args = new NameSpaceEx(ns);
 
 		for (i=0;i<this.m_priorities.length;i++){
+			curprio = this.m_priorities[i];
+			meth = this.m_argsettable.get(curprio);
+			args = (NameSpaceEx) meth.invoke(this,(Object)args);
+		}
 
+		if (this.m_subparsers != null && args.getString("subcommand") != null) {
+			curparser = this.__find_subparser_inner(args.getString("subcommand"));
+			assert(curparser != null);
+			funcname = curparser.m_typeclass.get_string_value("function");
+			if (funcname != null && funcname.length() > 0) {
+				return Parser.call_func_args(args,ctx);
+			}
 		}
 
 		return args;
