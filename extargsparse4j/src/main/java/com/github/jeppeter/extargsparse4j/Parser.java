@@ -189,7 +189,7 @@ public class Parser  {
 	private List<ParserBase> m_cmdparsers;
 	private HashMap<Priority,Method> m_argsettable;
 
-	private NameSpaceEx call_func_args(NameSpaceEx args,Object ctx) {
+	private NameSpaceEx call_func_args(String funcname,NameSpaceEx args,Object ctx) {
 		Method meth=null;
 		
 	}
