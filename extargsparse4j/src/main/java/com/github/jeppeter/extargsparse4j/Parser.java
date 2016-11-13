@@ -945,4 +945,7 @@ public class Parser  {
 		return args;
 	}
 
+	public NameSpaceEx parse_command_line(String params[]) throws ParserException {
+		return this.parse_command_line(params,null);
+	}
 }
