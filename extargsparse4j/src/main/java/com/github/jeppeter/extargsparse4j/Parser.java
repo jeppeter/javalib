@@ -189,9 +189,46 @@ public class Parser  {
 	private List<ParserBase> m_cmdparsers;
 	private HashMap<Priority,Method> m_argsettable;
 
-	private NameSpaceEx call_func_args(String funcname,NameSpaceEx args,Object ctx) {
+	private NameSpaceEx call_func_args(String funcname,NameSpaceEx args,Object ctx) throws ClassNotFoundException,ParserException,NoSuchMethodException,IllegalAccessException,InvocationTargetException {
 		Method meth=null;
-		
+		ClassLoader clsloader = this.getClass().getClassLoader();
+		String[] clss = ReExt.Split("\\.",funcname);
+		int i;
+		String clsname;
+		String methname;
+		Class ldcls;
+		StackTraceElement[] stacks;
+		Class[] clsobj = new Class[2];
+
+		if (clss.length > 1) {
+			clsname = "";
+			for (i=0;i<(clss.length - 1);i ++) {
+				if (i > 0) {
+					clsname += ".";
+				}
+				clsname += clss[i];
+			}
+
+			/**/
+			ldcls = clsloader.loadClass(clsname);
+			methname = clss[clss.length - 1];
+		} else {
+			stacks = Thread.currentThread().getStackTrace();
+			if (stacks.length < 4) {
+				throw new ParserException(String.format("get stack stack 3"));
+			}
+			clsname = stacks[3].getClassName();
+
+			ldcls = clsloader.loadClass(clsname);
+			methname = clss[0];
+		}
+		this.m_logger.info("clsname %s methname %s",clsname,methname);
+		/*now we should get the function*/
+		clsobj[0] = NameSpaceEx.class;
+		clsobj[1] = Object.class;
+		meth = ldcls.getMethod(methname,clsobj);
+
+		return (NameSpaceEx)meth.invoke(null,args,ctx);	
 	}
 
 	private static String get_main_class() {
@@ -874,10 +911,9 @@ public class Parser  {
 			assert(curparser != null);
 			funcname = curparser.m_typeclass.get_string_value("function");
 			if (funcname != null && funcname.length() > 0) {
-				return Parser.call_func_args(args,ctx);
+				return this.call_func_args(funcname,args,ctx);
 			}
 		}
-
 		return args;
 	}
 
