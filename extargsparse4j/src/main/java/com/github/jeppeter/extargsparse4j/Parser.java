@@ -516,62 +516,67 @@ public class Parser  {
 		return true;
 	}
 
-	public Parser(Priority[] priority, String caption, String description, Boolean defaulthelp) throws NoSuchMethodException{
-		Priority[] defpriority = {Priority.SUB_COMMAND_JSON_SET ,
-		                          Priority.COMMAND_JSON_SET , Priority.ENVIRONMENT_SET,
-		                          Priority.ENV_SUB_COMMAND_JSON_SET , Priority.ENV_COMMAND_JSON_SET
-		                         };
-		Class[] cls = new Class[3];
-		Class[] argcls = new Class[1];
+	public Parser(Priority[] priority, String caption, String description, Boolean defaulthelp) throws ParserException{
+		try{
+			Priority[] defpriority = {Priority.SUB_COMMAND_JSON_SET ,
+			                          Priority.COMMAND_JSON_SET , Priority.ENVIRONMENT_SET,
+			                          Priority.ENV_SUB_COMMAND_JSON_SET , Priority.ENV_COMMAND_JSON_SET
+			                         };
+			Class[] cls = new Class[3];
+			Class[] argcls = new Class[1];
 
-		this.m_logger = LogManager.getLogger(this.getClass().getName());
-		if (priority.length == 0 ) {
-			this.m_priorities = defpriority;
-		} else {
-			this.m_priorities = priority;
+			this.m_logger = LogManager.getLogger(this.getClass().getName());
+			if (priority.length == 0 ) {
+				this.m_priorities = defpriority;
+			} else {
+				this.m_priorities = priority;
+			}
+
+			this.m_logger.info("priority (%s) m_priorities (%s) caption(%s) description (%s) help %s",
+			                   priority, this.m_priorities, caption, description, defaulthelp ? "True" : "False");
+			this.m_parser = ArgumentParsers.newArgumentParser(caption)
+			                .defaultHelp(defaulthelp)
+			                .description(description);
+			this.m_functable = new HashMap<String,Method>();
+			cls[0] = String.class;
+			cls[1] = Key.class;
+			cls[2] = ParserBase.class;
+			this.m_functable.put("string",this.getClass().getMethod("__load_command_line_string",cls));
+			this.m_functable.put("unicode",this.getClass().getMethod("__load_command_line_string",cls));
+			this.m_functable.put("int",this.getClass().getMethod("__load_command_line_int",cls));
+			this.m_functable.put("float",this.getClass().getMethod("__load_command_line_float",cls));
+			this.m_functable.put("list",this.getClass().getMethod("__load_command_line_list",cls));
+			this.m_functable.put("bool",this.getClass().getMethod("__load_command_line_bool",cls));
+			this.m_functable.put("args",this.getClass().getMethod("__load_command_line_args",cls));
+
+			argcls[0] = NameSpaceEx.class;
+			this.m_argsettable.put(Priority.SUB_COMMAND_JSON_SET,this.getClass().getMethod("__parse_sub_command_json_set",argcls));
+			this.m_argsettable.put(Priority.COMMAND_JSON_SET,this.getClass().getMethod("__parse_command_json_set",argcls));
+			this.m_argsettable.put(Priority.ENVIRONMENT_SET,this.getClass().getMethod("__parse_environment_set",argcls));
+			this.m_argsettable.put(Priority.ENV_SUB_COMMAND_JSON_SET,this.getClass().getMethod("__parse_env_subcommand_json_set",argcls));
+			this.m_argsettable.put(Priority.ENV_COMMAND_JSON_SET,this.getClass().getMethod("__parse_env_command_json_set",argcls));
+			this.m_subparsers = null;
+			this.m_cmdparsers = null;
 		}
-
-		this.m_logger.info("priority (%s) m_priorities (%s) caption(%s) description (%s) help %s",
-		                   priority, this.m_priorities, caption, description, defaulthelp ? "True" : "False");
-		this.m_parser = ArgumentParsers.newArgumentParser(caption)
-		                .defaultHelp(defaulthelp)
-		                .description(description);
-		this.m_functable = new HashMap<String,Method>();
-		cls[0] = String.class;
-		cls[1] = Key.class;
-		cls[2] = ParserBase.class;
-		this.m_functable.put("string",this.getClass().getMethod("__load_command_line_string",cls));
-		this.m_functable.put("unicode",this.getClass().getMethod("__load_command_line_string",cls));
-		this.m_functable.put("int",this.getClass().getMethod("__load_command_line_int",cls));
-		this.m_functable.put("float",this.getClass().getMethod("__load_command_line_float",cls));
-		this.m_functable.put("list",this.getClass().getMethod("__load_command_line_list",cls));
-		this.m_functable.put("bool",this.getClass().getMethod("__load_command_line_bool",cls));
-		this.m_functable.put("args",this.getClass().getMethod("__load_command_line_args",cls));
-
-		argcls[0] = NameSpaceEx.class;
-		this.m_argsettable.put(Priority.SUB_COMMAND_JSON_SET,this.getClass().getMethod("__parse_sub_command_json_set",argcls));
-		this.m_argsettable.put(Priority.COMMAND_JSON_SET,this.getClass().getMethod("__parse_command_json_set",argcls));
-		this.m_argsettable.put(Priority.ENVIRONMENT_SET,this.getClass().getMethod("__parse_environment_set",argcls));
-		this.m_argsettable.put(Priority.ENV_SUB_COMMAND_JSON_SET,this.getClass().getMethod("__parse_env_subcommand_json_set",argcls));
-		this.m_argsettable.put(Priority.ENV_COMMAND_JSON_SET,this.getClass().getMethod("__parse_env_command_json_set",argcls));
-		this.m_subparsers = null;
-		this.m_cmdparsers = null;
+		catch(Exception e) {
+			throw new ParserException(String.format("%s:%s",e.getClass().getName(),e.toString()));
+		}
 
 	}
 
-	public Parser(Priority[] priority, String caption, String description) throws NoSuchMethodException{
+	public Parser(Priority[] priority, String caption, String description) throws ParserException{
 		this(priority, caption, description, true);
 	}
 
-	public Parser(Priority[] priority, String caption) throws NoSuchMethodException{
+	public Parser(Priority[] priority, String caption) throws ParserException{
 		this(priority, caption, String.format("%s [OPTIONS] command ...",caption));
 	}
 
-	public Parser(Priority[] priority) throws NoSuchMethodException {
+	public Parser(Priority[] priority) throws ParserException {
 		this(priority, "",get_main_class());
 	}
 
-	public Parser() throws NoSuchMethodException {
+	public Parser() throws ParserException {
 		this(new Priority[] {});
 	}
 
@@ -853,19 +858,31 @@ public class Parser  {
 		return;
 	}
 
-	public void load_command_line(Object obj) throws ParserException,NoSuchFieldException,KeyException,JsonExtInvalidTypeException,IllegalAccessException,JsonExtNotParsedException,JsonExtNotFoundException,InvocationTargetException {
+	public void load_command_line(Object obj) throws ParserException {
 		if (!(obj instanceof JSONObject)) {
 			throw new ParserException(String.format("obj is not JSONObject"));
 		}
-		this.__load_command_line_inner("",obj,null);
+		try{
+			this.__load_command_line_inner("",obj,null);
+		}
+		catch(Exception e) {
+			throw new ParserException(String.format("%s:%s",e.getClass().getName(),e.toString()));
+		}
 		return;
 	}
 
-	public void load_command_line_string(String str) throws JsonExtNotParsedException,JsonExtNotFoundException,JsonExtInvalidTypeException,ParserException,NoSuchFieldException,KeyException,IllegalAccessException,InvocationTargetException{
+	public void load_command_line_string(String str) throws ParserException {
+
 		Object obj;
-		JsonExt jext = new JsonExt();
-		jext.parseString(str);
-		obj = jext.getObject("/");
+		JsonExt jext;
+		try{
+			jext = new JsonExt();
+			jext.parseString(str);
+			obj = jext.getObject("/");
+		}
+		catch(Exception e) {
+			throw new ParserException(String.format("%s:%s",e.getClass().getName(),e.toString()));
+		}
 		this.load_command_line(obj);
 		return;
 	}
