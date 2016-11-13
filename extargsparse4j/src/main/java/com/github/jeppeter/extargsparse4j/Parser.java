@@ -180,11 +180,11 @@ class ListAction implements ArgumentAction {
 }
 
 public class Parser  {
-	private ArgumentParser m_parser;
-	private Subparsers m_subparsers;
-	private Priority[] m_priorities;
 	private Logger m_logger;
+	private Priority[] m_priorities;
 	private List<Key> m_flags;
+	private Subparsers m_subparsers;
+	private ArgumentParser m_parser;
 	private HashMap<String,Method> m_functable;
 	private List<ParserBase> m_cmdparsers;
 	private HashMap<Priority,Method> m_argsettable;
@@ -517,6 +517,8 @@ public class Parser  {
 	}
 
 	public Parser(Priority[] priority, String caption, String description, Boolean defaulthelp) throws Exception{
+
+
 		try{
 			Priority[] defpriority = {Priority.SUB_COMMAND_JSON_SET ,
 			                          Priority.COMMAND_JSON_SET , Priority.ENVIRONMENT_SET,
@@ -531,6 +533,9 @@ public class Parser  {
 			} else {
 				this.m_priorities = priority;
 			}
+
+			this.m_flags = new ArrayList<Key>();
+			this.m_subparsers = null;
 
 			this.m_logger.info("priority (%s) m_priorities (%s) caption(%s) description (%s) help %s",
 			                   priority, this.m_priorities, caption, description, defaulthelp ? "True" : "False");
@@ -556,7 +561,6 @@ public class Parser  {
 			this.m_argsettable.put(Priority.ENVIRONMENT_SET,this.getClass().getDeclaredMethod("__parse_environment_set",argcls));
 			this.m_argsettable.put(Priority.ENV_SUB_COMMAND_JSON_SET,this.getClass().getDeclaredMethod("__parse_env_subcommand_json_set",argcls));
 			this.m_argsettable.put(Priority.ENV_COMMAND_JSON_SET,this.getClass().getDeclaredMethod("__parse_env_command_json_set",argcls));
-			this.m_subparsers = null;
 			this.m_cmdparsers = null;
 		}
 		catch(Exception e) {
@@ -851,7 +855,9 @@ public class Parser  {
 				keycls = new Key(prefix,keys[i],val,false);
 			}
 
+			this.m_logger.error("keycls %s",keycls.toString());
 			meth = this.m_functable.get(keycls.get_string_value("type"));
+			assert(meth != null);
 			valid = (Boolean)meth.invoke(this,(Object)prefix,(Object)keycls,(Object)curparser);
 			if (! valid) {
 				throw new ParserException(String.format("can not add %s %s",keys[i],val.toString()));

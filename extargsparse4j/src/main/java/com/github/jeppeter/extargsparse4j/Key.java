@@ -204,10 +204,10 @@ public final class Key {
 						obj = json.getObject(keys[i]);
 						typecls = new TypeClass(obj);
 						if (typecls.get_type().equals("string")) {
-							this.__set_m_field_string(keys[i],json.getString(keys[i]));
+							this.__set_m_field_string(keys[i], json.getString(keys[i]));
 						} else {
 							assert(typecls.get_type().equals("long"));
-							this.__set_m_field_string(keys[i],String.format("%d",(Long)obj));
+							this.__set_m_field_string(keys[i], String.format("%d", (Long)obj));
 						}
 					} else {
 						this.__set_m_field_string(keys[i], json.getString(keys[i]));
@@ -549,5 +549,54 @@ public final class Key {
 			return this.__get_m_field_object(fldname);
 		}
 		throw new KeyException(String.format("(%s) not object value", fldname));
+	}
+
+	private String __format_string_words(String[] words) throws NoSuchFieldException {
+		String retstr = "";
+		for(String c : words) {
+			if (this.get_string_value(c) != null) {
+				retstr += String.format("[%s]=%s;", c, this.get_string_value(c));
+			}
+		}
+		return retstr;
+	}
+
+	private String __format_object_words(String[] words) throws NoSuchFieldException{
+		String retstr = "";
+		for(String c : words) {
+			if (this.get_object_value(c) != null) {
+				retstr += String.format("[%s]=%s;",c,this.get_object_value(c).toString());
+			} else {
+				retstr += String.format("[%s]=null;",c);
+			}
+		}
+
+		return retstr;
+	}
+
+	private String __format_bool_words(String[] words) throws NoSuchFieldException{
+		String retstr = "";
+		for(String c : words) {
+			if (this.get_bool_value(c)) {
+				retstr += String.format("[%s]=true;",c);
+			} else {
+				retstr += String.format("[%s]=false;",c);
+			}
+		}
+
+		return retstr;		
+	}
+
+	@Override
+	public String toString()  throws NoSuchFieldException{
+		String retstr = "";
+		retstr += this.__format_string_words(this.m_flagwords);
+		retstr += this.__format_string_words(this.m_flagspecial_string);
+		retstr += this.__format_object_words(this.m_flagspecial_object);
+		retstr += this.__format_string_words(this.m_cmdwords);
+		retstr += this.__format_string_words(this.m_otherwords_string);
+		retstr += this.__format_bool_words(this.m_otherwords_bool);
+		retstr += this.__format_string_words(this.m_formwords);
+		return retstr;
 	}
 }
