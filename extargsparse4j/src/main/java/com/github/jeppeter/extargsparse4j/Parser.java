@@ -848,14 +848,14 @@ public class Parser  {
 		for (i=0;i<keys.length;i++){
 			val = jobj.get(keys[i]);
 			if (curparser != null) {
-				this.m_logger.info("%s , %s , %s , True",prefix,keys[i],val.toString());
+				this.m_logger.error(String.format("(%s) , (%s) , (%s) , True",prefix,keys[i],val.toString()));
 				keycls = new Key(prefix,keys[i],val,true);
 			} else {
-				this.m_logger.info("%s , %s , %s , False",prefix,keys[i],val.toString());
+				this.m_logger.error(String.format("(%s) , (%s) , (%s) , False",prefix,keys[i],val.toString()));
 				keycls = new Key(prefix,keys[i],val,false);
 			}
 
-			this.m_logger.error("keycls %s",keycls.toString());
+			this.m_logger.error("keycls "+ keycls.toString());
 			meth = this.m_functable.get(keycls.get_string_value("type"));
 			assert(meth != null);
 			valid = (Boolean)meth.invoke(this,(Object)prefix,(Object)keycls,(Object)curparser);

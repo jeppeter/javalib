@@ -652,4 +652,21 @@ public class KeyTest {
 			this.assert_string_value(flags,"longopt","--maxval");
 			this.assert_string_value(flags,"shortopt","-m");
 			return;
-	}}
+	}
+
+	@Test
+	public void test_A032() throws NoSuchFieldException, KeyException, IllegalAccessException,
+		JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException{
+		Key flags;
+		Object dobj;
+		JsonExt jsonext = new JsonExt();
+		jsonext.parseString("{\"value\":[],\"type\":\"string\",\"nargs\":\"*\"}");
+		dobj = jsonext.getObject("/");
+		flags = new Key("","$",dobj,false);
+		this.assert_string_value(flags,"prefix","");
+		this.assert_string_value(flags,"type","args");
+		this.assert_string_value(flags,"nargs","*");
+		this.assert_string_value(flags,"cmdname",null);
+		return;
+	}
+}

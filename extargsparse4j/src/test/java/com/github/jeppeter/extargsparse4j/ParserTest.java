@@ -8,7 +8,7 @@ import com.github.jeppeter.extargsparse4j.NameSpaceEx;
 import static org.junit.Assert.assertEquals;
 import org.junit.*;
 
-public class ExtArgsParse4jTest {
+public class ParserTest {
 	@Test
 	public void test_A001() throws Exception {
 		String loads = "{"
