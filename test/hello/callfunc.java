@@ -80,12 +80,17 @@ public class callfunc {
 		return args;
 	}
 
-	public static void main(String[] params) throws ClassNotFoundException,ParserException,NoSuchMethodException,IllegalAccessException,InvocationTargetException {
+	public static void main(String[] params) throws ParserException {
 		Parser parser = new Parser();
 		NameSpaceEx args = new NameSpaceEx();
 
 		for (String c : params) {
-			parser.call_func_args_public(c,args,(Object)parser);
+			try{
+				parser.call_func_args_public(c,args,(Object)parser);
+			}
+			catch(Exception e) {
+				throw new ParserException(String.format("%s:%s",e.getClass().getName(),e.toString()));
+			}
 		}
 		return;
 	}

@@ -888,7 +888,7 @@ public class Parser  {
 		return ;
 	}
 
-	public NameSpaceEx parse_command_line(String[] params,Object ctx) throws KeyException,JsonExtInvalidTypeException,JsonExtNotParsedException,JsonExtNotFoundException,NoSuchFieldException,IllegalAccessException,ParserException,ArgumentParserException{
+	private NameSpaceEx __parse_command_line_inner(String[] params,Object ctx) throws KeyException,JsonExtInvalidTypeException,JsonExtNotParsedException,JsonExtNotFoundException,NoSuchFieldException,IllegalAccessException,ParserException,ArgumentParserException,InvocationTargetException,ClassNotFoundException,NoSuchMethodException{
 		NameSpaceEx args= null;
 		Namespace ns;
 		Priority curprio;
@@ -913,6 +913,17 @@ public class Parser  {
 			if (funcname != null && funcname.length() > 0) {
 				return this.call_func_args(funcname,args,ctx);
 			}
+		}
+		return args;
+	}
+
+	public NameSpaceEx parse_command_line(String params[],Object ctx) throws ParserException {
+		NameSpaceEx args;
+		try{
+			args = this.__parse_command_line_inner(params,ctx);
+		}
+		catch (Exception e) {
+			throw new ParserException(String.format("%s:%s",e.getClass().getName(),e.toString()));
 		}
 		return args;
 	}
