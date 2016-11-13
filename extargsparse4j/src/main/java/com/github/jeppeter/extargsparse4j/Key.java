@@ -551,7 +551,7 @@ public final class Key {
 		throw new KeyException(String.format("(%s) not object value", fldname));
 	}
 
-	private String __format_string_words(String[] words) throws NoSuchFieldException {
+	private String __format_string_words(String[] words) throws Exception {
 		String retstr = "";
 		for(String c : words) {
 			if (this.get_string_value(c) != null) {
@@ -561,7 +561,7 @@ public final class Key {
 		return retstr;
 	}
 
-	private String __format_object_words(String[] words) throws NoSuchFieldException{
+	private String __format_object_words(String[] words) throws Exception {
 		String retstr = "";
 		for(String c : words) {
 			if (this.get_object_value(c) != null) {
@@ -574,7 +574,7 @@ public final class Key {
 		return retstr;
 	}
 
-	private String __format_bool_words(String[] words) throws NoSuchFieldException{
+	private String __format_bool_words(String[] words) throws Exception {
 		String retstr = "";
 		for(String c : words) {
 			if (this.get_bool_value(c)) {
@@ -587,16 +587,22 @@ public final class Key {
 		return retstr;		
 	}
 
-	@Override
-	public String toString()  throws NoSuchFieldException{
+
+    @Override
+    public String toString() {
 		String retstr = "";
-		retstr += this.__format_string_words(this.m_flagwords);
-		retstr += this.__format_string_words(this.m_flagspecial_string);
-		retstr += this.__format_object_words(this.m_flagspecial_object);
-		retstr += this.__format_string_words(this.m_cmdwords);
-		retstr += this.__format_string_words(this.m_otherwords_string);
-		retstr += this.__format_bool_words(this.m_otherwords_bool);
-		retstr += this.__format_string_words(this.m_formwords);
+		try{
+			retstr += this.__format_string_words(this.m_flagwords);
+			retstr += this.__format_string_words(this.m_flagspecial_string);
+			retstr += this.__format_object_words(this.m_flagspecial_object);
+			retstr += this.__format_string_words(this.m_cmdwords);
+			retstr += this.__format_string_words(this.m_otherwords_string);
+			retstr += this.__format_bool_words(this.m_otherwords_bool);
+			retstr += this.__format_string_words(this.m_formwords);
+		}
+		catch(Exception e) {
+			retstr = "";
+		}
 		return retstr;
-	}
+    }
 }
