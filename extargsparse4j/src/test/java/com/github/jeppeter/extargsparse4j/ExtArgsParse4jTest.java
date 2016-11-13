@@ -10,7 +10,7 @@ import org.junit.*;
 
 public class ExtArgsParse4jTest {
 	@Test
-	public void test_A001() throws ParserException {
+	public void test_A001() throws Exception {
 		String loads = "{"
 	          + "\"verbose|v##increment verbose mode##\" : \"+\",\n"
 	          + "\"flag|f## flag set##\" : false,\n"
