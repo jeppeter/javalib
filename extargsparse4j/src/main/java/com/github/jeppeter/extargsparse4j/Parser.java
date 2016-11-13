@@ -462,9 +462,6 @@ public class Parser  {
 	private ParserBase __find_subparser_inner(String cmdname) {
 		int i;
 		ParserBase parsebase;
-		if (this.m_cmdparsers == null) {
-			return null;
-		}
 		for (i = 0; i < this.m_cmdparsers.size(); i++) {
 			parsebase = this.m_cmdparsers.get(i);
 			if (parsebase.m_cmdname.equals(cmdname) ) {
@@ -492,9 +489,6 @@ public class Parser  {
 		cmdparser = new ParserBase(this.m_subparsers, keycls);
 		cmdparser.m_parser.help(helpinfo);
 
-		if (this.m_cmdparsers == null) {
-			this.m_cmdparsers = new ArrayList<ParserBase>();
-		}
 		this.m_cmdparsers.add(cmdparser);
 		return cmdparser;
 	}
@@ -537,8 +531,8 @@ public class Parser  {
 			this.m_flags = new ArrayList<Key>();
 			this.m_subparsers = null;
 
-			this.m_logger.info("priority (%s) m_priorities (%s) caption(%s) description (%s) help %s",
-			                   priority, this.m_priorities, caption, description, defaulthelp ? "True" : "False");
+			this.m_logger.info(String.format("priority (%s) m_priorities (%s) caption(%s) description (%s) help %s",
+			                                 priority.toString(), this.m_priorities.toString(), caption, description, defaulthelp ? "True" : "False"));
 			this.m_parser = ArgumentParsers.newArgumentParser(caption)
 			                .defaultHelp(defaulthelp)
 			                .description(description);
@@ -562,7 +556,7 @@ public class Parser  {
 			this.m_argsettable.put(Priority.ENVIRONMENT_SET, this.getClass().getDeclaredMethod("__parse_environment_set", argcls));
 			this.m_argsettable.put(Priority.ENV_SUB_COMMAND_JSON_SET, this.getClass().getDeclaredMethod("__parse_env_subcommand_json_set", argcls));
 			this.m_argsettable.put(Priority.ENV_COMMAND_JSON_SET, this.getClass().getDeclaredMethod("__parse_env_command_json_set", argcls));
-			this.m_cmdparsers = null;
+			this.m_cmdparsers = new ArrayList<ParserBase>();
 		} catch (Exception e) {
 			throw (Exception)e;
 			//throw new ParserException(String.format("%s:%s",e.getClass().getName(),e.toString()));
@@ -827,6 +821,7 @@ public class Parser  {
 	}
 
 	private NameSpaceEx __parse_environment_set(NameSpaceEx args) throws NoSuchFieldException, KeyException, IllegalAccessException, JsonExtNotParsedException, JsonExtNotFoundException, JsonExtInvalidTypeException, ParserException {
+		this.m_logger.info(String.format("call environ ment set"));
 		return this.__set_environ_value(args);
 	}
 
@@ -848,16 +843,16 @@ public class Parser  {
 		for (i = 0; i < keys.length; i++) {
 			val = jobj.get(keys[i]);
 			if (curparser != null) {
-				this.m_logger.error(String.format("(%s) , (%s) , (%s) , True", prefix, keys[i], val.toString()));
+				this.m_logger.info(String.format("(%s) , (%s) , (%s) , True", prefix, keys[i], val.toString()));
 				keycls = new Key(prefix, keys[i], val, true);
 			} else {
-				this.m_logger.error(String.format("(%s) , (%s) , (%s) , False", prefix, keys[i], val.toString()));
+				this.m_logger.info(String.format("(%s) , (%s) , (%s) , False", prefix, keys[i], val.toString()));
 				keycls = new Key(prefix, keys[i], val, false);
 			}
 
-			this.m_logger.error(String.format("keycls %s ", keycls.toString() ));
+			this.m_logger.info(String.format("keycls %s ", keycls.toString() ));
 			meth = this.m_functable.get(keycls.get_string_value("type"));
-			this.m_logger.error(String.format("metho %s", meth.toString()));
+			this.m_logger.info(String.format("metho %s", meth.toString()));
 			assert(meth != null);
 			valid = (Boolean)meth.invoke(this, (Object)prefix, (Object)keycls, (Object)curparser);
 			if (! valid) {
@@ -900,13 +895,11 @@ public class Parser  {
 		ParserBase curparser;
 		int i;
 		/*we put the key args for things "*" */
-		if (this.m_cmdparsers != null)  {
-			for (i = 0; i < this.m_cmdparsers.size(); i++) {
-				curparser = this.m_cmdparsers.get(i);
-				keycls = new Key(curparser.m_cmdname, "$", "*", true);
-				this.__load_command_line_args(curparser.m_cmdname, keycls, curparser);
-				keycls = null;
-			}
+		for (i = 0; i < this.m_cmdparsers.size(); i++) {
+			curparser = this.m_cmdparsers.get(i);
+			keycls = new Key(curparser.m_cmdname, "$", "*", true);
+			this.__load_command_line_args(curparser.m_cmdname, keycls, curparser);
+			keycls = null;
 		}
 
 		keycls = new Key("", "$", "*", true);
@@ -930,7 +923,7 @@ public class Parser  {
 		for (i = 0; i < this.m_priorities.length; i++) {
 			curprio = this.m_priorities[i];
 			meth = this.m_argsettable.get(curprio);
-			this.m_logger.error(String.format("prior %s meth %s",curprio.toString(),meth.toString()));
+			this.m_logger.info(String.format("prior %s meth %s", curprio.toString(), meth.toString()));
 			args = (NameSpaceEx) meth.invoke(this, (Object)args);
 		}
 
