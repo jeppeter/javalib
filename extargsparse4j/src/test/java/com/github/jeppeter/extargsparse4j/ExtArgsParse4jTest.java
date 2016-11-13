@@ -10,7 +10,7 @@ import org.junit.*;
 
 public class ExtArgsParse4jTest {
 	@Test
-	public void test_A001() {
+	public void test_A001() throws ParserException {
 		String loads = "{"
 	          + "\"verbose|v##increment verbose mode##\" : \"+\",\n"
 	          + "\"flag|f## flag set##\" : false,\n"
@@ -25,9 +25,10 @@ public class ExtArgsParse4jTest {
 	        + "}";
 	    Parser parser ;
 	    NameSpaceEx args;
+	    String[] params = {"-vvvv","-f","-n","30","-l","bar1","-l","bar2","var1","var2"};
 	    parser = new Parser();
 	    parser.load_command_line_string(loads);
-	    args = args = parser.parse_command_line({"-vvvv","-f","-n","30","-l","bar1","-l","bar2","var1","var2"});
+	    args = parser.parse_command_line(params);
 		return;
 	}
 }
