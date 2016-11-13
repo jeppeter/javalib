@@ -661,12 +661,18 @@ public class KeyTest {
 		Object dobj;
 		JsonExt jsonext = new JsonExt();
 		jsonext.parseString("{\"value\":[],\"type\":\"string\",\"nargs\":\"*\"}");
-		dobj = jsonext.getObject("/");
+		dobj = jsonext.getObject("/");		
 		flags = new Key("","$",dobj,false);
+		this.assert_string_value(flags,"flagname","$");
+		this.assert_string_value(flags,"shortflag",null);
 		this.assert_string_value(flags,"prefix","");
 		this.assert_string_value(flags,"type","args");
+		dobj = jsonext.getObject("/value");
+		this.assert_object_value(flags,"value",dobj);
 		this.assert_string_value(flags,"nargs","*");
 		this.assert_string_value(flags,"cmdname",null);
+		this.assert_string_value(flags,"function",null);
+		this.__opt_fail_check(flags);
 		return;
 	}
 }

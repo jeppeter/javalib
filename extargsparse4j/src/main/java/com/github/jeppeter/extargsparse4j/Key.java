@@ -551,58 +551,65 @@ public final class Key {
 		throw new KeyException(String.format("(%s) not object value", fldname));
 	}
 
-	private String __format_string_words(String[] words) throws Exception {
+	private String __format_string_words(String[] words) {
 		String retstr = "";
-		for(String c : words) {
-			if (this.get_string_value(c) != null) {
-				retstr += String.format("[%s]=%s;", c, this.get_string_value(c));
+		for (String c : words) {
+			try {
+				if (this.get_string_value(c) != null) {
+					retstr += String.format("[%s]=%s;", c, this.get_string_value(c));
+				}
+			} catch (Exception e) {
+				;
 			}
 		}
 		return retstr;
 	}
 
-	private String __format_object_words(String[] words) throws Exception {
+	private String __format_object_words(String[] words) {
 		String retstr = "";
-		for(String c : words) {
-			if (this.get_object_value(c) != null) {
-				retstr += String.format("[%s]=%s;",c,this.get_object_value(c).toString());
-			} else {
-				retstr += String.format("[%s]=null;",c);
+		for (String c : words) {
+			try {
+				if (this.get_object_value(c) != null) {
+					retstr += String.format("[%s]=%s;", c, this.get_object_value(c).toString());
+				} else {
+					retstr += String.format("[%s]=null;", c);
+				}
+			} catch (Exception e) {
+				;
 			}
 		}
 
 		return retstr;
 	}
 
-	private String __format_bool_words(String[] words) throws Exception {
+	private String __format_bool_words(String[] words) {
 		String retstr = "";
-		for(String c : words) {
-			if (this.get_bool_value(c)) {
-				retstr += String.format("[%s]=true;",c);
-			} else {
-				retstr += String.format("[%s]=false;",c);
+		for (String c : words) {
+			try {
+				if (this.get_bool_value(c)) {
+					retstr += String.format("[%s]=true;", c);
+				} else {
+					retstr += String.format("[%s]=false;", c);
+				}
+			} catch (Exception e) {
+				;
 			}
 		}
 
-		return retstr;		
+		return retstr;
 	}
 
 
-    @Override
-    public String toString() {
+	@Override
+	public String toString() {
 		String retstr = "";
-		try{
-			retstr += this.__format_string_words(this.m_flagwords);
-			retstr += this.__format_string_words(this.m_flagspecial_string);
-			retstr += this.__format_object_words(this.m_flagspecial_object);
-			retstr += this.__format_string_words(this.m_cmdwords);
-			retstr += this.__format_string_words(this.m_otherwords_string);
-			retstr += this.__format_bool_words(this.m_otherwords_bool);
-			retstr += this.__format_string_words(this.m_formwords);
-		}
-		catch(Exception e) {
-			retstr = "";
-		}
+		retstr += this.__format_string_words(this.m_flagwords);
+		retstr += this.__format_string_words(this.m_flagspecial_string);
+		retstr += this.__format_object_words(this.m_flagspecial_object);
+		retstr += this.__format_string_words(this.m_cmdwords);
+		retstr += this.__format_string_words(this.m_otherwords_string);
+		retstr += this.__format_bool_words(this.m_otherwords_bool);
+		retstr += this.__format_string_words(this.m_formwords);
 		return retstr;
-    }
+	}
 }
