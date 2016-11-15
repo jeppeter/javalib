@@ -56,6 +56,8 @@ class CountAction implements ArgumentAction {
 	                Map<String, Object> attrs, String flag, Object value)
 	throws ArgumentParserException {
 		Integer count = 0;
+		Logger logger = LogManager.getLogger("com.github.jeppeter.extargsparse4j.Parser");
+		logger.info(String.format("flag %s",flag));
 		if (attrs.containsKey(arg.getDest())) {
 			Object obj = attrs.get(arg.getDest());
 			if (obj != null) {
@@ -843,14 +845,14 @@ public class Parser  {
 		for (i = 0; i < keys.length; i++) {
 			val = jobj.get(keys[i]);
 			if (curparser != null) {
-				this.m_logger.info(String.format("(%s) , (%s) , (%s) , True", prefix, keys[i], val.toString()));
+				this.m_logger.info(String.format("(%s) , (%s) , (%s):(%s) , True", prefix, keys[i], val.toString(),val.getClass().getName()));
 				keycls = new Key(prefix, keys[i], val, true);
 			} else {
-				this.m_logger.info(String.format("(%s) , (%s) , (%s) , False", prefix, keys[i], val.toString()));
+				this.m_logger.info(String.format("(%s) , (%s) , (%s):(%s) , False", prefix, keys[i], val.toString(),val.getClass().getName()));
 				keycls = new Key(prefix, keys[i], val, false);
 			}
 
-			this.m_logger.info(String.format("keycls %s ", keycls.toString() ));
+			this.m_logger.info(String.format("keycls %s ", keycls.toString()));
 			meth = this.m_functable.get(keycls.get_string_value("type"));
 			this.m_logger.info(String.format("metho %s", meth.toString()));
 			assert(meth != null);

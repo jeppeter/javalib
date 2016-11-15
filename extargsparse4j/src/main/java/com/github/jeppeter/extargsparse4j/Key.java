@@ -16,6 +16,10 @@ import com.github.jeppeter.jsonext.JsonExtNotParsedException;
 import com.github.jeppeter.jsonext.JsonExtNotFoundException;
 import com.github.jeppeter.extargsparse4j.TypeClass;
 
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
+
 public final class Key {
 	private static final String[] m_flagwords = {"flagname", "helpinfo", "shortflag", "nargs"};
 	private static final String[] m_flagspecial = {"value", "prefix"};
@@ -43,6 +47,8 @@ public final class Key {
 	private ReExt m_funcexpr;
 	private ReExt m_flagexpr;
 	private ReExt m_mustflagexpr;
+	private Logger m_logger;
+
 
 	private void __reset() {
 		this.m_value = null;
@@ -121,7 +127,7 @@ public final class Key {
 				}
 				this.m_nargs = "1";
 			} else {
-				if (this.m_flagname == "$" && this.m_nargs == null) {
+				if (this.m_flagname.equals("$") && this.m_nargs == null) {
 					this.m_nargs = "*";
 				}
 			}
@@ -401,9 +407,9 @@ public final class Key {
 			this.m_cmdname = null;
 		}
 
-		if (this.m_isflag && this.m_type == "string"  ) {
+		if (this.m_isflag && this.m_type.equals("string") ) {
 			sobj = (String) this.m_value;
-			if (sobj == "+" && this.m_flagname != "$") {
+			if (sobj.equals("+") && !this.m_flagname.equals("$")) {
 				lobj = Long.decode(String.format("0"));
 				this.m_value = (Object) lobj;
 				this.m_type = "count";
@@ -411,7 +417,7 @@ public final class Key {
 			}
 		}
 
-		if (this.m_isflag && this.m_flagname == "$" && this.m_type != "dict") {
+		if (this.m_isflag && this.m_flagname.equals("$") && !this.m_type.equals("dict")) {
 			valid = false;
 			if (this.m_type == "string") {
 				sobj = (String) this.m_value;
@@ -454,7 +460,9 @@ public final class Key {
 		this.m_flagexpr = new ReExt("^([^\\<\\>\\#\\+\\$ \\t]+)", true);
 		this.m_mustflagexpr = new ReExt("^\\$([^\\$\\+\\#\\<\\>]+)", true);
 		this.m_origkey = key;
+		this.m_logger = LogManager.getLogger("com.github.jeppeter.extargsparse4j.Key");
 		this.__parse(prefix, key, value, isflag);
+
 	}
 
 	protected Key(String prefix, String key, Object value)
