@@ -35,7 +35,7 @@ public class ParserTest {
 	}
 
 	private void assert_int_value(NameSpaceEx args,String key,Integer value) {
-		this.m_logger.info(String.format("%s=%s %s",key,value.toString(),args.get(key).toString()));
+		//this.m_logger.info(String.format("%s=%s %s",key,value.toString(),args.get(key).toString()));
 		assertEquals(String.format("%s=%d",key,value),(Integer)args.get(key),value);
 		return;
 	}
@@ -55,15 +55,15 @@ public class ParserTest {
 		String loads = "{"
 	          + "\"verbose|v##increment verbose mode##\" : \"+\",\n"
 	          + "\"flag|f## flag set##\" : false,\n"
-	          + "\"number|n\" : 0,\n"
 	          + "\"list|l\" : [],\n"
 	          + "\"string|s\" : \"string_var\",\n"
 	          + "\"$\" : {\n"
 	          +     "\"value\" : [],\n"
 	          +     "\"nargs\" : \"*\",\n"
 	          +     "\"type\" : \"string\"\n"
-	          + "}"
-	        + "}";
+	          + "},\n"
+	          + "\"number|n\" : 0\n"
+	        + "}\n";
 	    Parser parser ;
 	    NameSpaceEx args;
 	    String[] params = {"-vvvv","-f","-n","30","-l","bar1","-l","bar2","var1","var2"};
@@ -85,18 +85,19 @@ public class ParserTest {
 	public void test_A002() throws Exception {
 		String loads = "{"
 				+ " \"verbose|v\" : \"+\",\n"
-            	+ "\"port|p\" : 3000,\n"
             	+ "     \"dep\" : {\n"
                 + "          \"list|l\" : [],\n"
                 + "          \"string|s\" : \"s_var\",\n"
                 + "          \"$\" : \"+\"\n"
-            	+ "    }"
+                + "          \"master|m\" : [],\n"
+            	+ "    },"
+            	+ "\"port|p\" : 3000\n"
             	+ "}";
         Parser parser;
         NameSpaceEx args;
 	    Object dobj;
 	    JsonExt jext = new JsonExt();
-	    String[] params = {"-vvvv","-p","5000","dep","-l","arg1","--dep-list","arg2","cc","dd"};
+	    String[] params = {"-vvvv","-p","5000","dep","--dep-list","arg1","--dep-list","arg2","cc","dd"};
 	    String debugstr="";
         parser = new Parser();
         parser.load_command_line_string(loads);
