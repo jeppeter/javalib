@@ -28,13 +28,6 @@ public class KeyTest {
     private void assert_string_value(Key flags, String keyname, String value)
     throws NoSuchFieldException, KeyException, IllegalAccessException {
         this.__get_logger();
-        if (value != null) {
-	        this.m_logger.info(String.format("(%s)%s=%s %s",
-	                                         flags.get_string_value("origkey"),
-	                                         keyname,
-	                                         flags.get_string_value(keyname),
-	                                         value.toString()));
-    	}
         assertEquals(String.format("(%s)%s", flags.get_string_value("origkey"), keyname), flags.get_string_value(keyname), value);
         return;
     }
@@ -42,7 +35,6 @@ public class KeyTest {
     private void assert_bool_value(Key flags, String keyname, Boolean bval)
     throws NoSuchFieldException, KeyException, IllegalAccessException {
         this.__get_logger();
-        this.m_logger.info(String.format("(%s)%s=%s %s", flags.get_string_value("origkey"), keyname, flags.get_bool_value(keyname).toString(), bval.toString()));
         assertEquals(String.format("(%s)%s", flags.get_string_value("origkey"), keyname), flags.get_bool_value(keyname), bval);
         return;
     }
@@ -50,9 +42,6 @@ public class KeyTest {
     private void assert_object_value(Key flags, String keyname, Object oval)
     throws NoSuchFieldException, KeyException, IllegalAccessException {
         this.__get_logger();
-        if (oval != null) {
-        	this.m_logger.info(String.format("(%s)%s=%s %s", flags.get_string_value("origkey"), keyname, flags.get_object_value(keyname).toString(), oval.toString()));
-    	}
         assertEquals(String.format("(%s)%s", flags.get_string_value("origkey"), keyname), flags.get_object_value(keyname), oval);
         return;
     }

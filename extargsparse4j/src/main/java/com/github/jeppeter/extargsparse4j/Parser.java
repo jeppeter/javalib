@@ -55,14 +55,29 @@ class CountAction implements ArgumentAction {
 	public void run(ArgumentParser parser, Argument arg,
 	                Map<String, Object> attrs, String flag, Object value)
 	throws ArgumentParserException {
-		Integer count = 0;
+		Integer count = 1;
 		Logger logger = LogManager.getLogger("com.github.jeppeter.extargsparse4j.Parser");
-		logger.info(String.format("flag %s",flag));
+		logger.info(String.format("flag %s dest %s",flag,arg.getDest()));
+		if (value != null) {
+			logger.info(String.format("value %s",value.toString()));
+		}
 		if (attrs.containsKey(arg.getDest())) {
 			Object obj = attrs.get(arg.getDest());
 			if (obj != null) {
 				count = (Integer) obj;
 				count ++;
+			}
+		}
+		if (value != null) {
+			if (flag != null && flag.length() == 2 && (value instanceof String)) {
+				char shortflag = flag.charAt(1);
+				String sobj = (String) value;
+				int i;
+				for (i=0;i<sobj.length();i++) {
+					if (sobj.charAt(i) == shortflag) {
+						count ++;
+					}
+				}
 			}
 		}
 		attrs.put(arg.getDest(), count);
@@ -141,6 +156,11 @@ class TrueAction implements ArgumentAction {
 	                Map<String, Object> attrs, String flag, Object value)
 	throws ArgumentParserException {
 		Boolean bobj = true;
+		Logger logger = LogManager.getLogger("com.github.jeppeter.extargsparse4j.Parser");
+		logger.info(String.format("flag %s dest %s",flag,arg.getDest()));
+		if (value != null) {
+			logger.info(String.format("value %s",value.toString()));
+		}
 		attrs.put(arg.getDest(), bobj);
 	}
 
@@ -399,7 +419,7 @@ public class Parser  {
 
 	private Boolean __load_command_line_bool(String prefix, Key keycls, ParserBase curparser) throws NoSuchFieldException, ParserException, KeyException, IllegalAccessException {
 		Boolean bobj = (Boolean) keycls.get_object_value("value");
-		if (bobj) {
+		if (!bobj) {
 			return this.__load_command_line_inner_action(prefix, keycls, curparser, new TrueAction());
 		}
 		return this.__load_command_line_inner_action(prefix, keycls, curparser, new FalseAction());
@@ -543,13 +563,12 @@ public class Parser  {
 			cls[1] = Key.class;
 			cls[2] = ParserBase.class;
 			this.m_functable.put("string", this.getClass().getDeclaredMethod("__load_command_line_string", cls));
-			this.m_functable.put("unicode", this.getClass().getDeclaredMethod("__load_command_line_string", cls));
 			this.m_functable.put("long", this.getClass().getDeclaredMethod("__load_command_line_int", cls));
-			this.m_functable.put("int", this.getClass().getDeclaredMethod("__load_command_line_int", cls));
 			this.m_functable.put("float", this.getClass().getDeclaredMethod("__load_command_line_float", cls));
 			this.m_functable.put("list", this.getClass().getDeclaredMethod("__load_command_line_list", cls));
 			this.m_functable.put("bool", this.getClass().getDeclaredMethod("__load_command_line_bool", cls));
 			this.m_functable.put("args", this.getClass().getDeclaredMethod("__load_command_line_args", cls));
+			this.m_functable.put("count",this.getClass().getDeclaredMethod("__load_command_line_count", cls));
 
 			argcls[0] = NameSpaceEx.class;
 			this.m_argsettable = new HashMap<Priority, Method>();
@@ -823,7 +842,6 @@ public class Parser  {
 	}
 
 	private NameSpaceEx __parse_environment_set(NameSpaceEx args) throws NoSuchFieldException, KeyException, IllegalAccessException, JsonExtNotParsedException, JsonExtNotFoundException, JsonExtInvalidTypeException, ParserException {
-		this.m_logger.info(String.format("call environ ment set"));
 		return this.__set_environ_value(args);
 	}
 
@@ -854,8 +872,8 @@ public class Parser  {
 
 			this.m_logger.info(String.format("keycls %s ", keycls.toString()));
 			meth = this.m_functable.get(keycls.get_string_value("type"));
-			this.m_logger.info(String.format("metho %s", meth.toString()));
 			assert(meth != null);
+			this.m_logger.info(String.format("metho %s", meth.toString()));
 			valid = (Boolean)meth.invoke(this, (Object)prefix, (Object)keycls, (Object)curparser);
 			if (! valid) {
 				throw new ParserException(String.format("can not add %s %s", keys[i], val.toString()));
