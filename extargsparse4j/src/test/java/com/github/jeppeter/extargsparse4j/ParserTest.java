@@ -243,4 +243,44 @@ public class ParserTest {
 		this.assert_string_value(args,"has_called_args",args.getString("subcommand"));
 		return;
 	}
+
+	@Test
+	public void test_A006() throws Exception {
+		String loads1 = "{\n"
+            + "    \"verbose|v\" : \"+\",\n"
+            + "    \"port|p\" : 3000,\n"
+            + "    \"dep\" : {\n"
+            + "        \"list|l\" : [],\n"
+            + "        \"string|s\" : \"s_var\",\n"
+            + "        \"$\" : \"+\"\n"
+            + "    }\n"
+            + "}\n";
+        String loads2 = "{\n"
+            + "    \"rdep\" : {\n"
+            + "        \"list|L\" : [],\n"
+            + "        \"string|S\" : \"s_rdep\",\n"
+            + "        \"$\" : 2\n"
+            + "    }\n"
+            + "}\n";
+        Parser parser;
+        String[] params = {"-p","7003","-vvvvv","rdep","-L","foo1","-S","new_var","zz","64"};
+        NameSpaceEx args;
+	    Object dobj;
+	    JsonExt jext = new JsonExt();
+        parser = new Parser();
+        parser.load_command_line_string(loads1);
+        parser.load_command_line_string(loads2);
+        args = parser.parse_command_line(params,(Object)parser);
+        this.assert_int_value(args,"verbose",new Integer(5));
+        this.assert_int_value(args,"port",new Integer(7003));
+        this.assert_string_value(args,"subcommand","rdep");
+		jext.parseString("{\"dummy\": [\"foo1\"]}");
+		dobj = jext.getObject("/dummy");
+		this.assert_object_value(args,"rdep_list",dobj);
+		this.assert_string_value(args,"rdep_string","new_var");
+		jext.parseString("{\"dummy\": [\"zz\",\"64\"]}");
+		dobj = jext.getObject("/dummy");
+		this.assert_object_value(args,"subnargs",dobj);
+		return;
+	}
 }
