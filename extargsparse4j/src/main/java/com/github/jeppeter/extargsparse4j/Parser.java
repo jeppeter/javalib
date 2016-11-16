@@ -42,11 +42,32 @@ class ParserBase {
 	protected List<Key> m_flags;
 	protected String m_cmdname;
 	protected Key m_typeclass;
-	protected ParserBase(Subparsers parsers, Key keycls) throws NoSuchFieldException, KeyException, IllegalAccessException {
-		this.m_parser = parsers.addParser(keycls.get_string_value("cmdname"));
+	protected ParserBase(Subparsers parsers, Key keycls,String helpinfo) throws NoSuchFieldException, KeyException, IllegalAccessException {
+		this.m_parser = parsers.addParser(keycls.get_string_value("cmdname")).help(helpinfo);
 		this.m_flags = new ArrayList<Key>();
 		this.m_cmdname = keycls.get_string_value("cmdname");
 		this.m_typeclass = keycls;
+	}
+
+	public String toString() {
+		String retstr="";
+		int i;
+		retstr += String.format("[parser]=%s;",this.m_parser.toString());
+		retstr += String.format("[cmdname]=%s;",this.m_cmdname);
+		retstr += String.format("[typeclass]=%s;",this.m_typeclass.toString());
+		if (this.m_flags.size() > 0) {
+			retstr += "[flags]:";
+			for (i=0;i<this.m_flags.size();i++) {
+				Key curkey;
+				curkey = this.m_flags.get(i);
+				if (i > 0) {
+					retstr += "|";
+				}
+				retstr += String.format("[%d]=%s",i,curkey.toString());
+			}
+			retstr += ";";
+		}
+		return retstr;
 	}
 }
 
@@ -56,11 +77,6 @@ class CountAction implements ArgumentAction {
 	                Map<String, Object> attrs, String flag, Object value)
 	throws ArgumentParserException {
 		Integer count = 1;
-		Logger logger = LogManager.getLogger("com.github.jeppeter.extargsparse4j.Parser");
-		logger.info(String.format("flag %s dest %s",flag,arg.getDest()));
-		if (value != null) {
-			logger.info(String.format("value %s",value.toString()));
-		}
 		if (attrs.containsKey(arg.getDest())) {
 			Object obj = attrs.get(arg.getDest());
 			if (obj != null) {
@@ -156,11 +172,6 @@ class TrueAction implements ArgumentAction {
 	                Map<String, Object> attrs, String flag, Object value)
 	throws ArgumentParserException {
 		Boolean bobj = true;
-		Logger logger = LogManager.getLogger("com.github.jeppeter.extargsparse4j.Parser");
-		logger.info(String.format("flag %s dest %s",flag,arg.getDest()));
-		if (value != null) {
-			logger.info(String.format("value %s",value.toString()));
-		}
 		attrs.put(arg.getDest(), bobj);
 	}
 
@@ -341,14 +352,14 @@ public class Parser  {
 		Object obj;
 		typestr = keycls.get_string_value("type");
 
-		if (typestr == "bool") {
+		if (typestr.equals("bool")) {
 			bobj = (Boolean)keycls.get_object_value("value");
 			if (bobj) {
 				helpinfo += String.format("%s set false default(True)", keycls.get_string_value("optdest"));
 			} else {
 				helpinfo += String.format("%s set true default(False)", keycls.get_string_value("optdest"));
 			}
-		} else if (typestr == "string") {
+		} else if (typestr.equals("string")) {
 			sobj = (String) keycls.get_object_value("value");
 			if (sobj != null) {
 				helpinfo += String.format("%s set default(%s)", keycls.get_string_value("optdest"), sobj);
@@ -358,9 +369,11 @@ public class Parser  {
 		} else {
 			if (keycls.get_bool_value("isflag")) {
 				obj = keycls.get_object_value("value");
+				assert(obj != null);
 				helpinfo += String.format("%s set default(%s)", keycls.get_string_value("optdest"), obj.toString());
 			} else {
-				helpinfo += String.format("%s command exec", keycls.get_string_value("optdest"));
+				assert(keycls.get_bool_value("iscmd"));
+				helpinfo += String.format("%s command exec", keycls.get_string_value("cmdname"));
 			}
 		}
 
@@ -387,12 +400,14 @@ public class Parser  {
 			} else {
 				curparser.m_parser.addArgument(longopt).dest(optdest).setDefault((Object)null).action(act).help(helpinfo);
 			}
+			this.m_logger.info(String.format("%s shortopt %s longopt %s action(%s) helpinfo(%s)",curparser.toString(),shortopt,longopt,act.toString(),helpinfo));
 		} else {
 			if (shortopt != null) {
 				this.m_parser.addArgument(shortopt, longopt).dest(optdest).setDefault((Object)null).action(act).help(helpinfo);
 			} else {
 				this.m_parser.addArgument(longopt).dest(optdest).setDefault((Object)null).action(act).help(helpinfo);
 			}
+			this.m_logger.info(String.format("null shortopt %s longopt %s action(%s) helpinfo(%s)",shortopt,longopt,act.toString(),helpinfo));
 		}
 		return true;
 	}
@@ -497,20 +512,16 @@ public class Parser  {
 		ParserBase cmdparser = null;
 		String helpinfo;
 		ArgumentParser parser = null;
-
 		cmdparser = this.__find_subparser_inner(keycls.get_string_value("cmdname"));
 		if (cmdparser != null) {
 			return cmdparser;
 		}
-
 		if (this.m_subparsers == null) {
 			this.m_subparsers = this.m_parser.addSubparsers();
 		}
-
 		helpinfo = this.__get_help_info(keycls);
-		cmdparser = new ParserBase(this.m_subparsers, keycls);
+		cmdparser = new ParserBase(this.m_subparsers, keycls,helpinfo);
 		cmdparser.m_parser.help(helpinfo);
-
 		this.m_cmdparsers.add(cmdparser);
 		return cmdparser;
 	}
@@ -569,6 +580,7 @@ public class Parser  {
 			this.m_functable.put("bool", this.getClass().getDeclaredMethod("__load_command_line_bool", cls));
 			this.m_functable.put("args", this.getClass().getDeclaredMethod("__load_command_line_args", cls));
 			this.m_functable.put("count",this.getClass().getDeclaredMethod("__load_command_line_count", cls));
+			this.m_functable.put("command",this.getClass().getDeclaredMethod("__load_command_subparser",cls));
 
 			argcls[0] = NameSpaceEx.class;
 			this.m_argsettable = new HashMap<Priority, Method>();
