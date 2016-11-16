@@ -274,7 +274,7 @@ public class Parser  {
             ldcls = clsloader.loadClass(clsname);
             methname = clss[0];
         }
-        this.m_logger.info("clsname %s methname %s", clsname, methname);
+        this.m_logger.info(String.format("clsname %s methname %s", clsname, methname));
         /*now we should get the function*/
         clsobj[0] = NameSpaceEx.class;
         clsobj[1] = Object.class;
@@ -406,8 +406,11 @@ public class Parser  {
     private Boolean __load_command_line_inner_action(String prefix, Key keycls, ParserBase curparser, ArgumentAction act)  throws ParserException, NoSuchFieldException, KeyException, IllegalAccessException {
         String longopt, shortopt, optdest, helpinfo;
         Argument thisarg;
-
-        this.__check_flag_insert_mustsucc(keycls, curparser);
+        Boolean valid;
+        valid = this.__check_flag_insert(keycls, curparser);
+        if (!valid) {
+        	return false;
+        }
         longopt = keycls.get_string_value("longopt");
         shortopt = keycls.get_string_value("shortopt");
         optdest = keycls.get_string_value("optdest");
@@ -1106,7 +1109,8 @@ public class Parser  {
         try {
             args = this.__parse_command_line_inner(params, ctx);
         } catch (Exception e) {
-            throw new ParserException(String.format("%s:%s", e.getClass().getName(), e.toString()));
+        	throw (Exception) e;
+            //throw new ParserException(String.format("%s:%s", e.getClass().getName(), e.toString()));
         }
         return args;
     }
