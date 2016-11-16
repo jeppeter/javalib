@@ -1035,7 +1035,7 @@ public class Parser  {
                 }
             }
             assert(flagarray != null);
-            this.m_logger.info(String.format("subnargs (%s)", args.getString("subnargs")));
+            //this.m_logger.info(String.format("subnargs (%s)", args.getString("subnargs")));
 
             for (i = 0; i < flagarray.size(); i++) {
                 curkey = flagarray.get(i);
@@ -1049,7 +1049,7 @@ public class Parser  {
             }
         } else {
             flagarray = this.m_flags;
-            this.m_logger.info(String.format("args (%s)", args.getString("args")));
+            //this.m_logger.info(String.format("args (%s)", args.getString("args")));
             for (i = 0; i < flagarray.size(); i++) {
                 curkey = flagarray.get(i);
                 if (curkey.get_bool_value("isflag") &&
@@ -1080,7 +1080,7 @@ public class Parser  {
             for (i = 0; i < this.m_priorities.length; i++) {
                 curprio = this.m_priorities[i];
                 meth = this.m_argsettable.get(curprio);
-                this.m_logger.info(String.format("prior %s meth %s", curprio.toString(), meth.toString()));
+                //this.m_logger.info(String.format("prior %s meth %s", curprio.toString(), meth.toString()));
                 args = (NameSpaceEx) meth.invoke(this, (Object)args);
             }
             args = this.__set_default_value(args);
