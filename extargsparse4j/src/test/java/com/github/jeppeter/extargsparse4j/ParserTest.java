@@ -129,20 +129,57 @@ public class ParserTest {
 	@Test
 	public void test_A003() throws Exception {
 		String loads = "{"
-            + "\"verbose|v\" : \"+\",\n"
-            + "\"port|p\" : 3000,\n"
-            + "\"dep\" : {\n"
-            + "       \"list|l\" : [],\n"
-            + "       \"string|s\" : \"s_var\",\n"
-            + "       \"$\" : \"+\"\n"
-            + "},\n"
-            + "\"rdep\" : {\n"
-            + "       \"list|L\" : [],\n"
-            + "       \"string|S\" : \"s_rdep\",\n"
-            + "       \"$\" : 2\n"
-            + "}\n"
+            + "       \"verbose|v\" : \"+\",\n"
+            + "       \"port|p\" : 3000,\n"
+            + "       \"dep\" : {\n"
+            + "              \"list|l\" : [],\n"
+            + "              \"string|s\" : \"s_var\",\n"
+            + "              \"$\" : \"+\"\n"
+            + "       },\n"
+            + "       \"rdep\" : {\n"
+            + "              \"list|L\" : [],\n"
+            + "              \"string|S\" : \"s_rdep\",\n"
+            + "              \"$\" : 2\n"
+            + "       }\n"
             + "}\n";
         Parser parser ;
+        String[] params = {"-vvvv","-p","5000","rdep","-L","arg1","--rdep-list","arg2","cc","dd"};
+        NameSpaceEx args;
+	    Object dobj;
+	    JsonExt jext = new JsonExt();
+        parser = new Parser();
+        parser.load_command_line_string(loads);
+        args = parser.parse_command_line(params);
+        this.assert_int_value(args,"verbose",new Integer(4));
+        this.assert_int_value(args,"port",new Integer(5000));
+        this.assert_string_value(args,"subcommand","rdep");
+		jext.parseString("{\"dummy\": [\"arg1\",\"arg2\"]}");
+		dobj = jext.getObject("/dummy");
+		this.assert_object_value(args,"rdep_list",dobj);
+		this.assert_string_value(args,"rdep_string","s_rdep");
+		jext.parseString("{\"dummy\": [\"cc\",\"dd\"]}");
+		dobj = jext.getObject("/dummy");
+		this.assert_object_value(args,"subnargs",dobj);
+		return;
+	}
+
+	@Test
+	public void test_A004() throws Exception {
+        String loads = "{\n"
+            + "    \"verbose|v\" : \"+\",\n"
+            + "    \"port|p\" : 3000,\n"
+            + "    \"dep\" : {\n"
+            + "        \"list|l\" : [],\n"
+            + "        \"string|s\" : \"s_var\",\n"
+            + "        \"$\" : \"+\"\n"
+            + "    },\n"
+            + "    \"rdep\" : {\n"
+            + "        \"list|L\" : [],\n"
+            + "        \"string|S\" : \"s_rdep\",\n"
+            + "        \"$\" : 2\n"
+            + "    }\n"
+            + "}\n";
+        Parser parser;
         String[] params = {"-vvvv","-p","5000","rdep","-L","arg1","--rdep-list","arg2","cc","dd"};
         NameSpaceEx args;
 	    Object dobj;
