@@ -419,14 +419,14 @@ public class Parser  {
             } else {
                 curparser.m_parser.addArgument(longopt).dest(optdest).setDefault((Object)null).action(act).help(helpinfo);
             }
-            this.m_logger.info(String.format("%s shortopt %s longopt %s action(%s) helpinfo(%s)", curparser.toString(), shortopt, longopt, act.toString(), helpinfo));
+            //this.m_logger.info(String.format("%s shortopt %s longopt %s action(%s) helpinfo(%s)", curparser.toString(), shortopt, longopt, act.toString(), helpinfo));
         } else {
             if (shortopt != null) {
                 this.m_parser.addArgument(shortopt, longopt).dest(optdest).setDefault((Object)null).action(act).help(helpinfo);
             } else {
                 this.m_parser.addArgument(longopt).dest(optdest).setDefault((Object)null).action(act).help(helpinfo);
             }
-            this.m_logger.info(String.format("null shortopt %s longopt %s action(%s) helpinfo(%s)", shortopt, longopt, act.toString(), helpinfo));
+            //this.m_logger.info(String.format("null shortopt %s longopt %s action(%s) helpinfo(%s)", shortopt, longopt, act.toString(), helpinfo));
         }
         return true;
     }
@@ -476,8 +476,6 @@ public class Parser  {
         if (helpinfo == null) {
             helpinfo = String.format("%s set ", optdest);
         }
-
-
         nargs = keycls.get_string_value("nargs");
 
         if ( ! nargs.equals("0")) {
@@ -493,7 +491,7 @@ public class Parser  {
             } else {
                 arg.nargs(Integer.parseInt(nargs));
             }
-            arg.action(Arguments.append());
+            arg.action(Arguments.store());
             arg.help(helpinfo);
         }
         return true;
@@ -536,13 +534,13 @@ public class Parser  {
             return cmdparser;
         }
         if (this.m_subparsers == null) {
-            this.m_subparsers = this.m_parser.addSubparsers();
-            this.m_logger.info(String.format("create subparsers (%s)", this.m_subparsers.toString()));
+            this.m_subparsers = this.m_parser.addSubparsers().dest("subcommand").help("");
+            //this.m_logger.info(String.format("create subparsers (%s) parser(%s)", this.m_subparsers.toString(), this.m_parser.toString()));
         }
         helpinfo = this.__get_help_info(keycls);
         cmdparser = new ParserBase(this.m_subparsers, keycls);
         cmdparser.m_parser.help(helpinfo);
-        this.m_logger.info(String.format("new (%s) keycls(%s)", cmdparser.toString(), keycls.toString()));
+        //this.m_logger.info(String.format("new (%s) keycls(%s) subparsers(%s)", cmdparser.toString(), keycls.toString(), this.m_subparsers.toString()));
         this.m_cmdparsers.add(cmdparser);
         return cmdparser;
     }
@@ -955,10 +953,116 @@ public class Parser  {
             keycls = null;
         }
 
-        keycls = new Key("", "$", "*", true);
-        this.__load_command_line_args("", keycls, null);
+        if (this.m_cmdparsers.size() == 0) {
+            keycls = new Key("", "$", "*", true);
+            this.__load_command_line_args("", keycls, null);
+        }
         keycls = null;
         return ;
+    }
+
+    private NameSpaceEx __set_default_value(NameSpaceEx args) throws NoSuchFieldException, KeyException, IllegalAccessException {
+        /*first to set the value for the flagarray*/
+        List<Key> flagarray;
+        int i, j;
+        Key curkey;
+        flagarray = this.m_flags;
+        for (i = 0; i < flagarray.size(); i++) {
+            curkey = flagarray.get(i);
+            if (curkey.get_bool_value("isflag") &&
+                    !curkey.get_string_value("flagname").equals("$")) {
+                args = this.__set_jsonvalue_not_defined(args, flagarray,
+                                                        curkey.get_string_value("optdest"),
+                                                        curkey.get_object_value("value"));
+            }
+        }
+        for (i = 0; i < this.m_cmdparsers.size(); i++) {
+            flagarray = this.m_cmdparsers.get(i).m_flags;
+            for (j = 0; j < flagarray.size(); j++) {
+                curkey = flagarray.get(j);
+                if (curkey.get_bool_value("isflag") &&
+                        !curkey.get_string_value("flagname").equals("$")) {
+                    args = this.__set_jsonvalue_not_defined(args, flagarray,
+                                                            curkey.get_string_value("optdest"),
+                                                            curkey.get_object_value("value"));
+                }
+            }
+        }
+        return args;
+    }
+
+    private NameSpaceEx __check_args_number(NameSpaceEx args, String argsname, String argsnum) throws ParserException {
+        List<String> argscont;
+        int inum;
+        Boolean valid = true;
+        argscont = args.getList(argsname);
+        if (argsnum.equals("+")) {
+            if (argscont.size() < 1) {
+                valid = false;
+            }
+        } else if (argsnum.equals("?")) {
+            if (argscont.size() > 1) {
+                valid = false;
+            }
+        } else if (argsnum.equals("*")) {
+
+        } else {
+            inum = Integer.parseInt(argsnum);
+            if (argscont.size() != inum) {
+                valid = false;
+            }
+        }
+        if (!valid) {
+            throw new ParserException(String.format("count %d for %s", argscont.size(), argsnum));
+        }
+
+        return args;
+    }
+
+
+    private NameSpaceEx __check_args(NameSpaceEx args) throws NoSuchFieldException, KeyException, IllegalAccessException,ParserException {
+        int i;
+        int j = 0;
+        List<Key> flagarray;
+        Key curkey;
+        String nargs;
+
+        if (this.m_cmdparsers.size() > 0) {
+            flagarray = null;
+            for (i = 0; i < this.m_cmdparsers.size(); i++) {
+                if (this.m_cmdparsers.get(i).m_cmdname.equals(args.getString("subcommand"))) {
+                    flagarray = this.m_cmdparsers.get(i).m_flags;
+                }
+            }
+            assert(flagarray != null);
+            this.m_logger.info(String.format("subnargs (%s)", args.getString("subnargs")));
+
+            for (i = 0; i < flagarray.size(); i++) {
+                curkey = flagarray.get(i);
+                if (curkey.get_bool_value("isflag") &&
+                        curkey.get_string_value("flagname").equals("$")) {
+                    assert(j == 0);
+                    nargs = curkey.get_string_value("nargs");
+                    args = this.__check_args_number(args, "subnargs", nargs);
+                    j = 1;
+                }
+            }
+        } else {
+            flagarray = this.m_flags;
+            this.m_logger.info(String.format("args (%s)", args.getString("args")));
+            for (i = 0; i < flagarray.size(); i++) {
+                curkey = flagarray.get(i);
+                if (curkey.get_bool_value("isflag") &&
+                        curkey.get_string_value("flagname").equals("$")) {
+                    assert(j == 0);
+                    nargs = curkey.get_string_value("nargs");
+                    args = this.__check_args_number(args, "args", nargs);
+                    j = 1;
+                }
+            }
+        }
+        assert(j == 1);
+        return args;
     }
 
     private NameSpaceEx __parse_command_line_inner(String[] params, Object ctx) throws KeyException, JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException, NoSuchFieldException, IllegalAccessException, ParserException, ArgumentParserException, InvocationTargetException, ClassNotFoundException, NoSuchMethodException {
@@ -976,9 +1080,11 @@ public class Parser  {
             for (i = 0; i < this.m_priorities.length; i++) {
                 curprio = this.m_priorities[i];
                 meth = this.m_argsettable.get(curprio);
-                //this.m_logger.info(String.format("prior %s meth %s", curprio.toString(), meth.toString()));
+                this.m_logger.info(String.format("prior %s meth %s", curprio.toString(), meth.toString()));
                 args = (NameSpaceEx) meth.invoke(this, (Object)args);
             }
+            args = this.__set_default_value(args);
+            args = this.__check_args(args);
 
             if (this.m_subparsers != null && args.getString("subcommand") != null) {
                 curparser = this.__find_subparser_inner(args.getString("subcommand"));
@@ -1000,8 +1106,7 @@ public class Parser  {
         try {
             args = this.__parse_command_line_inner(params, ctx);
         } catch (Exception e) {
-            throw (Exception)e;
-            //throw new ParserException(String.format("%s:%s",e.getClass().getName(),e.toString()));
+            throw new ParserException(String.format("%s:%s", e.getClass().getName(), e.toString()));
         }
         return args;
     }

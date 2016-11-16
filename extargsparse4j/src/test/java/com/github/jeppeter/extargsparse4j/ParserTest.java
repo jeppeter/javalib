@@ -78,6 +78,9 @@ public class ParserTest {
 	    jext.parseString("{ \"dummy\": [\"bar1\",\"bar2\"]}");
 	    dobj = jext.getObject("/dummy");
 	    this.assert_object_value(args,"list",dobj);
+	    jext.parseString("{ \"dummy\": [\"var1\",\"var2\"]}");
+	    dobj = jext.getObject("/dummy");
+	    this.assert_object_value(args,"args",dobj);
 		return;
 	}
 
@@ -107,7 +110,7 @@ public class ParserTest {
         	}
         	debugstr += c;
         }
-        this.m_logger.info(String.format("params (%s)",debugstr));
+        //this.m_logger.info(String.format("params (%s)",debugstr));
         args = parser.parse_command_line(params);
 	    this.assert_int_value(args,"verbose",new Integer(4));
 	    this.assert_int_value(args,"port",new Integer(5000));

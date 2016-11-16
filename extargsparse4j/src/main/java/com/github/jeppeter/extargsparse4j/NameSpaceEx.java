@@ -160,4 +160,9 @@ public class NameSpaceEx {
     public Object set(String key,Object val) {
     	return this.attr_.put(key,val);
     }
+
+    @Override
+    public String toString() {
+        return this.attr_.toString();
+    }
 }

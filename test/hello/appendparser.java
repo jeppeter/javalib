@@ -88,10 +88,12 @@ public class appendparser {
 		sps = parser.addSubparsers();
 		sp = sps.addParser("dep").help("dep mode");
 		sp.addArgument("-l","--dep-list").dest("dep_list").setDefault((Object)null).action(Arguments.append()).help("dep list");
+		sp.addArgument("subnargs").metavar("subnargs").nargs("+").action(Arguments.append()).help("subnargs set");
 		parser.addArgument("-p","--port")
 				.dest("port")
 				.action(new IntAction())
 				.help("int value");
+		//parser.addArgument("args").metavar("args").nargs("+").action(Arguments.append()).help("args set");
 
 		try{
 			ns = parser.parseArgs(args);
