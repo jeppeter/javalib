@@ -1091,7 +1091,7 @@ public class Parser  {
                 assert(curparser != null);
                 funcname = curparser.m_typeclass.get_string_value("function");
                 if (funcname != null && funcname.length() > 0) {
-                    return this.call_func_args(funcname, args, ctx);
+                    this.call_func_args(funcname, args, ctx);
                 }
             }
             return args;
