@@ -874,4 +874,21 @@ public class ParserTest {
         this.assert_list_value(args,"subnargs","[\"ww\"]");
         return;
     }
+
+    @Test
+    public void test_A021() throws Exception {
+    	String commandline="{\n"
+            + "    \"maxval|m\" : 392244922\n"
+            + "}";
+        String[] params = {"-m","0xffcc"};
+        String[] needenvs = {"EXTARGSPARSE_JSON","EXTARGS_MAXVAL"};
+        Parser parser;
+        NameSpaceEx args;
+        this.__unset_environs(needenvs);
+        parser = new Parser();
+        parser.load_command_line_string(commandline);
+        args = parser.parse_command_line(params);
+        this.assert_long_value(args,"maxval",new Long(0xffcc));
+        return;
+    }
 }

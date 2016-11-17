@@ -134,7 +134,21 @@ class LongAction implements ArgumentAction {
     public void run(ArgumentParser parser, Argument arg,
                     Map<String, Object> attrs, String flag, Object value)
     throws ArgumentParserException {
-        Long count = Long.parseLong((String) value);
+        Long count = new  Long(0);
+        int radix = 10;
+        String sval = (String)value;
+        if (sval != null) {
+            if (sval.startsWith("0x") ||
+                    sval.startsWith("0X") ) {
+                sval = sval.substring(2);
+                radix = 16;
+            } else if ( sval.startsWith("x") ||
+                        sval.startsWith("X")) {
+            	sval = sval.substring(1);
+            	radix = 16;
+            }
+            count = Long.parseLong(sval, radix);
+        }
         attrs.put(arg.getDest(), count);
     }
 
@@ -501,9 +515,9 @@ public class Parser  {
         return true;
     }
 
-    private Boolean __load_command_prefix(String prefix, Key keycls, ParserBase curparser) throws NoSuchFieldException, ParserException, KeyException, IllegalAccessException,JsonExtInvalidTypeException,JsonExtNotParsedException,JsonExtNotFoundException,InvocationTargetException {
-    	this.__load_command_line_inner(keycls.get_string_value("prefix"),keycls.get_object_value("value"),curparser);
-    	return true;
+    private Boolean __load_command_prefix(String prefix, Key keycls, ParserBase curparser) throws NoSuchFieldException, ParserException, KeyException, IllegalAccessException, JsonExtInvalidTypeException, JsonExtNotParsedException, JsonExtNotFoundException, InvocationTargetException {
+        this.__load_command_line_inner(keycls.get_string_value("prefix"), keycls.get_object_value("value"), curparser);
+        return true;
     }
 
     private Boolean __load_command_line_jsonfile(String prefix, Key keycls , ParserBase curparser) throws NoSuchFieldException, ParserException, KeyException, IllegalAccessException {
@@ -609,7 +623,7 @@ public class Parser  {
             this.m_functable.put("args", this.getClass().getDeclaredMethod("__load_command_line_args", cls));
             this.m_functable.put("count", this.getClass().getDeclaredMethod("__load_command_line_count", cls));
             this.m_functable.put("command", this.getClass().getDeclaredMethod("__load_command_subparser", cls));
-            this.m_functable.put("prefix",this.getClass().getDeclaredMethod("__load_command_prefix",cls));
+            this.m_functable.put("prefix", this.getClass().getDeclaredMethod("__load_command_prefix", cls));
 
             argcls[0] = NameSpaceEx.class;
             this.m_argsettable = new HashMap<Priority, Method>();
@@ -730,7 +744,7 @@ public class Parser  {
         return args;
     }
 
-    private NameSpaceEx __load_jsonfile(NameSpaceEx args, String subcmd, String jsonfile, ParserBase curparser) throws ParserException, NoSuchFieldException, KeyException, IllegalAccessException,JsonExtNotParsedException,JsonExtNotFoundException,JsonExtInvalidTypeException {
+    private NameSpaceEx __load_jsonfile(NameSpaceEx args, String subcmd, String jsonfile, ParserBase curparser) throws ParserException, NoSuchFieldException, KeyException, IllegalAccessException, JsonExtNotParsedException, JsonExtNotFoundException, JsonExtInvalidTypeException {
         String prefix = "";
         List<Key> flagarray = null;
         JsonExt jext;
@@ -752,7 +766,7 @@ public class Parser  {
         return this.__load_jsonvalue(args, prefix, jsonvalue, flagarray);
     }
 
-    private NameSpaceEx __parse_sub_command_json_set(NameSpaceEx args) throws ParserException, NoSuchFieldException, KeyException, IllegalAccessException,JsonExtNotParsedException,JsonExtNotFoundException,JsonExtInvalidTypeException {
+    private NameSpaceEx __parse_sub_command_json_set(NameSpaceEx args) throws ParserException, NoSuchFieldException, KeyException, IllegalAccessException, JsonExtNotParsedException, JsonExtNotFoundException, JsonExtInvalidTypeException {
         if (this.m_subparsers != null && args.getString("subcommand") != null) {
             String jsondest = String.format("%s_json", args.getString("subcommand"));
             ParserBase curparser = this.__find_subparser_inner(args.getString("subcommand"));
@@ -760,14 +774,14 @@ public class Parser  {
             assert(curparser != null);
             jsonfile = args.getString(jsondest);
             if (jsonfile != null) {
-            	this.m_logger.info(String.format("jsonfile %s",jsonfile));
+                this.m_logger.info(String.format("jsonfile %s", jsonfile));
                 args = this.__load_jsonfile(args, args.getString("subcommand"), jsonfile, curparser);
             }
         }
         return args;
     }
 
-    private NameSpaceEx __parse_command_json_set(NameSpaceEx args) throws ParserException, NoSuchFieldException, KeyException, IllegalAccessException,JsonExtNotParsedException,JsonExtNotFoundException,JsonExtInvalidTypeException {
+    private NameSpaceEx __parse_command_json_set(NameSpaceEx args) throws ParserException, NoSuchFieldException, KeyException, IllegalAccessException, JsonExtNotParsedException, JsonExtNotFoundException, JsonExtInvalidTypeException {
         if (args.getString("json") != null) {
             String jsonfile = args.getString("json");
             if (jsonfile != null) {
@@ -778,7 +792,7 @@ public class Parser  {
     }
 
 
-    private NameSpaceEx __parse_env_subcommand_json_set(NameSpaceEx args) throws ParserException, NoSuchFieldException, KeyException, IllegalAccessException,JsonExtNotParsedException,JsonExtNotFoundException,JsonExtInvalidTypeException {
+    private NameSpaceEx __parse_env_subcommand_json_set(NameSpaceEx args) throws ParserException, NoSuchFieldException, KeyException, IllegalAccessException, JsonExtNotParsedException, JsonExtNotFoundException, JsonExtInvalidTypeException {
         if (this.m_subparsers != null && args.getString("subcommand") != null) {
             String jsondest = String.format("%s_json", args.getString("subcommand"));
             ParserBase curparser = this.__find_subparser_inner(args.getString("subcommand"));
@@ -794,7 +808,7 @@ public class Parser  {
         return args;
     }
 
-    private NameSpaceEx __parse_env_command_json_set(NameSpaceEx args) throws ParserException, NoSuchFieldException, KeyException, IllegalAccessException,JsonExtNotParsedException,JsonExtNotFoundException,JsonExtInvalidTypeException {
+    private NameSpaceEx __parse_env_command_json_set(NameSpaceEx args) throws ParserException, NoSuchFieldException, KeyException, IllegalAccessException, JsonExtNotParsedException, JsonExtNotFoundException, JsonExtInvalidTypeException {
         String jsonfile;
         jsonfile = Environ.getenv("EXTARGSPARSE_JSON");
         if (jsonfile != null && jsonfile.length() > 0) {
@@ -845,7 +859,7 @@ public class Parser  {
                         int jidx;
                         jsonext.parseString(jsonstr);
                         jobj = jsonext.getObject("/dummy");
-                        this.m_logger.info(String.format("jobj (%s)",jobj.toString()));
+                        this.m_logger.info(String.format("jobj (%s)", jobj.toString()));
                         if ( jobj instanceof JSONArray) {
                             lobj = new ArrayList<String>();
                             jarr = (JSONArray) jobj;
