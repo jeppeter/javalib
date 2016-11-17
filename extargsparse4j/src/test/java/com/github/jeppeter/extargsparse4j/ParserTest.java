@@ -606,4 +606,61 @@ public class ParserTest {
         }
         return;
     }
+
+    @Test
+    public void test_A015() throws Exception {
+    	String commandline="{\n"
+            + "    \"verbose|v\" : \"+\",\n"
+            + "    \"$port|p\" : {\n"
+            + "        \"value\" : 3000,\n"
+            + "        \"type\" : \"int\",\n"
+            + "        \"nargs\" : 1 , \n"
+            + "        \"helpinfo\" : \"port to connect\"\n"
+            + "    },\n"
+            + "    \"dep\" : {\n"
+            + "        \"list|l\" : [],\n"
+            + "        \"string|s\" : \"s_var\",\n"
+            + "        \"$\" : \"+\"\n"
+            + "    }\n"
+            + "}";
+        Parser parser;
+        String depjsonfile = null,jsonfile=null;
+        String[] needenvs = {"EXTARGSPARSE_JSON", "DEP_JSON", "EXTARGS_VERBOSE", "EXTARGS_PORT", "DEP_LIST", "DEP_STRING"};
+        String[] params = {"-p","9000","--json","jsonfile","dep","--dep-string","ee","ww"};
+        NameSpaceEx args;
+        int i;
+        this.__unset_environs(needenvs);
+        try {
+            jsonfile = this.__write_temp_file("parse", ".json", "{\"dep\":{\"list\" : [\"jsonval1\",\"jsonval2\"],\"string\" : \"jsonstring\"},\"port\":6000,\"verbose\":3}\n");
+            depjsonfile = this.__write_temp_file("parse",".json","{\"list\":[\"depjson1\",\"depjson2\"]}\n");
+            Environ.setenv("DEP_JSON",depjsonfile);
+            for (i=0;i<params.length;i++) {
+            	if (params[i].equals("jsonfile")) {
+            		params[i] = jsonfile;
+            		break;
+            	}
+            }
+            parser = new Parser();
+            parser.load_command_line_string(commandline);
+            args = parser.parse_command_line(params);
+            this.assert_long_value(args, "verbose", new Long(3));
+            this.assert_long_value(args, "port", new Long(9000));
+            this.assert_string_value(args, "subcommand", "dep");
+            this.assert_list_value(args, "dep_list", "[\"jsonval1\",\"jsonval2\"]");
+            this.assert_string_value(args, "dep_string", "ee");
+            this.assert_list_value(args, "subnargs", "[\"ww\"]");
+        } finally {
+            if (depjsonfile != null) {
+                File file = new File(depjsonfile);
+                file.delete();
+                depjsonfile = null;
+            }
+            if (jsonfile != null) {
+                File file = new File(jsonfile);
+                file.delete();
+                jsonfile = null;
+            }
+        }
+        return;
+    }
 }
