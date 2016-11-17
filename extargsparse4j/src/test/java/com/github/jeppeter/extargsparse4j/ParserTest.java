@@ -34,9 +34,10 @@ public class ParserTest {
 		return;
 	}
 
-	private void assert_int_value(NameSpaceEx args,String key,Integer value) {
+
+	private void assert_long_value(NameSpaceEx args,String key,Long value) {
 		//this.m_logger.info(String.format("%s=%s %s",key,value.toString(),args.get(key).toString()));
-		assertEquals(String.format("%s=%d",key,value),(Integer)args.get(key),value);
+		assertEquals(String.format("%s=%d",key,value),(Long)args.get(key),value);
 		return;
 	}
 
@@ -47,6 +48,16 @@ public class ParserTest {
 
 	private void assert_object_value(NameSpaceEx args,String key,Object value) {
 		assertEquals(String.format("%s=%s",key,value.toString()),args.get(key),value);
+		return;
+	}
+
+	private void assert_list_value(NameSpaceEx args, String key,String value) throws JsonExtNotParsedException,JsonExtNotFoundException,JsonExtInvalidTypeException {
+		JsonExt jext = new JsonExt();
+		String parsevalue = String.format("{\"dummy\": %s}",value);
+		Object dobj;
+		jext.parseString(parsevalue);
+		dobj = jext.getObject("/dummy");
+		this.assert_object_value(args,key,dobj);
 		return;
 	}
 
@@ -72,20 +83,14 @@ public class ParserTest {
 	    Parser parser ;
 	    NameSpaceEx args;
 	    String[] params = {"-vvvv","-f","-n","30","-l","bar1","-l","bar2","var1","var2"};
-	    Object dobj;
-	    JsonExt jext = new JsonExt();
 	    parser = new Parser();
 	    parser.load_command_line_string(loads);
 	    args = parser.parse_command_line(params);
-	    this.assert_int_value(args,"verbose",new Integer(4));
+	    this.assert_long_value(args,"verbose",new Long(4));
 	    this.assert_bool_value(args,"flag",new Boolean(true));
-	    this.assert_int_value(args,"number",new Integer(30));
-	    jext.parseString("{ \"dummy\": [\"bar1\",\"bar2\"]}");
-	    dobj = jext.getObject("/dummy");
-	    this.assert_object_value(args,"list",dobj);
-	    jext.parseString("{ \"dummy\": [\"var1\",\"var2\"]}");
-	    dobj = jext.getObject("/dummy");
-	    this.assert_object_value(args,"args",dobj);
+	    this.assert_long_value(args,"number",new Long(30));
+	    this.assert_list_value(args,"list","[\"bar1\",\"bar2\"]");
+	    this.assert_list_value(args,"args","[\"var1\",\"var2\"]");
 		return;
 	}
 
@@ -103,31 +108,16 @@ public class ParserTest {
             	+ "}";
         Parser parser;
         NameSpaceEx args;
-	    Object dobj;
-	    JsonExt jext = new JsonExt();
 	    String[] params = {"-vvvv","-p","5000","dep","--dep-list","arg1","--dep-list","arg2","cc","dd"};
-	    String debugstr="";
         parser = new Parser();
         parser.load_command_line_string(loads);
-        for (String c : params) {
-        	if (debugstr.length() > 0) {
-        		debugstr += " ";
-        	}
-        	debugstr += c;
-        }
-        //this.m_logger.info(String.format("params (%s)",debugstr));
         args = parser.parse_command_line(params);
-	    this.assert_int_value(args,"verbose",new Integer(4));
-	    this.assert_int_value(args,"port",new Integer(5000));
+	    this.assert_long_value(args,"verbose",new Long(4));
+	    this.assert_long_value(args,"port",new Long(5000));
 	    this.assert_string_value(args,"subcommand","dep");
-	    jext.parseString("{ \"dummy\": [\"arg1\",\"arg2\"]}");
-	    dobj = jext.getObject("/dummy");
-	    this.assert_object_value(args,"dep_list",dobj);
+	    this.assert_list_value(args,"dep_list","[\"arg1\",\"arg2\"]");
 	    this.assert_string_value(args,"dep_string","s_var");
-	    jext = new JsonExt();
-	    jext.parseString("{ \"dummy\": [\"cc\",\"dd\"]}");
-	    dobj = jext.getObject("/dummy");
-	    this.assert_object_value(args,"subnargs",dobj);
+	    this.assert_list_value(args,"subnargs","[\"cc\",\"dd\"]");
 	    return;
 	}
 
@@ -150,21 +140,15 @@ public class ParserTest {
         Parser parser ;
         String[] params = {"-vvvv","-p","5000","rdep","-L","arg1","--rdep-list","arg2","cc","dd"};
         NameSpaceEx args;
-	    Object dobj;
-	    JsonExt jext = new JsonExt();
         parser = new Parser();
         parser.load_command_line_string(loads);
         args = parser.parse_command_line(params);
-        this.assert_int_value(args,"verbose",new Integer(4));
-        this.assert_int_value(args,"port",new Integer(5000));
+        this.assert_long_value(args,"verbose",new Long(4));
+        this.assert_long_value(args,"port",new Long(5000));
         this.assert_string_value(args,"subcommand","rdep");
-		jext.parseString("{\"dummy\": [\"arg1\",\"arg2\"]}");
-		dobj = jext.getObject("/dummy");
-		this.assert_object_value(args,"rdep_list",dobj);
+		this.assert_list_value(args,"rdep_list","[\"arg1\",\"arg2\"]");
 		this.assert_string_value(args,"rdep_string","s_rdep");
-		jext.parseString("{\"dummy\": [\"cc\",\"dd\"]}");
-		dobj = jext.getObject("/dummy");
-		this.assert_object_value(args,"subnargs",dobj);
+		this.assert_list_value(args,"subnargs","[\"cc\",\"dd\"]");
 		return;
 	}
 
@@ -187,21 +171,15 @@ public class ParserTest {
         Parser parser;
         String[] params = {"-vvvv","-p","5000","rdep","-L","arg1","--rdep-list","arg2","cc","dd"};
         NameSpaceEx args;
-	    Object dobj;
-	    JsonExt jext = new JsonExt();
         parser = new Parser();
         parser.load_command_line_string(loads);
         args = parser.parse_command_line(params);
-        this.assert_int_value(args,"verbose",new Integer(4));
-        this.assert_int_value(args,"port",new Integer(5000));
+        this.assert_long_value(args,"verbose",new Long(4));
+        this.assert_long_value(args,"port",new Long(5000));
         this.assert_string_value(args,"subcommand","rdep");
-		jext.parseString("{\"dummy\": [\"arg1\",\"arg2\"]}");
-		dobj = jext.getObject("/dummy");
-		this.assert_object_value(args,"rdep_list",dobj);
+		this.assert_list_value(args,"rdep_list","[\"arg1\",\"arg2\"]");
 		this.assert_string_value(args,"rdep_string","s_rdep");
-		jext.parseString("{\"dummy\": [\"cc\",\"dd\"]}");
-		dobj = jext.getObject("/dummy");
-		this.assert_object_value(args,"subnargs",dobj);
+		this.assert_list_value(args,"subnargs","[\"cc\",\"dd\"]");
 		return;
 	}
 
@@ -225,21 +203,15 @@ public class ParserTest {
         Parser parser;
         String[] params = {"-p","7003","-vvvvv","dep","-l","foo1","-s","new_var","zz"};
         NameSpaceEx args;
-	    Object dobj;
-	    JsonExt jext = new JsonExt();
         parser = new Parser();
         parser.load_command_line_string(loads);
         args = parser.parse_command_line(params,parser);
-        this.assert_int_value(args,"verbose",new Integer(5));
-        this.assert_int_value(args,"port",new Integer(7003));
+        this.assert_long_value(args,"verbose",new Long(5));
+        this.assert_long_value(args,"port",new Long(7003));
         this.assert_string_value(args,"subcommand","dep");
-		jext.parseString("{\"dummy\": [\"foo1\"]}");
-		dobj = jext.getObject("/dummy");
-		this.assert_object_value(args,"dep_list",dobj);
+		this.assert_list_value(args,"dep_list","[\"foo1\"]");
 		this.assert_string_value(args,"dep_string","new_var");
-		jext.parseString("{\"dummy\": [\"zz\"]}");
-		dobj = jext.getObject("/dummy");
-		this.assert_object_value(args,"subnargs",dobj);
+		this.assert_list_value(args,"subnargs","[\"zz\"]");
 		this.assert_string_value(args,"has_called_args",args.getString("subcommand"));
 		return;
 	}
@@ -265,22 +237,44 @@ public class ParserTest {
         Parser parser;
         String[] params = {"-p","7003","-vvvvv","rdep","-L","foo1","-S","new_var","zz","64"};
         NameSpaceEx args;
-	    Object dobj;
-	    JsonExt jext = new JsonExt();
         parser = new Parser();
         parser.load_command_line_string(loads1);
         parser.load_command_line_string(loads2);
         args = parser.parse_command_line(params,(Object)parser);
-        this.assert_int_value(args,"verbose",new Integer(5));
-        this.assert_int_value(args,"port",new Integer(7003));
+        this.assert_long_value(args,"verbose",new Long(5));
+        this.assert_long_value(args,"port",new Long(7003));
         this.assert_string_value(args,"subcommand","rdep");
-		jext.parseString("{\"dummy\": [\"foo1\"]}");
-		dobj = jext.getObject("/dummy");
-		this.assert_object_value(args,"rdep_list",dobj);
+		this.assert_list_value(args,"rdep_list","[\"foo1\"]");
 		this.assert_string_value(args,"rdep_string","new_var");
-		jext.parseString("{\"dummy\": [\"zz\",\"64\"]}");
-		dobj = jext.getObject("/dummy");
-		this.assert_object_value(args,"subnargs",dobj);
+		this.assert_list_value(args,"subnargs","[\"zz\",\"64\"]");
+		return;
+	}
+
+	@Test
+	public void test_A007() throws Exception {
+		String commandline = "{"
+            + "    \"verbose|v\" : \"+\",\n"
+            + "    \"port|p+http\" : 3000,\n"
+            + "    \"dep\" : {\n"
+            + "        \"list|l\" : [],\n"
+            + "        \"string|s\" : \"s_var\",\n"
+            + "        \"$\" : \"+\"\n"
+            + "    }\n"
+            + "}\n";
+        Parser parser;
+        NameSpaceEx args;
+        String[] params = {"-vvvv","dep","-l","cc","--dep-string","ee","ww"};
+
+        parser = new Parser();
+        parser.load_command_line_string(commandline);
+        args = parser.parse_command_line(params);
+        this.m_logger.info(String.format("args(%s)",args.toString()));
+        this.assert_long_value(args,"verbose",new Long(4));
+        this.assert_long_value(args,"http_port",new Long(3000));
+        this.assert_string_value(args,"subcommand","dep");
+		this.assert_list_value(args,"dep_list","[\"cc\"]");
+		this.assert_string_value(args,"dep_string","ee");
+		this.assert_list_value(args,"subnargs","[\"ww\"]");
 		return;
 	}
 }

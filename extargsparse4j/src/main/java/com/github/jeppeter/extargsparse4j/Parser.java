@@ -95,11 +95,11 @@ class CountAction implements ArgumentAction {
     public void run(ArgumentParser parser, Argument arg,
                     Map<String, Object> attrs, String flag, Object value)
     throws ArgumentParserException {
-        Integer count = 1;
+        Long count = new Long(1);
         if (attrs.containsKey(arg.getDest())) {
             Object obj = attrs.get(arg.getDest());
             if (obj != null) {
-                count = (Integer) obj;
+                count = (Long) obj;
                 count ++;
             }
         }
@@ -128,12 +128,12 @@ class CountAction implements ArgumentAction {
     }
 }
 
-class IntAction implements ArgumentAction {
+class LongAction implements ArgumentAction {
     @Override
     public void run(ArgumentParser parser, Argument arg,
                     Map<String, Object> attrs, String flag, Object value)
     throws ArgumentParserException {
-        Integer count = Integer.parseInt((String) value);
+        Long count = Long.parseLong((String) value);
         attrs.put(arg.getDest(), count);
     }
 
@@ -411,11 +411,6 @@ public class Parser  {
         if (!valid) {
             return false;
         }
-        if (curparser != null) {
-            this.m_logger.info(String.format("curparser(%s) keycls(%s)", curparser.toString(), keycls.toString()));
-        } else {
-            this.m_logger.info(String.format("curparser(null) keycls(%s)", keycls.toString()));
-        }
         longopt = keycls.get_string_value("longopt");
         shortopt = keycls.get_string_value("shortopt");
         optdest = keycls.get_string_value("optdest");
@@ -448,7 +443,7 @@ public class Parser  {
     }
 
     private Boolean __load_command_line_int(String prefix, Key keycls, ParserBase curparser) throws ParserException, NoSuchFieldException, KeyException, IllegalAccessException {
-        return this.__load_command_line_inner_action(prefix, keycls, curparser, new IntAction());
+        return this.__load_command_line_inner_action(prefix, keycls, curparser, new LongAction());
     }
 
     private Boolean __load_command_line_float(String prefix, Key keycls, ParserBase curparser)  throws ParserException, NoSuchFieldException, KeyException, IllegalAccessException {
