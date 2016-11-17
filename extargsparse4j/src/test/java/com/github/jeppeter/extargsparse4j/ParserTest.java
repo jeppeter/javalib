@@ -10,6 +10,10 @@ import com.github.jeppeter.jsonext.*;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.FileOutputStream;
+
 
 import static org.junit.Assert.assertEquals;
 import org.junit.*;
@@ -33,7 +37,6 @@ public class ParserTest {
 		assertEquals(String.format("%s=%s",key,value),(String)args.get(key),value);
 		return;
 	}
-
 
 	private void assert_long_value(NameSpaceEx args,String key,Long value) {
 		//this.m_logger.info(String.format("%s=%s %s",key,value.toString(),args.get(key).toString()));
@@ -59,6 +62,25 @@ public class ParserTest {
 		dobj = jext.getObject("/dummy");
 		this.assert_object_value(args,key,dobj);
 		return;
+	}
+
+	private String __write_temp_file(String pattern,String suffix,String content) {
+		String retfilename=null;
+		while(true) {
+			retfilename = null;
+			try{
+                File temp = File.createTempFile(pattern, suffix);
+                FileOutputStream outf;
+                retfilename = temp.getAbsolutePath();
+                outf = new FileOutputStream(retfilename);
+                outf.write(content.getBytes());
+                outf.close();
+                return retfilename;
+			} 
+			catch(IOException e) {
+				;
+			}
+		}
 	}
 
 	public static NameSpaceEx call_args_function(NameSpaceEx args,Object ctx) {
@@ -335,5 +357,56 @@ public class ParserTest {
         this.assert_string_value(args,"dep_string","ee");
         this.assert_list_value(args,"subnargs","[\"ww\"]");
         return;
+	}
+
+	@Test
+	public void test_A010() throws Exception {
+		String commandline="{\n"
+            + "    \"verbose|v\" : \"+\",\n"
+            + "    \"$port|p\" : {\n"
+            + "        \"value\" : 3000,\n"
+            + "        \"type\" : \"int\",\n"
+            + "        \"nargs\" : 1 , \n"
+            + "        \"helpinfo\" : \"port to connect\"\n"
+            + "    },\n"
+            + "    \"dep\" : {\n"
+            + "        \"list|l\" : [],\n"
+            + "        \"string|s\" : \"s_var\",\n"
+            + "        \"$\" : \"+\"\n"
+            + "    }\n"
+            + "}\n";
+        String depjsonfile= null;
+        Parser parser=null;
+        NameSpaceEx args;
+        String[] params = {"-vvvv","-p","9000","dep","--dep-json","depjsonfile","--dep-string","ee","ww"};
+        int i;
+
+        try {
+        	depjsonfile = this.__write_temp_file("parse",".json","{\"list\" : [\"jsonval1\",\"jsonval2\"],\"string\" : \"jsonstring\"}\n");
+        	parser = new Parser();
+        	parser.load_command_line_string(commandline);
+        	for (i=0;i<params.length;i++) {
+        		if (params[i].equals("depjsonfile")) {
+        			params[i] = depjsonfile;
+        			break;
+        		}
+        	}
+        	this.m_logger.info(String.format("depjsonfile %s",depjsonfile));
+        	args = parser.parse_command_line(params);
+        	this.assert_long_value(args,"verbose",new Long(4));
+        	this.assert_long_value(args,"port",new Long(9000));
+        	this.assert_string_value(args,"subcommand","dep");
+        	this.assert_list_value(args,"dep_list","[\"jsonval1\",\"jsonval2\"]");
+        	this.assert_string_value(args,"dep_string","ee");
+        	this.assert_list_value(args,"subnargs","[\"ww\"]");
+        }
+        finally{
+        	if (depjsonfile != null) {
+        		File file = new File(depjsonfile);
+        		file.delete();
+        		depjsonfile = null;
+        	}
+        }
+		return;
 	}
 }
