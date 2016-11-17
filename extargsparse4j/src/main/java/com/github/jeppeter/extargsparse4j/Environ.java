@@ -13,6 +13,7 @@ public class Environ {
         // DURATION is expressed in milliseconds
         public boolean SetEnvironmentVariable(String lpName, String lpValue);
         public int GetEnvironmentVariable(String lpName, char[] lpBuffer, int nSize);
+        public String GetEnvironmentStrings();
     }
 
     public interface LibC extends Library {

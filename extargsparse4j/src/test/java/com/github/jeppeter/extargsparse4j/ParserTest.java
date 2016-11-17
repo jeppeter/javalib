@@ -4,6 +4,7 @@ package com.github.jeppeter.extargsparse4j;
 import com.github.jeppeter.extargsparse4j.ParserException;
 import com.github.jeppeter.extargsparse4j.Parser;
 import com.github.jeppeter.extargsparse4j.NameSpaceEx;
+import com.github.jeppeter.extargsparse4j.Environ;
 
 import com.github.jeppeter.jsonext.*;
 
@@ -23,7 +24,9 @@ public class ParserTest {
 
 	@Before
 	public void Setup() {
+
 		this.__get_logger();
+
 	}
 
 
@@ -61,6 +64,13 @@ public class ParserTest {
 		jext.parseString(parsevalue);
 		dobj = jext.getObject("/dummy");
 		this.assert_object_value(args,key,dobj);
+		return;
+	}
+
+	private void __unset_environs(String[] envkey) {
+		for(String c : envkey) {
+			Environ.unsetenv(c);
+		}
 		return;
 	}
 
@@ -408,5 +418,100 @@ public class ParserTest {
         	}
         }
 		return;
+	}
+
+	@Test
+	public void test_A011() throws Exception {
+		String commandline = "{\n"
+            + "    \"verbose|v\" : \"+\",\n"
+            + "    \"$port|p\" : {\n"
+            + "        \"value\" : 3000,\n"
+            + "        \"type\" : \"int\",\n"
+            + "        \"nargs\" : 1 , \n"
+            + "        \"helpinfo\" : \"port to connect\"\n"
+            + "    },\n"
+            + "    \"dep\" : {\n"
+            + "        \"list|l\" : [],\n"
+            + "        \"string|s\" : \"s_var\",\n"
+            + "        \"$\" : \"+\"\n"
+            + "    }\n"
+            + "}\n";
+        String depjsonfile=null;
+        String[] needenvs = {"EXTARGSPARSE_JSON","DEP_JSON","EXTARGS_VERBOSE","EXTARGS_PORT","DEP_LIST","DEP_STRING"};
+    	String[] params = {"-vvvv","-p","9000","dep","--dep-string","ee","ww"};
+    	NameSpaceEx args;
+    	Parser parser;
+    	this.__unset_environs(needenvs);
+        try {
+        	depjsonfile = this.__write_temp_file("parse",".json","{\"list\" : [\"jsonval1\",\"jsonval2\"],\"string\" : \"jsonstring\"}\n");
+        	parser = new Parser();
+        	parser.load_command_line_string(commandline);
+        	Environ.setenv("DEP_JSON",depjsonfile);
+        	args = parser.parse_command_line(params);
+        	this.assert_long_value(args,"verbose",new Long(4));
+        	this.assert_long_value(args,"port",new Long(9000));
+        	this.assert_string_value(args,"subcommand","dep");
+        	this.assert_list_value(args,"dep_list","[\"jsonval1\",\"jsonval2\"]");
+        	this.assert_string_value(args,"dep_string","ee");
+        	this.assert_list_value(args,"subnargs","[\"ww\"]");
+        }
+        finally{
+        	if (depjsonfile != null) {
+        		File file = new File(depjsonfile);
+        		file.delete();
+        		depjsonfile = null;
+        	}
+        }
+        return;
+	}
+
+	@Test
+	public void test_A012() throws Exception {
+		String commandline="{\n"
+            + "    \"verbose|v\" : \"+\",\n"
+            + "    \"$port|p\" : {\n"
+            + "        \"value\" : 3000,\n"
+            + "        \"type\" : \"int\",\n"
+            + "        \"nargs\" : 1 , \n"
+            + "        \"helpinfo\" : \"port to connect\"\n"
+            + "    },\n"
+            + "    \"dep\" : {\n"
+            + "        \"list|l\" : [],\n"
+            + "        \"string|s\" : \"s_var\",\n"
+            + "        \"$\" : \"+\"\n"
+            + "    }\n"
+            + "}\n";
+        Parser parser;
+        String depjsonfile = null;
+        String[] needenvs = {"EXTARGSPARSE_JSON","DEP_JSON","EXTARGS_VERBOSE","EXTARGS_PORT","DEP_LIST","DEP_STRING"};
+    	String[] params = {"-p","9000","--json","jsonfile","dep","--dep-string","ee","ww"};
+    	NameSpaceEx args;
+    	int i;
+    	this.__unset_environs(needenvs);
+    	try {
+    		depjsonfile = this.__write_temp_file("parse",".json","{\"dep\":{\"list\" : [\"jsonval1\",\"jsonval2\"],\"string\" : \"jsonstring\"},\"port\":6000,\"verbose\":3}\n");
+    		for (i=0;i<params.length;i++) {
+    			if (params[i].equals("jsonfile")) {
+    				params[i] = depjsonfile;
+    				break;
+    			}
+    		}
+    		parser = new Parser();
+    		parser.load_command_line_string(commandline);
+    		args = parser.parse_command_line(params);
+    		this.assert_long_value(args,"verbose",new Long(3));
+    		this.assert_long_value(args,"port",new Long(9000));
+    		this.assert_string_value(args,"subcommand","dep");
+    		this.assert_list_value(args,"dep_list","[\"jsonval1\",\"jsonval2\"]");
+    		this.assert_string_value(args,"dep_string","ee");
+    		this.assert_list_value(args,"subnargs","[\"ww\"]");    	}
+    	finally{
+        	if (depjsonfile != null) {
+        		File file = new File(depjsonfile);
+        		file.delete();
+        		depjsonfile = null;
+        	}
+    	}
+    	return;
 	}
 }
