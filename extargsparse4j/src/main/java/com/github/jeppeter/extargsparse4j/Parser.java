@@ -500,6 +500,11 @@ public class Parser  {
         return true;
     }
 
+    private Boolean __load_command_prefix(String prefix, Key keycls, ParserBase curparser) throws NoSuchFieldException, ParserException, KeyException, IllegalAccessException,JsonExtInvalidTypeException,JsonExtNotParsedException,JsonExtNotFoundException,InvocationTargetException {
+    	this.__load_command_line_inner(keycls.get_string_value("prefix"),keycls.get_object_value("value"),curparser);
+    	return true;
+    }
+
     private Boolean __load_command_line_jsonfile(String prefix, Key keycls , ParserBase curparser) throws NoSuchFieldException, ParserException, KeyException, IllegalAccessException {
         return this.__load_command_line_inner_action(prefix, keycls, curparser, Arguments.store());
     }
@@ -603,6 +608,7 @@ public class Parser  {
             this.m_functable.put("args", this.getClass().getDeclaredMethod("__load_command_line_args", cls));
             this.m_functable.put("count", this.getClass().getDeclaredMethod("__load_command_line_count", cls));
             this.m_functable.put("command", this.getClass().getDeclaredMethod("__load_command_subparser", cls));
+            this.m_functable.put("prefix",this.getClass().getDeclaredMethod("__load_command_prefix",cls));
 
             argcls[0] = NameSpaceEx.class;
             this.m_argsettable = new HashMap<Priority, Method>();
@@ -904,7 +910,7 @@ public class Parser  {
                 keycls = new Key(prefix, keys[i], val, false);
             }
 
-            //this.m_logger.info(String.format("keycls %s ", keycls.toString()));
+            this.m_logger.info(String.format("keycls %s ", keycls.toString()));
             meth = this.m_functable.get(keycls.get_string_value("type"));
             assert(meth != null);
             //this.m_logger.info(String.format("metho %s", meth.toString()));

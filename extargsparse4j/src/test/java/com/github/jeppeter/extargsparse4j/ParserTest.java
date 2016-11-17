@@ -268,7 +268,6 @@ public class ParserTest {
         parser = new Parser();
         parser.load_command_line_string(commandline);
         args = parser.parse_command_line(params);
-        this.m_logger.info(String.format("args(%s)",args.toString()));
         this.assert_long_value(args,"verbose",new Long(4));
         this.assert_long_value(args,"http_port",new Long(3000));
         this.assert_string_value(args,"subcommand","dep");
@@ -276,5 +275,35 @@ public class ParserTest {
 		this.assert_string_value(args,"dep_string","ee");
 		this.assert_list_value(args,"subnargs","[\"ww\"]");
 		return;
+	}
+
+	@Test
+	public void test_A008() throws Exception {
+		String commandline = "{\n"
+            + "    \"verbose|v\" : \"+\",\n"
+            + "    \"+http\" : {\n"
+            + "        \"port|p\" : 3000,\n"
+            + "        \"visual_mode|V\" : false\n"
+            + "    },\n"
+            + "    \"dep\" : {\n"
+            + "        \"list|l\" : [],\n"
+            + "        \"string|s\" : \"s_var\",\n"
+            + "        \"$\" : \"+\"\n"
+            + "    }\n"
+            + "}";
+        Parser parser;
+        NameSpaceEx args;
+        String[] params = {"-vvvv","--http-port","9000","--http-visual-mode","dep","-l","cc","--dep-string","ee","ww"};
+        parser = new Parser();
+        parser.load_command_line_string(commandline);
+        args = parser.parse_command_line(params);
+        this.assert_long_value(args,"verbose",new Long(4));
+        this.assert_long_value(args,"http_port",new Long(9000));
+        this.assert_bool_value(args,"http_visual_mode",new Boolean(true));
+        this.assert_string_value(args,"subcommand","dep");
+        this.assert_list_value(args,"dep_list","[\"cc\"]");
+        this.assert_string_value(args,"dep_string","ee");
+        this.assert_list_value(args,"subnargs","[\"ww\"]");
+        return;
 	}
 }
