@@ -722,4 +722,32 @@ public class ParserTest {
         return;
     }
 
+    @Test
+    public void test_A017() throws Exception {
+    	String commandline="{\n"
+            + "    \"+dpkg\" : {\n"
+            + "        \"dpkg\" : \"dpkg\"\n"
+            + "    },\n"
+            + "    \"verbose|v\" : \"+\",\n"
+            + "    \"$port|p\" : {\n"
+            + "        \"value\" : 3000,\n"
+            + "        \"type\" : \"int\",\n"
+            + "        \"nargs\" : 1 , \n"
+            + "        \"helpinfo\" : \"port to connect\"\n"
+            + "    }\n"
+            + "}\n";
+        String[] params = {};
+        String[] needenvs = {"EXTARGSPARSE_JSON",  "EXTARGS_VERBOSE", "EXTARGS_PORT", "DPKG_DPKG"};
+        Parser parser;
+        NameSpaceEx args;
+        this.__unset_environs(needenvs);
+        parser = new Parser();
+        parser.load_command_line_string(commandline);
+        args = parser.parse_command_line(params);
+        this.assert_long_value(args,"verbose",new Long(0));
+        this.assert_long_value(args,"port",new Long(3000));
+        this.assert_string_value(args,"dpkg_dpkg","dpkg");
+        return;
+    }
+
 }
