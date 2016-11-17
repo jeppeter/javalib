@@ -14,6 +14,7 @@ import net.sourceforge.argparse4j.internal.HelpScreenException;
 import com.github.jeppeter.extargsparse4j.NameSpaceEx;
 import com.github.jeppeter.extargsparse4j.Priority;
 import com.github.jeppeter.extargsparse4j.Key;
+import com.github.jeppeter.extargsparse4j.Environ;
 
 import com.github.jeppeter.reext.ReExt;
 import com.github.jeppeter.jsonext.JsonExt;
@@ -787,8 +788,8 @@ public class Parser  {
             assert(curparser != null);
             jsondest = jsondest.replace('-', '_');
             jsondest = jsondest.toUpperCase();
-            jsonfile = System.getenv(jsondest);
-            if (jsonfile != null) {
+            jsonfile = Environ.getenv(jsondest);
+            if (jsonfile != null && jsonfile.length() > 0) {
                 args = this.__load_jsonfile(args, args.getString("subcommand"), jsonfile, curparser);
             }
         }
@@ -797,8 +798,8 @@ public class Parser  {
 
     private NameSpaceEx __parse_env_command_json_set(NameSpaceEx args) throws ParserException, NoSuchFieldException, KeyException, IllegalAccessException,JsonExtNotParsedException,JsonExtNotFoundException,JsonExtInvalidTypeException {
         String jsonfile;
-        jsonfile = System.getenv("EXTARGSPARSE_JSON");
-        if (jsonfile != null) {
+        jsonfile = Environ.getenv("EXTARGSPARSE_JSON");
+        if (jsonfile != null && jsonfile.length() > 0) {
             args = this.__load_jsonfile(args, "", jsonfile, null);
         }
         return args;
@@ -823,8 +824,8 @@ public class Parser  {
                 if (optdest.indexOf('_') < 0) {
                     optdest = String.format("EXTARGS_%s", optdest);
                 }
-                val = System.getenv(optdest);
-                if (val != null) {
+                val = Environ.getenv(optdest);
+                if (val != null && val.length() > 0) {
                     if (keycls.get_string_value("type") == "string") {
                         args.set(oldopt, (Object)val);
                     } else if (keycls.get_string_value("type") == "bool") {
