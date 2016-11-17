@@ -306,4 +306,34 @@ public class ParserTest {
         this.assert_list_value(args,"subnargs","[\"ww\"]");
         return;
 	}
+
+	@Test
+	public void test_A009() throws Exception {
+		String commandline = "{\n"
+            + "    \"verbose|v\" : \"+\",\n"
+            + "    \"$port|p\" : {\n"
+            + "        \"value\" : 3000,\n"
+            + "        \"type\" : \"int\",\n"
+            + "        \"nargs\" : 1 , \n"
+            + "        \"helpinfo\" : \"port to connect\"\n"
+            + "    },\n"
+            + "    \"dep\" : {\n"
+            + "        \"list|l\" : [],\n"
+            + "        \"string|s\" : \"s_var\",\n"
+            + "        \"$\" : \"+\"\n"
+            + "    }\n"
+            + "}\n";
+        Parser parser;
+        NameSpaceEx args;
+        String[] params={"-vvvv","-p","9000","dep","-l","cc","--dep-string","ee","ww"};
+        parser = new Parser();
+        parser.load_command_line_string(commandline);
+        args = parser.parse_command_line(params);
+        this.assert_long_value(args,"verbose",new Long(4));
+        this.assert_long_value(args,"port",new Long(9000));
+        this.assert_list_value(args,"dep_list","[\"cc\"]");
+        this.assert_string_value(args,"dep_string","ee");
+        this.assert_list_value(args,"subnargs","[\"ww\"]");
+        return;
+	}
 }
