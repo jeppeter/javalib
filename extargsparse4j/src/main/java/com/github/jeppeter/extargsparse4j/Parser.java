@@ -845,6 +845,7 @@ public class Parser  {
                         int jidx;
                         jsonext.parseString(jsonstr);
                         jobj = jsonext.getObject("/dummy");
+                        this.m_logger.info(String.format("jobj (%s)",jobj.toString()));
                         if ( jobj instanceof JSONArray) {
                             lobj = new ArrayList<String>();
                             jarr = (JSONArray) jobj;
@@ -1093,6 +1094,7 @@ public class Parser  {
                 meth = this.m_argsettable.get(curprio);
                 //this.m_logger.info(String.format("prior %s meth %s", curprio.toString(), meth.toString()));
                 args = (NameSpaceEx) meth.invoke(this, (Object)args);
+                //this.m_logger.info(String.format("args (%s)",args.toString()));
             }
             args = this.__set_default_value(args);
             args = this.__check_args(args);

@@ -772,7 +772,6 @@ public class ParserTest {
         NameSpaceEx args;
         this.__unset_environs(needenvs);
         parser = new Parser();
-        this.m_logger.info("");
         parser.load_command_line_string(commandline);
         args = parser.parse_command_line(params);
         this.assert_long_value(args,"verbose",new Long(4));
@@ -838,6 +837,41 @@ public class ParserTest {
                 jsonfile = null;
             }
         }
+        return;
+    }
+
+    @Test
+    public void test_A020() throws Exception {
+    	String commandline="{\n"
+            + "    \"verbose|v\" : \"+\",\n"
+            + "    \"rollback|R\" : true,\n"
+            + "    \"$port|P\" : {\n"
+            + "        \"value\" : 3000,\n"
+            + "        \"type\" : \"int\",\n"
+            + "        \"nargs\" : 1 , \n"
+            + "        \"helpinfo\" : \"port to connect\"\n"
+            + "    },\n"
+            + "    \"dep\" : {\n"
+            + "        \"list|l\" : [],\n"
+            + "        \"string|s\" : \"s_var\",\n"
+            + "        \"$\" : \"+\"\n"
+            + "    }\n"
+            + "}\n";
+        String[] params = {"-P","9000","--no-rollback","dep","--dep-string","ee","ww"};
+        String[] needenvs = {"EXTARGSPARSE_JSON",  "EXTARGS_VERBOSE", "EXTARGS_ROLLBACK","EXTARGS_PORT","DEP_LIST","DEP_STRING","DEP_JSON"};
+        Parser parser;
+        NameSpaceEx args;
+        this.__unset_environs(needenvs);
+        parser = new Parser();
+        parser.load_command_line_string(commandline);
+        args = parser.parse_command_line(params);
+        this.assert_long_value(args,"verbose",new Long(0));
+        this.assert_long_value(args,"port",new Long(9000));
+        this.assert_bool_value(args,"rollback",new Boolean(false));
+        this.assert_string_value(args,"subcommand","dep");
+        this.assert_list_value(args,"dep_list","[]");
+        this.assert_string_value(args,"dep_string","ee");
+        this.assert_list_value(args,"subnargs","[\"ww\"]");
         return;
     }
 }
