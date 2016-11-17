@@ -309,10 +309,10 @@ public class Parser  {
             valid = true;
             for (i = 0; i < curparser.m_flags.size(); i ++) {
                 curcls = curparser.m_flags.get(i);
-                if (curcls.get_string_value("flagname") != "$" &&
-                        keycls.get_string_value("flagname") != "$") {
-                    if (curcls.get_string_value("optdest") ==
-                            keycls.get_string_value("optdest")) {
+                if ( curcls.get_bool_value("isflag") &&
+                        !curcls.get_string_value("flagname").equals("$") &&
+                        !keycls.get_string_value("flagname").equals("$")) {
+                    if (curcls.get_string_value("optdest").equals(keycls.get_string_value("optdest"))) {
                         valid = false;
                         break;
                     }
@@ -329,15 +329,15 @@ public class Parser  {
             valid = true;
             for (i = 0; i < this.m_flags.size(); i++) {
                 curcls = this.m_flags.get(i);
-                if (curcls.get_string_value("flagname") != "$" &&
-                        keycls.get_string_value("flagname") != "$") {
-                    if (curcls.get_string_value("optdest") ==
-                            keycls.get_string_value("optdest")) {
+                if ( curcls.get_bool_value("isflag") &&
+                        !curcls.get_string_value("flagname").equals("$") &&
+                        !keycls.get_string_value("flagname").equals("$")) {
+                    if (curcls.get_string_value("optdest").equals(keycls.get_string_value("optdest"))) {
                         valid = false;
                         break;
                     }
-                } else if (curcls.get_string_value("flagname") ==
-                           keycls.get_string_value("flagname")) {
+                } else if ( curcls.get_bool_value("isflag") &&
+                            curcls.get_string_value("flagname").equals(keycls.get_string_value("flagname"))) {
                     valid = false;
                     break;
                 }
@@ -409,7 +409,12 @@ public class Parser  {
         Boolean valid;
         valid = this.__check_flag_insert(keycls, curparser);
         if (!valid) {
-        	return false;
+            return false;
+        }
+        if (curparser != null) {
+            this.m_logger.info(String.format("curparser(%s) keycls(%s)", curparser.toString(), keycls.toString()));
+        } else {
+            this.m_logger.info(String.format("curparser(null) keycls(%s)", keycls.toString()));
         }
         longopt = keycls.get_string_value("longopt");
         shortopt = keycls.get_string_value("shortopt");
@@ -1023,7 +1028,7 @@ public class Parser  {
     }
 
 
-    private NameSpaceEx __check_args(NameSpaceEx args) throws NoSuchFieldException, KeyException, IllegalAccessException,ParserException {
+    private NameSpaceEx __check_args(NameSpaceEx args) throws NoSuchFieldException, KeyException, IllegalAccessException, ParserException {
         int i;
         int j = 0;
         List<Key> flagarray;
@@ -1109,7 +1114,7 @@ public class Parser  {
         try {
             args = this.__parse_command_line_inner(params, ctx);
         } catch (Exception e) {
-        	throw (Exception) e;
+            throw (Exception) e;
             //throw new ParserException(String.format("%s:%s", e.getClass().getName(), e.toString()));
         }
         return args;
