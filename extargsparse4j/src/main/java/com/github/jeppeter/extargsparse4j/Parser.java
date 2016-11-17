@@ -747,9 +747,7 @@ public class Parser  {
 
         /*now we read file and give the jobs*/
         jext = new JsonExt();
-        this.m_logger.info("");
         jext.parseFile(jsonfile);
-        this.m_logger.info("");
         jsonvalue = jext.getObject("/");
         return this.__load_jsonvalue(args, prefix, jsonvalue, flagarray);
     }
@@ -846,13 +844,12 @@ public class Parser  {
                         List<String> lobj;
                         int jidx;
                         jsonext.parseString(jsonstr);
-
                         jobj = jsonext.getObject("/dummy");
                         if ( jobj instanceof JSONArray) {
                             lobj = new ArrayList<String>();
                             jarr = (JSONArray) jobj;
                             for (jidx = 0; jidx < jarr.size(); jidx ++) {
-                                obj = jarr.get(i);
+                                obj = jarr.get(jidx);
                                 if (!(obj instanceof String)) {
                                     throw new ParserException(String.format("%s(%s)[%d] not string object", optdest, (String)val, i));
                                 }
@@ -1094,7 +1091,7 @@ public class Parser  {
             for (i = 0; i < this.m_priorities.length; i++) {
                 curprio = this.m_priorities[i];
                 meth = this.m_argsettable.get(curprio);
-                this.m_logger.info(String.format("prior %s meth %s", curprio.toString(), meth.toString()));
+                //this.m_logger.info(String.format("prior %s meth %s", curprio.toString(), meth.toString()));
                 args = (NameSpaceEx) meth.invoke(this, (Object)args);
             }
             args = this.__set_default_value(args);
