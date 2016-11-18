@@ -1,0 +1,19 @@
+version = '1.0'
+gradle.projectsEvaluated {
+	tasks.withType(JavaCompile) {
+		options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+	}
+}
+
+apply plugin: 'java'
+dependencies {
+	compile group: 'com.github.jeppeter', name: 'reext', version: '1.0'
+    //testCompile 'junit:junit:4.11'
+}
+
+
+
+repositories {
+    mavenCentral()
+}
+
