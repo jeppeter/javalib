@@ -42,6 +42,8 @@ public class Environ {
                 fld = ldcls.getDeclaredField("DEFAULT_OPTIONS");
                 obj = fld.get(ldcls);
                 m_kernel32 = (Kernel32) Native.loadLibrary("kernel32", Kernel32.class, (Map)obj);
+            } else if (osname.startsWith("mac os x")) {
+                m_libc = (LibC) Native.loadLibrary("System.B",LibC.class);
             } else {
                 System.err.println(String.format("%s not supported", osname));
                 System.exit(3);
