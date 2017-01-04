@@ -2,6 +2,9 @@ package com.github.jeppeter.cipher;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
+import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.SecretKey;
+
 import sun.misc.BASE64Decoder; 
 import sun.misc.BASE64Encoder; 
 import com.github.jeppeter.extargsparse4j.Parser;
@@ -24,7 +27,14 @@ public class Cipher {
 	}
 
 	static Byte[] encrypt_cipher(NameSpaceEx ns) throws Exception {
-		Byte[] bytes;
+		byte[] bytes;
+		byte[] encodekey;
+		Object val;
+		SecretKeySpec keyspec;
+		val = ns.getObject("key");
+		if (val == null) {
+			keyspec = new SecretKeySpec()
+		}
 
 		return bytes;
 	}
