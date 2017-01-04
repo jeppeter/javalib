@@ -1,19 +1,18 @@
 
-import java.util.Base64;
+import sun.misc.BASE64Encoder;
+import sun.misc.BASE64Decoder;
 
 public class base64code {
 
 	static String encode(String input) {
-		Base64.Encoder encoder;
+		BASE64Encoder encoder = new BASE64Encoder();
 		byte[] b = input.getBytes();
-		encoder = Base64.getEncoder();
-		return encoder.encodeToString(b);
+		return encoder.encode(b);
 	}
 
-	static byte[] decode(String input) {
-		Base64.Decoder decoder;
-		decoder = Base64.getDecoder();
-		return decoder.decode(input);
+	static byte[] decode(String input) throws Exception {
+		BASE64Decoder decoder = new BASE64Decoder();
+		return decoder.decodeBuffer(input);
 	}
 
 	static String format(byte[] bytes) {
@@ -29,7 +28,7 @@ public class base64code {
 		return retstr;
 	}
 
-	static public void main(String[] args) {
+	static public void main(String[] args) throws Exception {
 		int i;
 		byte[] bytes;
 		String fmtstr;
