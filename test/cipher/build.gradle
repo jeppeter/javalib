@@ -1,0 +1,9 @@
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile group: 'com.github.jeppeter', name: 'extargsparse4j', version: '1.0'
+	compile group: 'org.apache.logging.log4j', name: 'log4j-api',version: '2.7'
+	compile group: 'org.apache.logging.log4j', name: 'log4j-core',version: '2.7'
+}
