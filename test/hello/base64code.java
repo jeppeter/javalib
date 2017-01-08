@@ -9,6 +9,10 @@ public class base64code {
 		return Base64.getEncoder().encodeToString(b);
 	}
 
+	static String encode(byte[] inputbytes) {
+		return Base64.getEncoder().encodeToString(inputbytes);
+	}
+
 	static String decode(String input) throws Exception {
 		return new String(Base64.getDecoder().decode(input),"UTF-8");
 	}
@@ -41,6 +45,14 @@ public class base64code {
 					fmtstr = decode(args[i]);
 					System.out.printf("%s => %s\n",args[i],fmtstr);
 				}
+			}  else if (args[0].equals("encodebyte")) {
+				bytes = new byte[args.length-1];
+				int num;
+				for (i=1;i<args.length;i++) {
+					num = Integer.parseInt(args[i]);
+					bytes[i-1] = (byte)num;
+				}
+				System.out.printf("%s => %s\n",format(bytes),encode(bytes));
 			} else {
 				System.err.printf("%s not supported\n",args[0]);
 			}
