@@ -3,6 +3,14 @@ repositories {
 	mavenCentral()
 }
 
+allprojects {
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:unchecked"
+        }
+    }
+}
+
 dependencies {
 	compile group: 'com.github.jeppeter', name: 'extargsparse4j', version: '1.0'
 	compile group: 'org.apache.logging.log4j', name: 'log4j-api',version: '2.7'
