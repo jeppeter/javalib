@@ -16,3 +16,12 @@ dependencies {
 	compile group: 'org.apache.logging.log4j', name: 'log4j-api',version: '2.7'
 	compile group: 'org.apache.logging.log4j', name: 'log4j-core',version: '2.7'
 }
+
+task run(type: JavaExec, dependsOn: classes) {
+	if (project.hasProperty("myargs")) {
+		args(myargs.split(","))
+	}
+	description="run program"
+	main = "com.github.jeppeter.cipher.CipherApp"
+	classpath = sourceSets.main.runtimeClasspath
+}

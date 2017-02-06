@@ -155,7 +155,7 @@ public class CipherApp {
 		commandline += String.format("{\n");
 		commandline += String.format("\"verbose\" : \"+\",\n");
 		commandline += String.format("\"algorithm|A##algorithm for encrypt or decrypt (AES|DES|DES3) default(AES)##\" : \"AES\",\n");
-		commandline += String.format("\"format|F##format for encrypt or decrypt (AES/CFB/NoPadding|AES/ECB/NoPadding) default(AES/CFB/NoPadding)##\" : \"AES/CFB/NoPadding\",\n");
+		commandline += String.format("\"format|f##format for encrypt or decrypt (AES/CFB/NoPadding|AES/ECB/NoPadding) default(AES/CFB/NoPadding)##\" : \"AES/CFB/NoPadding\",\n");
 		commandline += String.format("\"key|k##to get key in##\" : null,\n");
 		commandline += String.format("\"initval|i##to set init value##\": null,\n");
 		commandline += String.format("\"encrypt\" : { \"$\" : \"+\"},\n");
