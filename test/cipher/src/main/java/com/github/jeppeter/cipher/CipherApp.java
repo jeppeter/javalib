@@ -4,6 +4,9 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.spec.SecretKeySpec;
 import javax.crypto.SecretKey;
+import java.security.SecureRandom;
+import javax.crypto.spec.IvParameterSpec;
+import java.util.List;
 
 import java.util.Base64;
 
@@ -36,7 +39,7 @@ public class CipherApp {
 	}
 
 	static byte[] encrypt(Cipher enc,byte[] inputbytes) {
-		return enc.update(inpubytes,0,inputbytes.length);
+		return enc.update(inputbytes,0,inputbytes.length);
 	}
 
 	static byte[] decrypt(Cipher dec,byte[] inputbytes) {
@@ -50,7 +53,7 @@ public class CipherApp {
 		throw new Exception(String.format("unkown algo (%s)",algo));
 	}
 
-	static String get_random_bytes(String algo) {
+	static String get_random_bytes(String algo) throws Exception {
 		int bytenum;
 		byte[] iv;
 		SecureRandom random = new SecureRandom();
@@ -60,7 +63,7 @@ public class CipherApp {
 		return encode_base64(iv);
 	}
 
-	static Cipher get_cipher(String algo,String fmt,String inputkey,String initval,int mode) {
+	static Cipher get_cipher(String algo,String fmt,String inputkey,String initval,int mode) throws Exception {
 		Cipher retcipher = Cipher.getInstance(fmt);
 		SecretKey seckey = null;
 		byte[] inputcode;
@@ -69,26 +72,26 @@ public class CipherApp {
 		if (inputkey != null && initval != null) {
 			inputcode = decode_base64(inputkey);
 			seckey = new SecretKeySpec(inputcode,0,inputcode.length,algo);
-			cipher.init(mode,seckey,new IvParameterSpec(decode_base64(initval)));
+			retcipher.init(mode,seckey,new IvParameterSpec(decode_base64(initval)));
 		} else if (initval != null) {
 			seckey = KeyGenerator.getInstance(algo).generateKey();
 			System.err.printf("seckey [%s]\n",Base64.getEncoder().encodeToString(seckey.getEncoded()));
-			cipher.init(mode,seckey,new IvParameterSpec(decode_base64(initval)));
+			retcipher.init(mode,seckey,new IvParameterSpec(decode_base64(initval)));
 		} else {
 			seckey = KeyGenerator.getInstance(algo).generateKey();
 			setval = get_random_bytes(algo);
 			System.err.printf("seckey [%s]\n",Base64.getEncoder().encodeToString(seckey.getEncoded()));
 			System.err.printf("initval [%s]\n",setval);
-			cipher.init(mode,seckey,new IvParameterSpec(decode_base64(setval)));
+			retcipher.init(mode,seckey,new IvParameterSpec(decode_base64(setval)));
 		}
-		return cipher;
+		return retcipher;
 	}
 
-	static Cipher get_enccipher(String algorithm,String fmt,String inputkey,String initval) {
-		return get_cipher(algorightm,fmt,inputkey,initval,Cipher.ENCRYPT_MODE);
+	static Cipher get_enccipher(String algorithm,String fmt,String inputkey,String initval) throws Exception {
+		return get_cipher(algorithm,fmt,inputkey,initval,Cipher.ENCRYPT_MODE);
 	}
 
-	static Cipher get_deccipher(String algorithm,String fmt,String inputkey,String initval) {
+	static Cipher get_deccipher(String algorithm,String fmt,String inputkey,String initval) throws Exception {
 		return get_cipher(algorithm,fmt,inputkey,initval,Cipher.DECRYPT_MODE);
 	}
 
@@ -97,6 +100,7 @@ public class CipherApp {
 		String encstr;
 		byte[] encbytes;
 		byte[] decbytes;
+		int i;
 		List<String> subnargs;
 		if (ns.getString("algorithm") == null) {
 			throw new Exception(String.format("no algorithm specified"));
@@ -105,21 +109,22 @@ public class CipherApp {
 			throw new Exception(String.format("no format specified"));
 		}
 		enc = get_enccipher(ns.getString("algorithm"),ns.getString("format"),ns.getString("key"),ns.getString("initval"));
-		subnargs = (List<String>) ns.getObject("subnargs");
+		subnargs = (List<String>) ns.get("subnargs");
 		for(i=0;i<subnargs.size();i++) {
 			decbytes = decode_base64(((String)subnargs.get(i)));
-			encbytes = encrypte(enc,decbytes);
+			encbytes = encrypt(enc,decbytes);
 			encstr = encode_base64(encbytes);
 			System.out.printf("[%s] encrypt [%s]\n",(String)subnargs.get(i),encstr);
 		}
 		return 0;
 	}
 
-	public static int decrypt_handler(NameSpaceEx ns,Object parser) {
+	public static int decrypt_handler(NameSpaceEx ns,Object parser) throws Exception {
 		Cipher dec;
 		String decstr;
 		byte[] encbytes;
 		byte[] decbytes;
+		int i;
 		List<String> subnargs;
 		if (ns.getString("algorithm") == null) {
 			throw new Exception(String.format("no algorithm specified"));
@@ -127,11 +132,11 @@ public class CipherApp {
 		if (ns.getString("format") == null) {
 			throw new Exception(String.format("no format specified"));
 		}
-		enc = get_deccipher(ns.getString("algorithm"),ns.getString("format"),ns.getString("key"),ns.getString("initval"));
-		subnargs = (List<String>) ns.getObject("subnargs");
+		dec = get_deccipher(ns.getString("algorithm"),ns.getString("format"),ns.getString("key"),ns.getString("initval"));
+		subnargs = (List<String>) ns.get("subnargs");
 		for(i=0;i<subnargs.size();i++) {
 			encbytes = decode_base64(((String)subnargs.get(i)));
-			decbytes = decrypt(enc,encbytes);
+			decbytes = decrypt(dec,encbytes);
 			decstr = encode_base64(decbytes);
 			System.out.printf("[%s] decrypt [%s]\n",(String)subnargs.get(i),decstr);
 		}
@@ -156,7 +161,7 @@ public class CipherApp {
 		commandline += String.format("}\n");
 		parser.load_command_line_string(commandline);
 		ns = parser.parse_command_line(args,null);
-		subcommand = (String) ns.getObject("subcommand");
+		subcommand = (String) ns.get("subcommand");
 		if (subcommand.equals("encrypt")) {
 			encrypt_handler(ns,parser);
 		} else if (subcommand.equals("decrypt")) {
