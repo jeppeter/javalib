@@ -40,6 +40,7 @@ public class seckey {
 	}
 
 	public static void main(String[] args) throws Exception {
+		int i;
 		if (args.length < 1) {
 			seckey.Usage(3,"must specify command");
 		}
@@ -47,7 +48,9 @@ public class seckey {
 			if (args.length < 2) {
 				seckey.Usage(3,"[seckey]    [basecode]");
 			}
-			seckey.seckey_get(args[1]);
+			for (i=1;i<args.length;i++){
+				seckey.seckey_get(args[i]);
+			}
 		} else if (args[0].equals("keygen")) {
 			seckey.keygen();			
 		} else {
